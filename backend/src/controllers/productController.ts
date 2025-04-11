@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ProductModel from "../models/ProductModel";
 import { MongooseError } from "mongoose";
+import VendorProductModel from "../models/VendorProductModel";
 
 export async function index(req: Request, res: Response) {
   const products = await ProductModel.find();
@@ -40,4 +41,62 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
     res.status(500).send({ message: "Internal server error" });
     return;
   }
+}
+
+export async function getProduct(req: Request, res: Response) {
+  const productId = req.params.id;
+  const product = await ProductModel.findOne({
+    _id: productId,
+  });
+  if (!product) {
+    res.status(404).send({ message: "Product not found" });
+    return;
+  }
+  res.status(200).send({
+    _id: product._id,
+    name: product.name,
+  });
+}
+
+export async function updateProduct(req: Request, res: Response) {
+  const productId = req.params.id;
+  const { name } = req.body;
+
+  const product = await ProductModel.findOne({
+    _id: productId,
+  });
+  if (!name) {
+    res.status(404).send({ message: "Name is not provided!" });
+  }
+  if (!product) {
+    res.status(404).send({ message: "Product not found" });
+    return;
+  }
+  // Update the product
+  const updatedProduct = await ProductModel.findByIdAndUpdate(
+    product,
+    { $set: { name } },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).send({
+    message: "Product updated successfully",
+    product: updatedProduct,
+  });
+}
+export async function deleteProduct(req: Request, res: Response) {
+  const productId = req.params.id;
+  const product = await ProductModel.findOne({
+    _id: productId,
+  });
+  if (!product) {
+    res.status(404).send({ message: "Product not found" });
+    return;
+  }
+  await ProductModel.deleteOne({ _id: productId });
+  await VendorProductModel.deleteMany({ product: productId });
+
+  res.status(204).send({
+    message: "Product deleted successfully",
+  });
 }
