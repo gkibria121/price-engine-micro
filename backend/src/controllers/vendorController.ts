@@ -37,7 +37,31 @@ export async function deleteVendor(req: Request, res: Response) {
   await VendorModel.findByIdAndDelete(id);
   res.status(204).send({ message: "Vendor not found!" });
 }
+export async function updateVendor(req: Request, res: Response) {
+  const { id } = req.params as { id: string };
 
+  const { name, email, address, rating } = req.body;
+
+  if (!name || !email || !address) {
+    res.status(442).send({ message: "Missing fields" });
+    return;
+  }
+
+  const vendor = await VendorModel.findById(id);
+
+  if (!vendor) {
+    res.status(404).send({ message: "Vendor not found!" });
+    return;
+  }
+  // Delete vendor and related products
+  await VendorProductModel.findOneAndUpdate(
+    { _id: id },
+    { $set: { name, email, address, rating } },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).send({ message: "Vendor updated!" });
+}
 export async function bulkInsertOrUpdate(req: Request, res: Response) {
   const { vendors } = req.body;
 
