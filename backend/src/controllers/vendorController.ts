@@ -1,29 +1,69 @@
-import { Request } from "express-validator/lib/base";
+import { Request, Response } from "express";
 import VendorModel from "../models/VendorModel";
-import { Response } from "express";
 import VendorProductModel from "../models/VendorProductModel";
 
+// GET /vendors
 export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
-  res.status(200).send({
-    vendors,
-  });
+  res.status(200).send({ vendors });
 }
 
+// POST /vendors/store
 export async function createVendor(req: Request, res: Response) {
   const { name, email, address, rating } = req.body;
-  const existingVendor = await VendorModel.findOne({ email });
+
   if (!name || !email || !address) {
-    res.status(442).send({ message: "Missing fields" });
+    res.status(422).send({ message: "Missing fields" });
     return;
   }
+
+  const existingVendor = await VendorModel.findOne({ email });
   if (existingVendor) {
-    res.status(442).send({ email: "Email already taken" });
+    res.status(422).send({ email: "Email already taken" });
     return;
   }
+
   const newVendor = await VendorModel.create({ name, email, address, rating });
   res.status(201).send({ vendor: newVendor });
 }
+
+// PUT/PATCH /vendors/:id
+export async function updateVendor(req: Request, res: Response) {
+  const { id } = req.params as { id: string };
+  const { name, email, address, rating } = req.body;
+
+  const vendor = await VendorModel.findById(id);
+  if (!vendor) {
+    res.status(404).send({ message: "Vendor not found!" });
+    return;
+  }
+  if (!name || !email || !address) {
+    res.status(422).send({ message: "Missing fields" });
+    return;
+  }
+
+  const existingVendorWithEmail = await VendorModel.findOne({
+    email,
+    _id: { $ne: id },
+  });
+  if (existingVendorWithEmail) {
+    res.status(422).send({ email: "Email already taken" });
+    return;
+  }
+  try {
+    await VendorModel.findByIdAndUpdate(
+      id,
+      { name, email, address, rating },
+      { new: true, runValidators: true }
+    );
+    res.status(200).send({ message: "Vendor updated!" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ message: "Something went wrong!" });
+  }
+}
+
+// DELETE /vendors/:id
 export async function deleteVendor(req: Request, res: Response) {
   const { id } = req.params as { id: string };
 
@@ -32,53 +72,34 @@ export async function deleteVendor(req: Request, res: Response) {
     res.status(404).send({ message: "Vendor not found!" });
     return;
   }
-  // Delete vendor and related products
+
   await VendorProductModel.deleteMany({ vendorId: id });
   await VendorModel.findByIdAndDelete(id);
-  res.status(204).send({ message: "Vendor not found!" });
+
+  res.status(200).send({ message: "Vendor deleted successfully" });
 }
-export async function updateVendor(req: Request, res: Response) {
-  const { id } = req.params as { id: string };
 
-  const { name, email, address, rating } = req.body;
-
-  if (!name || !email || !address) {
-    res.status(442).send({ message: "Missing fields" });
-    return;
-  }
-
-  const vendor = await VendorModel.findById(id);
-
-  if (!vendor) {
-    res.status(404).send({ message: "Vendor not found!" });
-    return;
-  }
-  // Delete vendor and related products
-  await VendorProductModel.findOneAndUpdate(
-    { _id: id },
-    { $set: { name, email, address, rating } },
-    { new: true, runValidators: true }
-  );
-
-  res.status(200).send({ message: "Vendor updated!" });
-}
+// POST /vendors/bulk-upload
 export async function bulkInsertOrUpdate(req: Request, res: Response) {
   const { vendors } = req.body;
 
   if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
-    res.status(442).send({ message: "Missing or invalid vendor data" });
+    res.status(422).send({ message: "Missing or invalid vendor data" });
     return;
   }
-  // Check for duplicate emails in the database
+
   const existingEmails = await VendorModel.find({
     email: { $in: vendors.map((v) => v.email) },
   }).distinct("email");
+
   if (existingEmails.length > 0) {
-    res.status(442).send({ message: "Some emails are already taken" });
+    res.status(422).send({
+      message: "Some emails are already taken",
+      existingEmails,
+    });
     return;
   }
-  // Save multiple vendors
-  const savedVendors = await VendorModel.insertMany(vendors);
 
+  const savedVendors = await VendorModel.insertMany(vendors);
   res.status(201).send({ message: "Vendors created", vendors: savedVendors });
 }
