@@ -13,31 +13,57 @@ export async function index(req: Request, res: Response) {
 export async function createProduct(req: Request, res: Response) {
   const { name } = req.body;
   if (!name) {
-    res.status(442).send({ message: "Name is required" });
+    res.status(422).send({ message: "Name is required" });
+    return;
+  }
+  const existingProduct = await ProductModel.findOne({ name: name });
+  if (existingProduct) {
+    res.status(422).send({ message: "Product already exists." });
     return;
   }
   const newProduct = await ProductModel.create({ name });
   res.status(201).send({ product: newProduct });
 }
 
-export async function bulkInsertOrUpdate(req: Request, res: Response) {
+export async function bulkInsert(req: Request, res: Response) {
   const { products } = req.body;
+
   // Validate input
   if (!Array.isArray(products) || products.length === 0) {
-    res.status(442).send({ message: "Missing or invalid fields" });
+    res.status(422).send({ message: "Missing or invalid fields" });
     return;
   }
-  // Insert products in bulk
+  // 🔍 Check for duplicate names in request body
+  const names = products.map((p) => p.name);
+  const hasDuplicates = new Set(names).size !== names.length;
+
+  if (hasDuplicates) {
+    res
+      .status(422)
+      .send({ message: "Duplicate product names in request body" });
+    return;
+  }
   try {
-    const newProducts = await ProductModel.insertMany(products);
-    res.status(201).send({
-      message: "Products added or updated successfully",
-      products: newProducts,
+    const insertedProducts = await ProductModel.insertMany(products, {
+      ordered: false, // continue on duplicate key error
     });
-  } catch (error) {
+
+    res.status(201).send({
+      message: "Products added successfully (duplicates skipped)",
+      products: insertedProducts,
+    });
+  } catch (error: any) {
     console.error("❌ Error:", error);
-    if (error instanceof MongooseError)
-      res.status(442).send({ message: "Validation failed" });
+
+    if (error.name === "BulkWriteError" && error.code === 11000) {
+      // Some duplicates occurred, but others were inserted
+      res.status(201).send({
+        message: "Some products were skipped due to duplicates",
+        products: error.insertedDocs || [],
+        error: error.message,
+      });
+      return;
+    }
     res.status(500).send({ message: "Internal server error" });
     return;
   }
@@ -53,25 +79,27 @@ export async function getProduct(req: Request, res: Response) {
     return;
   }
   res.status(200).send({
-    _id: product._id,
+    id: product._id,
     name: product.name,
   });
 }
 
 export async function updateProduct(req: Request, res: Response) {
   const productId = req.params.id;
-  const { name } = req.body;
 
   const product = await ProductModel.findOne({
     _id: productId,
   });
-  if (!name) {
-    res.status(404).send({ message: "Name is not provided!" });
-  }
   if (!product) {
     res.status(404).send({ message: "Product not found" });
     return;
   }
+  const { name } = req.body;
+  if (!name) {
+    res.status(422).send({ message: "Name is not provided!" });
+    return;
+  }
+
   // Update the product
   const updatedProduct = await ProductModel.findByIdAndUpdate(
     product,
@@ -79,9 +107,9 @@ export async function updateProduct(req: Request, res: Response) {
     { new: true, runValidators: true }
   );
 
-  res.status(200).send({
+  res.status(203).send({
     message: "Product updated successfully",
-    product: updatedProduct,
+    product: updatedProduct.toJSON(),
   });
 }
 export async function deleteProduct(req: Request, res: Response) {
