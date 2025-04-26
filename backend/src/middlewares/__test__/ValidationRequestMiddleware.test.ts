@@ -29,8 +29,8 @@ describe("validateRequest middleware", () => {
     const next = jest.fn();
 
     const errorsArray = [
-      { param: "email", msg: "Email is required" },
-      { param: "name", msg: "Name is required" },
+      { type: "field", path: "email", msg: "Email is required" },
+      { type: "field", path: "name", msg: "Name is required" },
     ];
 
     (validationResult as unknown as jest.Mock).mockReturnValue({
@@ -45,6 +45,7 @@ describe("validateRequest middleware", () => {
     const error = next.mock.calls[0][0];
     expect(error).toBeInstanceOf(ValidationException);
     expect(error.message).toBe("The given data was invalid.");
+
     expect(error.errors).toEqual({
       email: ["Email is required"],
       name: ["Name is required"],

@@ -1,6 +1,6 @@
 // middleware/validateRequest.ts
 import { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
+import { FieldValidationError, validationResult } from "express-validator";
 import { ValidationException } from "../Exceptions/ValidationException";
 import { formatValidationErrors } from "../utils/formatValidationErrors";
 

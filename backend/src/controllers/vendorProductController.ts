@@ -6,6 +6,8 @@ import ProductModel from "../models/ProductModel";
 import DeliverySlotModel from "../models/DeliverySlotModel";
 import QuantityPricingModel from "../models/QuantityPricingModel";
 import PricingRuleModel from "../models/PricingRuleModel";
+import { NotFoundException } from "../Exceptions/NotFoundException";
+import { CustomValidationException } from "../Exceptions/CustomValidationException";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -29,9 +31,7 @@ export async function getVendorProduct(req: Request, res: Response) {
     "quantityPricings",
   ]);
   if (!vendorProduct) {
-    res.status(404).send({ message: "Product not found" });
-
-    return;
+    throw new NotFoundException("Product not found!");
   }
   res.status(200).send({
     vendorProduct,
@@ -39,30 +39,24 @@ export async function getVendorProduct(req: Request, res: Response) {
 }
 
 export async function createVendorProduct(req: Request, res: Response) {
-  const { vendorId, productId, pricingRules, deliverySlots, quantityPricing } =
+  const { vendorId, productId, pricingRules, deliverySlots, quantityPricings } =
     req.body;
-  if (!vendorId) {
-    res.status(442).send({ message: "Missing vendor id" });
-    return;
-  }
   const existingVendorProduct = await VendorProductModel.findOne({
     product: productId,
     vendor: vendorId,
   });
   if (existingVendorProduct) {
-    res.status(442).send({ message: "Vendor Product already exists" });
-    return;
+    throw new CustomValidationException("Vendor Product already exists");
   }
   const vendor = await VendorModel.findById(vendorId);
   if (!vendor) {
-    res.status(404).send({ message: "Vendor not found" });
-    return;
+    throw new NotFoundException("Vendor not found");
   }
   const product = await ProductModel.findOne({ _id: productId });
   const newPricingRules = await PricingRuleModel.insertMany(pricingRules);
   const newDeliverySlots = await DeliverySlotModel.insertMany(deliverySlots);
   const newQuantityPricing = await QuantityPricingModel.insertMany(
-    quantityPricing
+    quantityPricings
   );
   const newAssociation = new VendorProductModel({
     vendor,
@@ -72,7 +66,19 @@ export async function createVendorProduct(req: Request, res: Response) {
     quantityPricing: newQuantityPricing,
   });
   await newAssociation.save();
-  res.status(201).send({ product, association: newAssociation });
+  // Now populate everything properly
+  const populatedAssociation = await VendorProductModel.findById(
+    newAssociation._id
+  ).populate([
+    "vendor",
+    "product",
+    "pricingRules",
+    "deliverySlots",
+    "quantityPricings",
+  ]);
+  res
+    .status(201)
+    .send({ product, association: populatedAssociation?.toJSON() });
 }
 export async function deleteVendorProduct(req: Request, res: Response) {
   const { id } = req.params as { id: string };
@@ -83,8 +89,7 @@ export async function deleteVendorProduct(req: Request, res: Response) {
     "quantityPricings",
   ]);
   if (!vendorProduct) {
-    res.status(404).send({ message: "Vendor Product not found!" });
-    return;
+    throw new NotFoundException("Vendor Product not found!");
   } // Collect all related IDs to delete
   const pricingRuleIds = vendorProduct.pricingRules;
   const deliverySlotIds = vendorProduct.deliverySlots;
@@ -110,8 +115,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
   // Validate product exists
   const vendorProduct = await VendorProductModel.findById(vendorProductId);
   if (!vendorProduct) {
-    res.status(404).send({ message: "Vendor Product not found!" });
-    return;
+    throw new NotFoundException("Vendor Product not found!");
   }
 
   // Remove previous values
@@ -159,16 +163,14 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
   const { vendors } = req.body;
 
   if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
-    res.status(442).send({ message: "Missing or invalid vendor data" });
-    return;
+    throw new CustomValidationException("Missing or invalid vendor data");
   }
   // Check for duplicate emails in the database
   const existingEmails = await VendorModel.find({
     email: { $in: vendors.map((v) => v.email) },
   }).distinct("email");
   if (existingEmails.length > 0) {
-    res.status(442).send({ message: "Some emails are already taken" });
-    return;
+    throw new CustomValidationException("Some emails are already taken");
   }
   // Save multiple vendors
   const savedVendors = await VendorModel.insertMany(vendors);

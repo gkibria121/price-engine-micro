@@ -1,5 +1,5 @@
 // utils/formatValidationErrors.ts
-import { ValidationError } from "express-validator";
+import { ValidationError, FieldValidationError } from "express-validator";
 
 type FieldError = {
   param: string;
@@ -7,22 +7,24 @@ type FieldError = {
 };
 
 function isFieldError(error: any): error is FieldError {
-  return typeof error.param === "string" && typeof error.msg === "string";
+  return (
+    (error as FieldValidationError).type !== "field" &&
+    typeof error.msg === "string"
+  );
 }
 
 export function formatValidationErrors(errors: ValidationError[]) {
   const formatted: Record<string, string[]> = {};
-
   errors.forEach((error) => {
-    if (!isFieldError(error)) return;
+    const fieldError = error as FieldValidationError;
+    if (fieldError.type !== "field") return;
 
-    if (!formatted[error.param]) {
-      formatted[error.param] = [];
+    if (!formatted[fieldError.path]) {
+      formatted[fieldError.path] = [];
     }
 
-    formatted[error.param].push(error.msg);
+    formatted[fieldError.path].push(fieldError.msg);
   });
-
   return {
     message: "The given data was invalid.",
     errors: formatted,

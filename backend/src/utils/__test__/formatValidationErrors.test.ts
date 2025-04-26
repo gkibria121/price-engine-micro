@@ -1,9 +1,10 @@
-// utils/__tests__/formatValidationErrors.test.ts
 import { formatValidationErrors } from "../formatValidationErrors";
 
 describe("formatValidationErrors", () => {
   it("should format a single validation error correctly", () => {
-    const errors = [{ param: "email", msg: "Email is required" }] as any;
+    const errors = [
+      { type: "field", path: "email", msg: "Email is required" },
+    ] as any;
 
     const result = formatValidationErrors(errors);
 
@@ -17,8 +18,8 @@ describe("formatValidationErrors", () => {
 
   it("should format multiple errors for different fields", () => {
     const errors = [
-      { param: "name", msg: "Name is required" },
-      { param: "email", msg: "Email is invalid" },
+      { type: "field", path: "name", msg: "Name is required" },
+      { type: "field", path: "email", msg: "Email is invalid" },
     ] as any;
 
     const result = formatValidationErrors(errors);
@@ -34,8 +35,8 @@ describe("formatValidationErrors", () => {
 
   it("should format multiple errors for the same field", () => {
     const errors = [
-      { param: "email", msg: "Email is required" },
-      { param: "email", msg: "Email must be valid" },
+      { type: "field", path: "email", msg: "Email is required" },
+      { type: "field", path: "email", msg: "Email must be valid" },
     ] as any;
 
     const result = formatValidationErrors(errors);
@@ -48,10 +49,10 @@ describe("formatValidationErrors", () => {
     });
   });
 
-  it("should ignore errors without param or msg", () => {
+  it("should ignore non-field errors", () => {
     const errors = [
-      { foo: "bar" },
-      { param: "email", msg: "Email is required" },
+      { type: "unknown", path: "email", msg: "Should not include" },
+      { type: "field", path: "email", msg: "Email is required" },
     ] as any;
 
     const result = formatValidationErrors(errors);
@@ -61,6 +62,19 @@ describe("formatValidationErrors", () => {
       errors: {
         email: ["Email is required"],
       },
+    });
+  });
+
+  it("should return empty errors if no field errors are present", () => {
+    const errors = [
+      { type: "unknown", path: "something", msg: "Error message" },
+    ] as any;
+
+    const result = formatValidationErrors(errors);
+
+    expect(result).toEqual({
+      message: "The given data was invalid.",
+      errors: {},
     });
   });
 });
