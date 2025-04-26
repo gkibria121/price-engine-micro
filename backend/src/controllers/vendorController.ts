@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import VendorModel from "../models/VendorModel";
 import VendorProductModel from "../models/VendorProductModel";
-
+import { NotFoundException } from "../Exceptions/NotFoundException";
+import "express-async-errors";
 // GET /vendors
 export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
@@ -29,8 +30,7 @@ export async function updateVendor(req: Request, res: Response) {
 
   const vendor = await VendorModel.findById(id);
   if (!vendor) {
-    res.status(404).send({ message: "Vendor not found!" });
-    return;
+    throw new NotFoundException("Vendor not found!");
   }
   const existingVendorWithEmail = await VendorModel.findOne({
     email,
@@ -59,8 +59,7 @@ export async function deleteVendor(req: Request, res: Response) {
 
   const vendor = await VendorModel.findById(id);
   if (!vendor) {
-    res.status(404).send({ message: "Vendor not found!" });
-    return;
+    throw new NotFoundException("Vendor not found!");
   }
 
   await VendorProductModel.deleteMany({ vendorId: id });

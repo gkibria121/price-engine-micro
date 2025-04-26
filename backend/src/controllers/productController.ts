@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import ProductModel from "../models/ProductModel";
-import { MongooseError } from "mongoose";
 import VendorProductModel from "../models/VendorProductModel";
-
+import { NotFoundException } from "../Exceptions/NotFoundException";
+import "express-async-errors";
 export async function index(req: Request, res: Response) {
   const products = await ProductModel.find();
   res.status(200).send({
@@ -72,8 +72,7 @@ export async function getProduct(req: Request, res: Response) {
     _id: productId,
   });
   if (!product) {
-    res.status(404).send({ message: "Product not found" });
-    return;
+    throw new NotFoundException("Product not found");
   }
   res.status(200).send({
     id: product._id,
@@ -88,8 +87,7 @@ export async function updateProduct(req: Request, res: Response) {
     _id: productId,
   });
   if (!product) {
-    res.status(404).send({ message: "Product not found" });
-    return;
+    throw new NotFoundException("Product not found");
   }
   const { name } = req.body;
 
@@ -111,8 +109,7 @@ export async function deleteProduct(req: Request, res: Response) {
     _id: productId,
   });
   if (!product) {
-    res.status(404).send({ message: "Product not found" });
-    return;
+    throw new NotFoundException("Product not found");
   }
   await ProductModel.deleteOne({ _id: productId });
   await VendorProductModel.deleteMany({ product: productId });

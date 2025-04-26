@@ -4,6 +4,7 @@ import vendor from "./routes/vendorRoute";
 import vendorProduct from "./routes/vendorProductRotue";
 import { validateRequest } from "./middlewares/ValidateRequestMiddleware";
 import { errorHandler } from "./middlewares/ErrorHandlerMiddleware";
+import "express-async-errors";
 const app = express();
 
 app.use(express.json());
