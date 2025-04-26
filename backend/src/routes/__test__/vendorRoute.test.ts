@@ -3,6 +3,7 @@ import app from "../../app";
 import VendorModel from "../../models/VendorModel";
 import VendorProductModel from "../../models/VendorProductModel";
 import mongoose from "mongoose";
+import ProductModel from "../../models/ProductModel";
 
 beforeEach(async () => {
   await VendorModel.deleteMany({});
@@ -63,7 +64,7 @@ describe("Test create vendor api", () => {
       email: "test@example.com",
       address: "Street",
     });
-    expect(res.status).toBe(201); // Since rating is optional based on your code
+    expect(res.status).toBe(422); // Since rating is optional based on your code
   });
 
   it("Should return 422 for duplicate vendor email", async () => {
@@ -96,7 +97,8 @@ describe("Test create vendor api", () => {
 
 describe("Test delete vendor api", () => {
   it("Should return 404 if vendor not found", async () => {
-    const res = await request(app).delete("/api/v1/vendors/invalid-id");
+    const id = new mongoose.mongo.ObjectId();
+    const res = await request(app).delete("/api/v1/vendors/" + id);
     expect(res.status).toBe(404);
   });
 
@@ -107,9 +109,12 @@ describe("Test delete vendor api", () => {
       address: "X",
       rating: 3,
     });
+    const product = await ProductModel.create({
+      name: "Del laptop",
+    });
     await VendorProductModel.create({
-      vendorId: vendor._id,
-      name: "Product A",
+      vendor: vendor._id,
+      product: product,
     });
 
     const res = await request(app).delete(`/api/v1/vendors/${vendor._id}`);

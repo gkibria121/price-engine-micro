@@ -12,7 +12,7 @@ export async function index(req: Request, res: Response) {
 export async function createVendor(req: Request, res: Response) {
   const { name, email, address, rating } = req.body;
 
-  if (!name || !email || !address) {
+  if (!name || !email || !address || !rating) {
     res.status(422).send({ message: "Missing fields" });
     return;
   }
