@@ -3,6 +3,7 @@ import ProductModel from "../models/ProductModel";
 import VendorProductModel from "../models/VendorProductModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import "express-async-errors";
+import { CustomValidationException } from "../Exceptions/CustomValidationException";
 export async function index(req: Request, res: Response) {
   const products = await ProductModel.find();
   res.status(200).send({
@@ -15,8 +16,9 @@ export async function createProduct(req: Request, res: Response) {
 
   const existingProduct = await ProductModel.findOne({ name: name });
   if (existingProduct) {
-    res.status(422).send({ message: "Product already exists." });
-    return;
+    throw new CustomValidationException("Product already exists.", {
+      product: ["Product already exists."],
+    });
   }
   const newProduct = await ProductModel.create({ name });
   res.status(201).send({ product: newProduct });
@@ -27,18 +29,21 @@ export async function bulkInsert(req: Request, res: Response) {
 
   // Validate input
   if (!Array.isArray(products) || products.length === 0) {
-    res.status(422).send({ message: "Missing or invalid fields" });
-    return;
+    throw new CustomValidationException("Products must be list of product", {
+      products: ["Products must be list of product."],
+    });
   }
   // 🔍 Check for duplicate names in request body
   const names = products.map((p) => p.name);
   const hasDuplicates = new Set(names).size !== names.length;
 
   if (hasDuplicates) {
-    res
-      .status(422)
-      .send({ message: "Duplicate product names in request body" });
-    return;
+    throw new CustomValidationException(
+      "Duplicate product names in request body.",
+      {
+        products: ["Duplicate product names in request body."],
+      }
+    );
   }
   try {
     const insertedProducts = await ProductModel.insertMany(products, {
@@ -61,8 +66,7 @@ export async function bulkInsert(req: Request, res: Response) {
       });
       return;
     }
-    res.status(500).send({ message: "Internal server error" });
-    return;
+    throw new Error(error);
   }
 }
 

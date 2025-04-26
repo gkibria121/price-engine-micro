@@ -3,6 +3,7 @@ import VendorModel from "../models/VendorModel";
 import VendorProductModel from "../models/VendorProductModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import "express-async-errors";
+import { CustomValidationException } from "../Exceptions/CustomValidationException";
 // GET /vendors
 export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
@@ -15,8 +16,9 @@ export async function createVendor(req: Request, res: Response) {
 
   const existingVendor = await VendorModel.findOne({ email });
   if (existingVendor) {
-    res.status(422).send({ email: "Email already taken" });
-    return;
+    throw new CustomValidationException("Email is already taken", {
+      email: ["Email already taken"],
+    });
   }
 
   const newVendor = await VendorModel.create({ name, email, address, rating });
@@ -37,20 +39,17 @@ export async function updateVendor(req: Request, res: Response) {
     _id: { $ne: id },
   });
   if (existingVendorWithEmail) {
-    res.status(422).send({ email: "Email already taken" });
-    return;
+    throw new CustomValidationException("Email is already taken", {
+      email: ["Email already taken"],
+    });
   }
-  try {
-    await VendorModel.findByIdAndUpdate(
-      id,
-      { name, email, address, rating },
-      { new: true, runValidators: true }
-    );
-    res.status(200).send({ message: "Vendor updated!" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).send({ message: "Something went wrong!" });
-  }
+
+  await VendorModel.findByIdAndUpdate(
+    id,
+    { name, email, address, rating },
+    { new: true, runValidators: true }
+  );
+  res.status(200).send({ message: "Vendor updated!" });
 }
 
 // DELETE /vendors/:id
