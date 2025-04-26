@@ -8,7 +8,12 @@ import QuantityPricingModel from "../models/QuantityPricingModel";
 import PricingRuleModel from "../models/PricingRuleModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
+import { ObjectId } from "mongoose";
 
+type ProductNameWithVendorMail = {
+  product_name: string;
+  vendor_email: string;
+};
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
     "product",
@@ -159,21 +164,146 @@ export async function updateVendorProduct(req: Request, res: Response) {
     vendorProduct: updatedVendorProduct,
   });
 }
+
 export async function bulkInsertOrUpdate(req: Request, res: Response) {
-  const { vendors } = req.body;
+  const { pricingRules, deliverySlots, quantityPricings } = req.body;
 
-  if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
-    throw new CustomValidationException("Missing or invalid vendor data");
+  if (
+    !Array.isArray(pricingRules) ||
+    !Array.isArray(deliverySlots) ||
+    !Array.isArray(quantityPricings)
+  ) {
+    throw new CustomValidationException(
+      "Invalid input. pricingRules, deliverySlots, and quantityPricings must be arrays."
+    );
   }
-  // Check for duplicate emails in the database
-  const existingEmails = await VendorModel.find({
-    email: { $in: vendors.map((v) => v.email) },
-  }).distinct("email");
-  if (existingEmails.length > 0) {
-    throw new CustomValidationException("Some emails are already taken");
-  }
-  // Save multiple vendors
-  const savedVendors = await VendorModel.insertMany(vendors);
 
-  res.status(201).send({ message: "Vendors created", vendors: savedVendors });
+  const combinedData = ([] as any[]).concat(
+    pricingRules,
+    deliverySlots,
+    quantityPricings
+  );
+
+  // Basic validation for required fields inside the arrays
+  for (const item of combinedData) {
+    if (
+      typeof item.product_name !== "string" ||
+      typeof item.vendor_email !== "string"
+    ) {
+      throw new CustomValidationException(
+        "Each item must contain valid product_name and vendor_email as strings."
+      );
+    }
+  }
+
+  const vendorProductIdentifiers = combinedData
+    .map((id: { product_name: string; vendor_email: string }) => ({
+      product_name: id.product_name,
+      vendor_email: id.vendor_email,
+    }))
+    .reduce((acc: { product_name: string; vendor_email: string }[], curr) => {
+      if (
+        !acc.some(
+          (el) =>
+            el.vendor_email === curr.vendor_email &&
+            el.product_name === curr.product_name
+        )
+      ) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+  const results = [] as any[];
+
+  for (const id of vendorProductIdentifiers) {
+    const product = await ProductModel.findOne({ name: id.product_name });
+    const vendor = await VendorModel.findOne({ email: id.vendor_email });
+
+    if (!product) {
+      throw new NotFoundException(
+        `Product not found for name: ${id.product_name}`
+      );
+    }
+
+    if (!vendor) {
+      throw new NotFoundException(
+        `Vendor not found for email: ${id.vendor_email}`
+      );
+    }
+
+    const productPricingRules = pricingRules.filter(
+      (rule) =>
+        rule.product_name === id.product_name &&
+        rule.vendor_email === id.vendor_email
+    );
+
+    const productDeliverySlots = deliverySlots.filter(
+      (slot) =>
+        slot.product_name === id.product_name &&
+        slot.vendor_email === id.vendor_email
+    );
+
+    const productQuantityPricings = quantityPricings.filter(
+      (pricing) =>
+        pricing.product_name === id.product_name &&
+        pricing.vendor_email === id.vendor_email
+    );
+
+    // Validate each rule format
+    for (const rule of productPricingRules) {
+      if (
+        typeof rule.attribute !== "string" ||
+        typeof rule.value !== "string" ||
+        typeof rule.price !== "number"
+      ) {
+        throw new CustomValidationException("Invalid pricing rule format.");
+      }
+    }
+
+    for (const slot of productDeliverySlots) {
+      if (typeof slot.price !== "number" || typeof slot.label !== "string") {
+        throw new CustomValidationException("Invalid delivery slot format.");
+      }
+    }
+
+    for (const pricing of productQuantityPricings) {
+      if (
+        typeof pricing.quantity !== "number" ||
+        typeof pricing.price !== "number"
+      ) {
+        throw new CustomValidationException("Invalid quantity pricing format.");
+      }
+    }
+
+    const pricingRuleIds = await Promise.all(
+      productPricingRules.map((rule) => PricingRuleModel.create(rule))
+    );
+
+    const deliverySlotIds = await Promise.all(
+      productDeliverySlots.map((slot) => DeliverySlotModel.create(slot))
+    );
+
+    const quantityPricingIds = await Promise.all(
+      productQuantityPricings.map((pricing) =>
+        QuantityPricingModel.create(pricing)
+      )
+    );
+
+    const vendorProduct = await VendorProductModel.create({
+      product: product._id,
+      vendor: vendor._id,
+      pricingRules: pricingRuleIds.map((doc) => doc._id),
+      deliverySlots: deliverySlotIds.map((doc) => doc._id),
+      quantityPricings: quantityPricingIds.map((doc) => doc._id),
+    });
+
+    results.push(vendorProduct);
+  }
+
+  res.status(201).json({
+    message: "Bulk insert/update completed successfully.",
+    vendorProducts: results,
+  });
+  return;
 }

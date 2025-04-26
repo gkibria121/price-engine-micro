@@ -207,83 +207,6 @@ describe("Vendor Product Controller", () => {
       expect(res.body.message).toBe("Vendor Product not found!");
     });
   });
-
-  // --- BULK UPLOAD ---
-  describe("Bulk Upload Vendors", () => {
-    it("should bulk insert vendors", async () => {
-      const vendors = [
-        {
-          name: "Vendor A",
-          email: "a@example.com",
-          address: "address 1",
-          rating: 10,
-        },
-        {
-          name: "Vendor B",
-          email: "b@example.com",
-          address: "address 1",
-          rating: 10,
-        },
-      ];
-
-      const res = await request(app)
-        .post("/api/v1/vendor-products/bulk-upload")
-        .send({ vendors });
-
-      expect(res.status).toBe(201);
-      expect(res.body.message).toBe("Vendors created");
-      expect(res.body.vendors.length).toBe(2);
-    });
-
-    it("should reject duplicate vendor emails", async () => {
-      await VendorModel.create({
-        name: "Vendor Exists",
-        email: "exists@example.com",
-        address: "address 1",
-        rating: 10,
-      });
-
-      const res = await request(app)
-        .post("/api/v1/vendor-products/bulk-upload")
-        .send({
-          vendors: [
-            {
-              name: "Vendor Exists",
-              email: "exists@example.com",
-              address: "address 1",
-              rating: 10,
-            },
-          ],
-        });
-
-      expect(res.status).toBe(422);
-      expect(res.body.message).toBe("Some emails are already taken");
-    });
-
-    it("should fail bulk upload with missing vendors array", async () => {
-      const res = await request(app)
-        .post("/api/v1/vendor-products/bulk-upload")
-        .send({});
-      expect(res.status).toBe(422);
-      expect(res.body.message).toBe("Missing or invalid vendor data");
-    });
-
-    it("should fail bulk upload if vendors is not an array", async () => {
-      const res = await request(app)
-        .post("/api/v1/vendor-products/bulk-upload")
-        .send({ vendors: "not-an-array" });
-      expect(res.status).toBe(422);
-      expect(res.body.message).toBe("Missing or invalid vendor data");
-    });
-
-    it("should fail bulk upload if vendors array is empty", async () => {
-      const res = await request(app)
-        .post("/api/v1/vendor-products/bulk-upload")
-        .send({ vendors: [] });
-      expect(res.status).toBe(422);
-      expect(res.body.message).toBe("Missing or invalid vendor data");
-    });
-  });
 });
 
 // --- VALIDATION TESTS SEPARATED ---
@@ -453,5 +376,102 @@ describe("Vendor Product Controller - Validation Errors", () => {
 
     expect(res.status).toBe(422);
     expect(res.body.errors["quantityPricings[0].quantity"]).toBeDefined();
+  });
+});
+describe("Vendor Product Controller - Bulk Insert or Update", () => {
+  it("should bulk insert vendor products with pricing rules, delivery slots, and quantity pricings", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+
+    const bulkData = {
+      pricingRules: [
+        {
+          product_name: product.name,
+          vendor_email: vendor.email,
+          attribute: "Color",
+          value: "Red",
+          price: 100,
+        },
+      ],
+      deliverySlots: [
+        {
+          product_name: product.name,
+          vendor_email: vendor.email,
+          price: 50,
+          label: "Standard",
+          cutoffTime: "15:00",
+          deliveryTimeStartTime: "09:00",
+          deliveryTimeEndTime: "18:00",
+          deliveryTimeStartDate: 1,
+          deliveryTimeEndDate: 5,
+        },
+      ],
+      quantityPricings: [
+        {
+          product_name: product.name,
+          vendor_email: vendor.email,
+          quantity: 10,
+          price: 90,
+        },
+      ],
+    };
+
+    const res = await request(app)
+      .post("/api/v1/vendor-products/bulk-upload")
+      .send(bulkData);
+
+    expect(res.status).toBe(201);
+    expect(res.body.message).toBe("Bulk insert/update completed successfully.");
+    expect(res.body.vendorProducts.length).toBe(1);
+  });
+
+  it("should fail when pricingRules, deliverySlots, or quantityPricings are missing", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/bulk-upload")
+      .send({
+        pricingRules: "not-an-array",
+        deliverySlots: [],
+        quantityPricings: [],
+      });
+
+    expect(res.status).toBe(422); // or 422 depending on your error middleware
+    expect(res.body.message).toContain("Invalid input");
+  });
+
+  it("should fail when required fields are missing in items", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/bulk-upload")
+      .send({
+        pricingRules: [{ attribute: "Color", value: "Red", price: 100 }], // Missing product_name, vendor_email
+        deliverySlots: [],
+        quantityPricings: [],
+      });
+
+    expect(res.status).toBe(422); // or 422 depending on error handling
+    expect(res.body.message).toContain(
+      "Each item must contain valid product_name and vendor_email"
+    );
+  });
+
+  it("should fail if product or vendor not found", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/bulk-upload")
+      .send({
+        pricingRules: [
+          {
+            product_name: "NonExistentProduct",
+            vendor_email: "nonexistent@example.com",
+            attribute: "Size",
+            value: "Large",
+            price: 200,
+          },
+        ],
+        deliverySlots: [],
+        quantityPricings: [],
+      });
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toContain("Product not found");
+    // or Vendor not found, depending on what fails first
   });
 });
