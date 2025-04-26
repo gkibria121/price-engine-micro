@@ -16,7 +16,18 @@ export default class QuadraticCurveFitter {
     if (!points || points.length === 0) {
       throw new Error("Points list cannot be null or empty.");
     }
+    if (points.length === 2) {
+      const [p1, p2] = points;
 
+      // Linear fitting: y = bx + c
+      const b = (p2.price - p1.price) / (p2.quantity - p1.quantity);
+      const c = p1.price - b * p1.quantity;
+
+      this.a = 0; // No quadratic term
+      this.b = b;
+      this.c = c;
+      return;
+    }
     const n = points.length;
     let sumX = 0,
       sumX2 = 0,
