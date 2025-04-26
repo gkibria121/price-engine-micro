@@ -12,11 +12,6 @@ export async function index(req: Request, res: Response) {
 export async function createVendor(req: Request, res: Response) {
   const { name, email, address, rating } = req.body;
 
-  if (!name || !email || !address || !rating) {
-    res.status(422).send({ message: "Missing fields" });
-    return;
-  }
-
   const existingVendor = await VendorModel.findOne({ email });
   if (existingVendor) {
     res.status(422).send({ email: "Email already taken" });
@@ -37,11 +32,6 @@ export async function updateVendor(req: Request, res: Response) {
     res.status(404).send({ message: "Vendor not found!" });
     return;
   }
-  if (!name || !email || !address) {
-    res.status(422).send({ message: "Missing fields" });
-    return;
-  }
-
   const existingVendorWithEmail = await VendorModel.findOne({
     email,
     _id: { $ne: id },

@@ -77,7 +77,7 @@ describe("Test product api", () => {
 });
 
 describe("Test product update api", () => {
-  it("Should return 404 for invalid product id", async () => {
+  it("Should return 404 if product not found", async () => {
     const id = new mongoose.mongo.ObjectId();
     const response = await request(app)
       .put("/api/v1/products/" + id)
@@ -85,6 +85,14 @@ describe("Test product update api", () => {
         name: "Product updated",
       });
     expect(response.statusCode).toBe(404);
+  });
+  it("Should return 400 for invalid product id", async () => {
+    const response = await request(app)
+      .put("/api/v1/products/invalid-id")
+      .send({
+        name: "Product updated",
+      });
+    expect(response.statusCode).toBe(400);
   });
   it("Should return 422 for missing product name", async () => {
     const product = await createProduct();

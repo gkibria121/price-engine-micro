@@ -1,7 +1,7 @@
 import { ValidationErrors } from "../Exceptions/ValidationError";
 
-export interface CustomException {
-  message: string;
-  statusCode: number;
+export abstract class CustomException extends Error {
+  abstract message: string;
+  abstract statusCode: number;
   errors?: ValidationErrors;
 }

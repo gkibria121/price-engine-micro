@@ -9,6 +9,7 @@ import {
 } from "../controllers/productController";
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
+import { validateObjectId } from "../middlewares/validateObjectId";
 
 const router = express.Router();
 
@@ -21,12 +22,13 @@ router
     createProduct
   );
 router.route("/products/bulk-upload").post(bulkInsert);
-router.route("/products/:id").get(getProduct);
+router.route("/products/:id").get(validateObjectId("id"), getProduct);
 router
   .route("/products/:id")
   .put(
     [body("name").notEmpty().withMessage("Name is required")],
     validateRequest,
+    validateObjectId("id"),
     updateProduct
   );
 router.route("/products/:id").delete(deleteProduct);

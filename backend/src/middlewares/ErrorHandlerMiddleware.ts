@@ -1,6 +1,7 @@
 // middleware/errorHandler.ts
 import { Request, Response, NextFunction } from "express";
 import { ValidationException } from "../Exceptions/ValidationException";
+import { CustomException } from "../Contracts/CustomException";
 
 export function errorHandler(
   err: any,
@@ -12,6 +13,12 @@ export function errorHandler(
     res.status(err.statusCode).json({
       message: err.message,
       errors: err.errors,
+    });
+    return;
+  }
+  if (err instanceof CustomException) {
+    res.status(err.statusCode).json({
+      message: err.message,
     });
     return;
   }
