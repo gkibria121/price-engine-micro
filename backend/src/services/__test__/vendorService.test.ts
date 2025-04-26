@@ -13,12 +13,91 @@ jest.mock("../../models/VendorProductModel", () => ({
 describe("vendorService", () => {
   afterEach(() => {
     jest.clearAllMocks();
-    jest.restoreAllMocks();
   });
 
   describe("getVendor", () => {
-    // existing tests...
+    it("should return the best matching vendor", async () => {
+      // Setup mock data
+      const mockVendorData = [{ vendorData: { name: "Vendor A", rating: 5 } }];
 
+      // Clear previous mock calls and set up the mock response
+      (VendorProductModel.aggregate as jest.Mock).mockClear();
+      (VendorProductModel.aggregate as jest.Mock).mockResolvedValueOnce(
+        mockVendorData
+      );
+
+      const result = await getVendor(
+        new mongoose.mongo.ObjectId().toHexString(),
+        [{ name: "color", value: "red" }],
+        {
+          label: "Morning Delivery",
+          price: 10,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "08:00",
+          deliveryTimeEndDate: 0,
+          deliveryTimeEndTime: "11:00",
+          cutoffTime: "07:00",
+        } as any,
+        new Date("2024-04-24T06:30:00Z")
+      );
+
+      // Make sure aggregate was called
+      expect(VendorProductModel.aggregate).toHaveBeenCalled();
+
+      // Check the arguments to be more specific
+      expect(
+        (VendorProductModel.aggregate as jest.Mock).mock.calls[0][0]
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ $match: expect.anything() }),
+        ])
+      );
+
+      expect(result).toEqual({ name: "Vendor A", rating: 5 });
+    });
+    it("should return null if no vendors match", async () => {
+      (VendorProductModel.aggregate as jest.Mock).mockResolvedValue([]);
+
+      const result = await getVendor(
+        new mongoose.mongo.ObjectId().toHexString(),
+        [],
+        {
+          label: "Evening Delivery",
+          price: 15,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "18:00",
+          deliveryTimeEndDate: 0,
+          deliveryTimeEndTime: "21:00",
+          cutoffTime: "17:00",
+        } as any,
+        new Date()
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors and return null", async () => {
+      (VendorProductModel.aggregate as jest.Mock).mockRejectedValue(
+        new Error("DB Error")
+      );
+
+      const result = await getVendor(
+        new mongoose.mongo.ObjectId().toHexString(),
+        [],
+        {
+          label: "Evening Delivery",
+          price: 15,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "18:00",
+          deliveryTimeEndDate: 3,
+          deliveryTimeEndTime: "21:00",
+          cutoffTime: "17:00",
+        } as any,
+        new Date()
+      );
+
+      expect(result).toBeNull();
+    });
     it("should match vendors even if attributes are empty", async () => {
       (VendorProductModel.aggregate as jest.Mock).mockResolvedValueOnce([
         { vendorData: { name: "Vendor B", rating: 4 } },
@@ -59,7 +138,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "12:00",
           cutoffTime: "08:00",
         } as any,
-        new Date("2024-04-25T07:30:00Z") // String format
+        "2024-04-25T07:30:00Z" // String format
       );
 
       expect(result).toEqual({ name: "Vendor C", rating: 3 });
@@ -114,7 +193,92 @@ describe("vendorService", () => {
   });
 
   describe("getMatchedDeliverySlot", () => {
-    // existing tests...
+    it("should return a matched delivery slot", async () => {
+      const mockSlot = {
+        deliveryTimeStartDate: 0,
+        deliveryTimeEndDate: 1,
+        deliveryTimeEndTime: "11:00",
+      };
+      const mockVendorProduct = {
+        deliverySlots: [mockSlot],
+      };
+
+      const findOneMock = jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue(mockVendorProduct),
+      });
+
+      jest.spyOn(mongoose, "model").mockReturnValue({
+        findOne: findOneMock,
+      } as any);
+
+      const result = await getMatchedDeliverySlot(
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+        {
+          label: "Morning Delivery",
+          price: 10,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "08:00",
+          deliveryTimeEndDate: 1,
+          deliveryTimeEndTime: "11:00",
+          cutoffTime: "07:00",
+        } as any
+      );
+
+      expect(result).toEqual(mockSlot);
+    });
+
+    it("should return null if no vendor product found", async () => {
+      const findOneMock = jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue(null),
+      });
+
+      jest.spyOn(mongoose, "model").mockReturnValue({
+        findOne: findOneMock,
+      } as any);
+
+      const result = await getMatchedDeliverySlot(
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+        {
+          label: "Morning Delivery",
+          price: 10,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "08:00",
+          deliveryTimeEndDate: 3,
+          deliveryTimeEndTime: "11:00",
+          cutoffTime: "07:00",
+        } as any
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors and return null", async () => {
+      const findOneMock = jest.fn().mockReturnValue({
+        populate: jest.fn().mockRejectedValue(new Error("DB Error")),
+      });
+
+      jest.spyOn(mongoose, "model").mockReturnValue({
+        findOne: findOneMock,
+      } as any);
+
+      const result = await getMatchedDeliverySlot(
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+        {
+          label: "Evening Delivery",
+          price: 15,
+          deliveryTimeStartDate: 0,
+          deliveryTimeStartTime: "18:00",
+          deliveryTimeEndDate: 3,
+          deliveryTimeEndTime: "21:00",
+          cutoffTime: "17:00",
+        } as any
+      );
+
+      expect(result).toBeNull();
+    });
 
     it("should return null if deliverySlots array is empty", async () => {
       const findOneMock = jest.fn().mockReturnValue({

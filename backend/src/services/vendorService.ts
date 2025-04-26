@@ -6,7 +6,7 @@ export async function getVendor(
   productId: string,
   attributes: { name: string; value: string }[],
   deliveryMethod: IDeliverySlot,
-  currentTime: Date
+  currentTime: Date | string
 ) {
   try {
     // Create match conditions for each attribute-value pair
