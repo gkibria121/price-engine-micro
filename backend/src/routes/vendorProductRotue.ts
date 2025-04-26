@@ -1,7 +1,7 @@
 import express from "express";
 import {
   bulkInsertOrUpdate,
-  createVendorProduct,
+  storeVendorProduct,
   deleteVendorProduct,
   getVendorProduct,
   index,
@@ -118,7 +118,7 @@ router.route("/vendor-products/store").post(
       .withMessage("price must be a number"),
   ],
   validateRequest,
-  createVendorProduct
+  storeVendorProduct
 );
 router.route("/vendor-products/:id").get(getVendorProduct);
 router.route("/vendor-products/:id").put(
