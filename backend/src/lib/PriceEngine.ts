@@ -17,7 +17,14 @@ export default class PricingEngine {
     this.curveFitter.fit(product.quantityPricing);
   }
 
-  calculatePrice(request: PriceCalculationRequest): Record<string, unknown> {
+  calculatePrice(request: PriceCalculationRequest): {
+    totalPrice: number;
+    breakdown: {
+      basePrice: number;
+      attributeCost: number;
+      deliveryCharge: number;
+    };
+  } {
     const basePrice = this.curveFitter.predict(request.quantity);
     let total = basePrice;
 
