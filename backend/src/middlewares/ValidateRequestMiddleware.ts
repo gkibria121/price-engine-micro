@@ -10,6 +10,7 @@ export function validateRequest(
   next: NextFunction
 ) {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
     // Pass errors to the global error handler
     const { message, errors: validationErrors } = formatValidationErrors(

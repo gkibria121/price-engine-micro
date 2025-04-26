@@ -12,10 +12,7 @@ export async function index(req: Request, res: Response) {
 
 export async function createProduct(req: Request, res: Response) {
   const { name } = req.body;
-  if (!name) {
-    res.status(422).send({ message: "Name is required" });
-    return;
-  }
+
   const existingProduct = await ProductModel.findOne({ name: name });
   if (existingProduct) {
     res.status(422).send({ message: "Product already exists." });
@@ -95,10 +92,6 @@ export async function updateProduct(req: Request, res: Response) {
     return;
   }
   const { name } = req.body;
-  if (!name) {
-    res.status(422).send({ message: "Name is not provided!" });
-    return;
-  }
 
   // Update the product
   const updatedProduct = await ProductModel.findByIdAndUpdate(

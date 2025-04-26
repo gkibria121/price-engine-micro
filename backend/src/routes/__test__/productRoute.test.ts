@@ -79,7 +79,11 @@ describe("Test product api", () => {
 describe("Test product update api", () => {
   it("Should return 404 for invalid product id", async () => {
     const id = new mongoose.mongo.ObjectId();
-    const response = await request(app).put("/api/v1/products/" + id);
+    const response = await request(app)
+      .put("/api/v1/products/" + id)
+      .send({
+        name: "Product updated",
+      });
     expect(response.statusCode).toBe(404);
   });
   it("Should return 422 for missing product name", async () => {
