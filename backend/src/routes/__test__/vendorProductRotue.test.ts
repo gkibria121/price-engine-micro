@@ -176,7 +176,6 @@ describe("Vendor Product Controller", () => {
         });
 
       expect(res.status).toBe(404);
-      console.log(res.body.errors);
       expect(res.body.message).toBe("Vendor Product not found!");
     });
   });
