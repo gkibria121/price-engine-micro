@@ -202,6 +202,18 @@ describe("Test calculate-price API validations", () => {
 });
 
 describe("Test calculate-price API", () => {
+  beforeAll(() => {
+    // Original UTC date
+    const mockDateUTC = new Date("2025-04-27T21:58:00.000Z"); // April 27, 2025, 17:58:00 UTC
+
+    // Adjust the date to UTC+6 by adding 6 hours (6 * 60 * 60 * 1000 ms)
+    const mockDateUTCPlus6 = new Date(mockDateUTC.getTime()); // Add 6 hours
+
+    // Mock Date.now() to return the adjusted date's timestamp
+    jest
+      .spyOn(Date, "now")
+      .mockImplementation(() => mockDateUTCPlus6.getTime());
+  });
   it("should return the correct price breakdown based on product, quantity, and delivery method", async () => {
     const vendorProduct = await createVendorProduct();
     const response = await request(app)
@@ -290,7 +302,7 @@ describe("Test calculate-price API", () => {
     expect(response.body.message).toBe("Vendor not found!");
   });
 
-  it("should return 404 if delivery cutoff time does not match vendor's cutoff time", async () => {
+  it("should return 404 if delivery end time does not match vendor's end time time", async () => {
     const vendorProduct = await createVendorProduct();
     const response = await request(app)
       .post("/api/v1/calculate-price")
@@ -335,10 +347,17 @@ describe("Test calculate-price API", () => {
 
   it("should return 404 if the current time exceeds vendor's cutoff time", async () => {
     const vendorProduct = await createVendorProduct();
-    const mockDate = new Date("2026-05-27T23:13:00Z").getTime();
-    jest.spyOn(Date, "now").mockReturnValue(mockDate);
+    // Original UTC date
+    const mockDateUTC = new Date("2025-04-27T23:58:00.000Z"); // April 27, 2025, 17:58:00 UTC
 
-    console.log(mockDate, Date.now());
+    // Adjust the date to UTC+6 by adding 6 hours (6 * 60 * 60 * 1000 ms)
+    const mockDateUTCPlus6 = new Date(mockDateUTC.getTime()); // Add 6 hours
+
+    // Mock Date.now() to return the adjusted date's timestamp
+    jest
+      .spyOn(Date, "now")
+      .mockImplementation(() => mockDateUTCPlus6.getTime());
+
     const response = await request(app)
       .post("/api/v1/calculate-price")
       .send({
@@ -352,7 +371,6 @@ describe("Test calculate-price API", () => {
           deliveryTimeEndTime: "05:12",
         },
       });
-    console.log(response.body);
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Vendor not found!");
   });

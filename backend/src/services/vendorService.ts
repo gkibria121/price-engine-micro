@@ -6,7 +6,7 @@ export async function getVendor(
   productId: string,
   attributes: { name: string; value: string }[],
   deliveryMethod: IDeliverySlot,
-  currentTime: Date | string
+  currentTime: Date | string | number
 ) {
   try {
     // Create match conditions for each attribute-value pair
@@ -17,11 +17,14 @@ export async function getVendor(
     // Ensure currentTime is a Date object for proper comparison
 
     const currentTimeDate =
-      typeof currentTime === "string" ? new Date(currentTime) : currentTime;
+      typeof currentTime === "string" || typeof currentTime === "number"
+        ? new Date(currentTime)
+        : currentTime;
 
     // Get current time components for time comparison
-    const currentHour = currentTimeDate.getHours();
-    const currentMinute = currentTimeDate.getMinutes();
+    const currentHour = currentTimeDate.getUTCHours();
+    const currentMinute = currentTimeDate.getUTCMinutes();
+
     const pipeline = [
       {
         $match: {

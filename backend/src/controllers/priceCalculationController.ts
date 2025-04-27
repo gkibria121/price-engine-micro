@@ -13,7 +13,7 @@ import Attribute from "../lib/product/Attribute";
 
 export async function calculatePrice(req: Request, res: Response) {
   const { productId, quantity, attributes, deliveryMethod } = req.body;
-  const currentTime = new Date();
+  const currentTime = Date.now();
   const vendor = await getVendor(
     productId,
     attributes,
