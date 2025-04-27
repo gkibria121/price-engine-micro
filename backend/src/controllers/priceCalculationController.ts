@@ -12,9 +12,8 @@ import PriceCalculationRequest from "../lib/PriceCalculationRequest";
 import Attribute from "../lib/product/Attribute";
 
 export async function calculatePrice(req: Request, res: Response) {
-  const { productId, quantity, attributes, deliveryMethod, currentTime } =
-    req.body;
-
+  const { productId, quantity, attributes, deliveryMethod } = req.body;
+  const currentTime = new Date();
   const vendor = await getVendor(
     productId,
     attributes,
