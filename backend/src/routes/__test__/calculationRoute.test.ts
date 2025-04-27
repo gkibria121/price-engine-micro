@@ -1,11 +1,5 @@
 import request from "supertest";
 import app from "../../app";
-import ProductModel from "../../models/ProductModel";
-import VendorModel from "../../models/VendorModel";
-import VendorProductModel from "../../models/VendorProductModel";
-import PricingRuleModel from "../../models/PricingRuleModel";
-import QuantityPricingModel from "../../models/QuantityPricingModel";
-import DeliverySlotModel from "../../models/DeliverySlotModel";
 import { createVendorProduct } from "../../helpers/test_helper_functions";
 
 describe("Test calculate-price API validations", () => {
@@ -207,8 +201,8 @@ describe("Test calculate-price API validations", () => {
   });
 });
 
-describe("Test calculate-price API ", () => {
-  it("Should return price based on request", async () => {
+describe("Test calculate-price API", () => {
+  it("should return the correct price breakdown based on product, quantity, and delivery method", async () => {
     const vendorProduct = await createVendorProduct();
     const response = await request(app)
       .post("/api/v1/calculate-price")
@@ -234,5 +228,132 @@ describe("Test calculate-price API ", () => {
         deliveryCharge: 143,
       },
     });
+  });
+
+  it("should return 404 if attributes do not match any vendor's offering", async () => {
+    const vendorProduct = await createVendorProduct();
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [{ name: "Size", value: "A4" }],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 4,
+          deliveryTimeEndDate: 21,
+          deliveryTimeEndTime: "05:12",
+        },
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
+  });
+
+  it("should return 404 if delivery start date does not match any vendor's delivery range", async () => {
+    const vendorProduct = await createVendorProduct();
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [{ name: "Paper", value: "Glossy" }],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 3,
+          deliveryTimeEndDate: 21,
+          deliveryTimeEndTime: "05:12",
+        },
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
+  });
+
+  it("should return 404 if delivery end date does not match any vendor's delivery range", async () => {
+    const vendorProduct = await createVendorProduct();
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [{ name: "Paper", value: "Glossy" }],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 4,
+          deliveryTimeEndDate: 20,
+          deliveryTimeEndTime: "05:12",
+        },
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
+  });
+
+  it("should return 404 if delivery cutoff time does not match vendor's cutoff time", async () => {
+    const vendorProduct = await createVendorProduct();
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [{ name: "Paper", value: "Glossy" }],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 4,
+          deliveryTimeEndDate: 21,
+          deliveryTimeEndTime: "05:11",
+        },
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
+  });
+
+  it("should return 404 if additional attributes do not exist for the vendor", async () => {
+    const vendorProduct = await createVendorProduct();
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [
+          { name: "Paper", value: "Glossy" },
+          { name: "Size", value: "A4" },
+        ],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 4,
+          deliveryTimeEndDate: 21,
+          deliveryTimeEndTime: "05:12",
+        },
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
+  });
+
+  it("should return 404 if the current time exceeds vendor's cutoff time", async () => {
+    const vendorProduct = await createVendorProduct();
+    const mockDate = new Date("2026-05-27T23:13:00Z").getTime();
+    jest.spyOn(Date, "now").mockReturnValue(mockDate);
+
+    console.log(mockDate, Date.now());
+    const response = await request(app)
+      .post("/api/v1/calculate-price")
+      .send({
+        productId: vendorProduct.product, // valid MongoID
+        quantity: 5,
+        attributes: [{ name: "Paper", value: "Glossy" }],
+        deliveryMethod: {
+          label: "express",
+          deliveryTimeStartDate: 4,
+          deliveryTimeEndDate: 21,
+          deliveryTimeEndTime: "05:12",
+        },
+      });
+    console.log(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Vendor not found!");
   });
 });

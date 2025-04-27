@@ -39,12 +39,7 @@ export async function calculatePrice(req: Request, res: Response) {
     .populate("pricingRules")
     .populate("deliverySlots");
 
-  if (!vendorProduct) {
-    throw new NotFoundException("Product not found for this vendor");
-  }
-
   const productData = await ProductModel.findById(productId);
-  if (!productData) throw new NotFoundException("Product not found!");
 
   const product = new Product(
     productData.name,

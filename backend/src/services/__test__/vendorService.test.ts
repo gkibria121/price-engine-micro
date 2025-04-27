@@ -38,7 +38,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "11:00",
           cutoffTime: "07:00",
         } as any,
-        new Date("2024-04-24T06:30:00Z")
+        new Date("2024-04-24T06:30:00Z").getTime()
       );
 
       // Make sure aggregate was called
@@ -70,7 +70,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "21:00",
           cutoffTime: "17:00",
         } as any,
-        new Date()
+        Date.now()
       );
 
       expect(result).toBeNull();
@@ -93,7 +93,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "21:00",
           cutoffTime: "17:00",
         } as any,
-        new Date()
+        Date.now()
       );
 
       expect(result).toBeNull();
@@ -115,7 +115,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "12:00",
           cutoffTime: "08:00",
         } as any,
-        new Date()
+        Date.now()
       );
 
       expect(result).toEqual({ name: "Vendor B", rating: 4 });
@@ -162,7 +162,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "12:00",
           cutoffTime: "08:00",
         } as any,
-        new Date()
+        Date.now()
       );
 
       expect(result).toEqual({ name: "Vendor A", rating: 5 });
@@ -185,7 +185,7 @@ describe("vendorService", () => {
           deliveryTimeEndTime: "12:00",
           cutoffTime: "08:00",
         } as any,
-        new Date()
+        Date.now()
       );
 
       expect(result).toBeNull();
