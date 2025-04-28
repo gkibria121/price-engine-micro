@@ -4,6 +4,7 @@ import VendorProductModel from "../models/VendorProductModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import "express-async-errors";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
+import { MongooseError } from "mongoose";
 export async function index(req: Request, res: Response) {
   const products = await ProductModel.find();
   res.status(200).send({
@@ -27,49 +28,45 @@ export async function createProduct(req: Request, res: Response) {
 export async function bulkInsert(req: Request, res: Response) {
   const { products } = req.body;
 
-  // Validate input
-  if (!Array.isArray(products) || products.length === 0) {
-    throw new CustomValidationException("Products must be list of product", {
-      products: ["Products must be list of product."],
-    });
-  }
-  // 🔍 Check for duplicate names in request body
-  const names = products.map((p) => p.name);
-  const hasDuplicates = new Set(names).size !== names.length;
-
-  if (hasDuplicates) {
-    throw new CustomValidationException(
-      "Duplicate product names in request body.",
-      {
-        products: ["Duplicate product names in request body."],
-      }
-    );
-  }
   try {
-    const insertedProducts = await ProductModel.insertMany(products, {
-      ordered: false, // continue on duplicate key error
-    });
+    // Create arrays to store new products and skipped products
+    const newProducts = [] as any[];
+    const skippedProducts = [] as any[];
 
-    res.status(201).send({
-      message: "Products added successfully (duplicates skipped)",
-      products: insertedProducts,
-    });
-  } catch (error: any) {
-    console.error("❌ Error:", error);
-
-    if (error.name === "BulkWriteError" && error.code === 11000) {
-      // Some duplicates occurred, but others were inserted
-      res.status(201).send({
-        message: "Some products were skipped due to duplicates",
-        products: error.insertedDocs || [],
-        error: error.message,
+    for (const product of products) {
+      // Check if the product with the same name already exists in the database
+      const existingProduct = await ProductModel.findOne({
+        name: product.name,
       });
-      return;
+
+      if (existingProduct) {
+        // Skip duplicates that were previously inserted
+        skippedProducts.push(product);
+      } else {
+        // Add new products to the insertion array
+        newProducts.push(product);
+      }
     }
-    throw new Error(error);
+
+    // Insert only the new products into the database (those that don't exist yet)
+    const createdProducts = await ProductModel.insertMany(newProducts, {
+      ordered: false,
+    });
+
+    // Respond with the appropriate message and data
+    res.status(201).json({
+      message:
+        skippedProducts.length > 0
+          ? "Some products were skipped due to previously taken names"
+          : "All products uploaded successfully",
+      products: createdProducts, // Return the successfully inserted products
+      skipped: skippedProducts, // Return the skipped products
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error uploading products" });
   }
 }
-
 export async function getProduct(req: Request, res: Response) {
   const productId = req.params.id;
   const product = await ProductModel.findOne({

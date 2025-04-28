@@ -3,16 +3,28 @@ import mongoose from "mongoose";
 import { beforeAll, afterAll, afterEach } from "@jest/globals";
 
 let mongo: MongoMemoryServer;
-// jest.mock("../lib/natas-client");
+
 beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
-  // process.env.JWT_KEY = "asdf";
   await mongoose.connect(mongo.getUri());
+
+  // Check if db connection exists before attempting to use it
+  if (mongoose.connection.db) {
+    await mongoose.connection.db
+      .collection("products")
+      .createIndex({ name: 1 }, { unique: true });
+  } else {
+    throw new Error("Database connection is undefined");
+  }
 });
 
 afterEach(async () => {
   jest.clearAllMocks();
-  await mongoose.connection.dropDatabase(); // Clear the database after each test
+  if (mongoose.connection.db) {
+    await mongoose.connection.dropDatabase(); // Clear the database after each test
+  } else {
+    throw new Error("Database connection is undefined during test cleanup");
+  }
 });
 
 afterAll(async () => {

@@ -59,6 +59,19 @@ describe("Test product bulk upload api", () => {
       .send({ products: [{ name: "product 1" }, { name: "product 2" }] });
     expect(response.statusCode).toBe(201);
   });
+  it("Should skip duplicate products", async () => {
+    await request(app)
+      .post("/api/v1/products/bulk-upload")
+      .send({ products: [{ name: "product 1" }] });
+    const response = await request(app)
+      .post("/api/v1/products/bulk-upload")
+      .send({ products: [{ name: "product 1" }, { name: "product 2" }] });
+    expect(response.statusCode).toBe(201);
+    expect(response.body.message).toBe(
+      "Some products were skipped due to previously taken names"
+    );
+    expect(response.body.products[0].name).toBe("product 2");
+  });
 });
 
 describe("Test product api", () => {
