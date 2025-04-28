@@ -1,3 +1,5 @@
+import { NotFoundException } from "../Exceptions/NotFoundException";
+import { PriceEngineException } from "../Exceptions/PriceEngineException";
 import PriceCalculationRequest from "./PriceCalculationRequest";
 import DeliveryRule from "./product/DeliveryRule";
 import PricingRule from "./product/PricingRule";
@@ -25,6 +27,11 @@ export default class PricingEngine {
       deliveryCharge: number;
     };
   } {
+    if (request.quantity <= 0)
+      return {
+        totalPrice: 0,
+        breakdown: { basePrice: 0, attributeCost: 0, deliveryCharge: 0 },
+      };
     const basePrice = this.curveFitter.predict(request.quantity);
     let total = basePrice;
 
@@ -36,6 +43,10 @@ export default class PricingEngine {
       );
       if (rule) {
         total += total * (rule.percentageChange / 100);
+      } else {
+        throw new PriceEngineException(
+          `Unable to calculate price. Attribute "${attribute.name}" or Attribute value "${attribute.value}" does not exist for this product.`
+        );
       }
     });
 
@@ -47,7 +58,7 @@ export default class PricingEngine {
     );
 
     if (!deliveryRule) {
-      throw new Error("Invalid delivery nature");
+      throw new PriceEngineException("Invalid delivery nature");
     }
 
     total += deliveryRule.deliveryFee;

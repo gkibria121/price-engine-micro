@@ -10,6 +10,7 @@ import QuantityPricing from "../lib/product/QuantityPricing";
 import PricingEngine from "../lib/PriceEngine";
 import PriceCalculationRequest from "../lib/PriceCalculationRequest";
 import Attribute from "../lib/product/Attribute";
+import DeliverySlotModel from "../models/DeliverySlotModel";
 
 export async function calculatePrice(req: Request, res: Response) {
   const { productId, quantity, attributes, deliveryMethod } = req.body;
@@ -66,6 +67,62 @@ export async function calculatePrice(req: Request, res: Response) {
         new Attribute(attr.name, attr.value)
     ),
     matchedDeliverySlot.label
+  );
+
+  const priceData = pricingEngine.calculatePrice(priceRequest);
+  res.status(200).send({
+    productName: productData.name,
+    quantity,
+    ...priceData,
+  });
+}
+export async function calculatePriceWithVendor(req: Request, res: Response) {
+  const { productId, vendorId, quantity, attributes, deliveryMethod } =
+    req.body;
+
+  const vendorProduct = await VendorProductModel.findOne({
+    product: productId,
+    vendor: vendorId,
+  })
+    .populate("product")
+    .populate("quantityPricings")
+    .populate("pricingRules")
+    .populate("deliverySlots");
+  if (!vendorProduct) throw new NotFoundException("VendorProduct not found!");
+
+  const matchedDeliveryMethod = vendorProduct.deliverySlots.find(
+    (slot) => slot.label === deliveryMethod.label
+  );
+
+  if (!matchedDeliveryMethod)
+    throw new NotFoundException("Delivery method not found!");
+  const productData = await ProductModel.findById(productId);
+
+  const product = new Product(
+    productData.name,
+    vendorProduct.pricingRules.map(
+      (rule: { attribute: string; value: string; price: number }) =>
+        new PricingRule(rule.attribute, rule.value, rule.price)
+    ),
+    vendorProduct.deliverySlots.map(
+      (rule: { label: string; price: number }) =>
+        new DeliveryRule(rule.label, rule.price)
+    ),
+    vendorProduct.quantityPricings.map(
+      (qp: { quantity: number; price: number }) =>
+        new QuantityPricing(qp.quantity, qp.price)
+    )
+  );
+
+  const pricingEngine = new PricingEngine(product);
+  const priceRequest = new PriceCalculationRequest(
+    productData.name,
+    quantity,
+    attributes.map(
+      (attr: { name: string; value: string }) =>
+        new Attribute(attr.name, attr.value)
+    ),
+    deliveryMethod.label
   );
 
   const priceData = pricingEngine.calculatePrice(priceRequest);
