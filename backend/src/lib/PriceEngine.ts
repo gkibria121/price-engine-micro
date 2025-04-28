@@ -16,7 +16,7 @@ export default class PricingEngine {
     this.curveFitter = new QuadraticCurveFitter();
     this.pricingRules = product.pricingRules;
     this.deliveryRules = product.deliveryRules;
-    this.curveFitter.fit(product.quantityPricing);
+    this.curveFitter.fit(product.quantityPricings);
   }
 
   calculatePrice(request: PriceCalculationRequest): {

@@ -82,13 +82,13 @@ router.route("/vendor-products/store").post(
       .withMessage("deliveryTimeEndTime must be in HH:mm format"),
 
     body("deliverySlots.*.deliveryTimeStartDate")
-      .exists({ checkFalsy: true })
+      .exists({ checkFalsy: false })
       .withMessage("deliveryTimeStartDate is required")
       .isNumeric()
       .withMessage("deliveryTimeStartDate must be a number"),
 
     body("deliverySlots.*.deliveryTimeEndDate")
-      .exists({ checkFalsy: true })
+      .exists({ checkFalsy: false })
       .withMessage("deliveryTimeEndDate is required")
       .isNumeric()
       .withMessage("deliveryTimeEndDate must be a number"),

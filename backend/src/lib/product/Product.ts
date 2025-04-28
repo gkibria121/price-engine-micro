@@ -7,17 +7,17 @@ export default class Product {
   name: string;
   pricingRules: PricingRule[];
   deliveryRules: DeliveryRule[];
-  quantityPricing: QuantityPricing[];
+  quantityPricings: QuantityPricing[];
 
   constructor(
     name: string,
     pricingRules: PricingRule[] = [],
     deliveryRules: DeliveryRule[] = [],
-    quantityPricing: QuantityPricing[] = []
+    quantityPricings: QuantityPricing[] = []
   ) {
     this.name = name;
     this.pricingRules = pricingRules;
     this.deliveryRules = deliveryRules;
-    this.quantityPricing = quantityPricing;
+    this.quantityPricings = quantityPricings;
   }
 }

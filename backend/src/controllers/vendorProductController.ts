@@ -77,7 +77,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     product,
     pricingRules: newPricingRules,
     deliverySlots: newDeliverySlots,
-    quantityPricing: newQuantityPricing,
+    quantityPricings: newQuantityPricing,
   });
   await newAssociation.save();
   // Now populate everything properly
