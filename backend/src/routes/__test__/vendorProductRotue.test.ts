@@ -76,12 +76,22 @@ describe("Vendor Product Controller", () => {
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
         });
-
+      const newVendorProduct = await VendorProductModel.findOne();
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("association");
       expect(res.body.association.vendor.id).toEqual(vendor._id.toHexString());
       expect(res.body.association.product.id).toEqual(
         product._id.toHexString()
+      );
+
+      expect(res.body.association.pricingRules[0]._id).toBe(
+        newVendorProduct.pricingRules[0]._id.toHexString()
+      );
+      expect(res.body.association.deliverySlots[0]._id).toBe(
+        newVendorProduct.deliverySlots[0]._id.toHexString()
+      );
+      expect(res.body.association.quantityPricings[0]._id).toBe(
+        newVendorProduct.quantityPricings[0]._id.toHexString()
       );
     });
 
@@ -150,9 +160,26 @@ describe("Vendor Product Controller", () => {
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
         });
+      const updatedVendorProduct = await VendorProductModel.findOne()
+        .populate("pricingRules")
+        .populate("deliverySlots")
+        .populate("quantityPricings");
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Product updated successfully");
+      expect(res.body.vendorProduct._id).toBe(
+        updatedVendorProduct._id.toHexString()
+      );
+
+      expect(res.body.vendorProduct.pricingRules[0]._id).toBe(
+        updatedVendorProduct.pricingRules[0]._id.toHexString()
+      );
+      expect(res.body.vendorProduct.deliverySlots[0]._id).toBe(
+        updatedVendorProduct.deliverySlots[0]._id.toHexString()
+      );
+      expect(res.body.vendorProduct.quantityPricings[0]._id).toBe(
+        updatedVendorProduct.quantityPricings[0]._id.toHexString()
+      );
     });
 
     it("should return 404 if updating non-existent vendor product", async () => {
@@ -414,11 +441,9 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         },
       ],
     };
-
     const res = await request(app)
       .post("/api/v1/vendor-products/bulk-upload")
       .send(bulkData);
-
     expect(res.status).toBe(201);
     expect(res.body.message).toBe("Bulk insert/update completed successfully.");
     expect(res.body.vendorProducts.length).toBe(1);
@@ -432,9 +457,12 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         deliverySlots: [],
         quantityPricings: [],
       });
-
     expect(res.status).toBe(422); // or 422 depending on your error middleware
-    expect(res.body.message).toContain("Invalid input");
+    expect(res.body.errors).toEqual({
+      pricingRules: ["pricingRules must be a non-empty array"],
+      deliverySlots: ["deliverySlots must be a non-empty array"],
+      quantityPricings: ["quantityPricings must be a non-empty array"],
+    });
   });
 
   it("should fail when required fields are missing in items", async () => {
@@ -447,9 +475,17 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
       });
 
     expect(res.status).toBe(422); // or 422 depending on error handling
-    expect(res.body.message).toContain(
-      "Each item must contain valid product_name and vendor_email"
-    );
+    expect(res.body.message).toContain("The given data was invalid.");
+    expect(res.body.errors).toEqual({
+      "pricingRules[0].product_name": [
+        "Each pricingRule must contain valid product_name",
+      ],
+      "pricingRules[0].vendor_email": [
+        "Each pricingRule must contain valid vendor_email",
+      ],
+      deliverySlots: ["deliverySlots must be a non-empty array"],
+      quantityPricings: ["quantityPricings must be a non-empty array"],
+    });
   });
 
   it("should fail if product or vendor not found", async () => {
@@ -465,11 +501,31 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
             price: 200,
           },
         ],
-        deliverySlots: [],
-        quantityPricings: [],
+        deliverySlots: [
+          {
+            price: 143,
+            cutoffTime: "23:56",
+            deliveryTimeStartTime: "14:06",
+            label: "Super Express Today by 5 PM",
+            deliveryTimeStartDate: 0,
+            deliveryTimeEndDate: 1,
+            deliveryTimeEndTime: "17:00",
+            product_name: "Product 1",
+            vendor_email: "dnp.uk1@gmail.com",
+          },
+        ],
+        quantityPricings: [
+          {
+            quantity: 10,
+            price: 100,
+            product_name: "Product 1",
+            vendor_email: "dnp.uk1@gmail.com",
+          },
+        ],
       });
 
     expect(res.status).toBe(404);
+
     expect(res.body.message).toContain("Product not found");
     // or Vendor not found, depending on what fails first
   });

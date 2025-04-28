@@ -12,211 +12,168 @@ import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
 
 const router = express.Router();
 
-router.route("/vendor-products").get(index);
-router.route("/vendor-products/store").post(
-  [
-    body("vendorId")
-      .exists({ checkFalsy: true })
-      .withMessage("vendorId is required")
-      .isMongoId()
-      .withMessage("vendorId must be a valid MongoID"),
+// ----------- Common Validation Rules -------------
+const pricingRulesValidation = (fieldPrefix = "pricingRules") => [
+  body(`${fieldPrefix}`)
+    .exists({ checkFalsy: true })
+    .withMessage(`${fieldPrefix} is required`)
+    .isArray({ min: 1 })
+    .withMessage(`${fieldPrefix} must be a non-empty array`),
+  body(`${fieldPrefix}.*.attribute`)
+    .exists({ checkFalsy: true })
+    .withMessage(`attribute is required`)
+    .isString()
+    .withMessage(`attribute must be a string`),
+  body(`${fieldPrefix}.*.value`)
+    .exists({ checkFalsy: true })
+    .withMessage(`value is required`)
+    .isString()
+    .withMessage(`value must be a string`),
+  body(`${fieldPrefix}.*.price`)
+    .exists({ checkFalsy: true })
+    .withMessage(`price is required`)
+    .isNumeric()
+    .withMessage(`price must be a number`),
+];
 
-    body("productId")
-      .exists({ checkFalsy: true })
-      .withMessage("productId is required")
-      .isMongoId()
-      .withMessage("productId must be a valid MongoID"),
+const deliverySlotsValidation = (fieldPrefix = "deliverySlots") => [
+  body(`${fieldPrefix}`)
+    .exists({ checkFalsy: true })
+    .withMessage(`${fieldPrefix} is required`)
+    .isArray({ min: 1 })
+    .withMessage(`${fieldPrefix} must be a non-empty array`),
+  body(`${fieldPrefix}.*.price`)
+    .exists({ checkFalsy: true })
+    .withMessage("deliverySlot.price is required")
+    .isNumeric()
+    .withMessage("deliverySlot.price must be a number"),
+  body(`${fieldPrefix}.*.cutoffTime`)
+    .exists({ checkFalsy: true })
+    .withMessage("cutoffTime is required")
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .withMessage("cutoffTime must be in HH:mm format"),
+  body(`${fieldPrefix}.*.deliveryTimeStartTime`)
+    .exists({ checkFalsy: true })
+    .withMessage("deliveryTimeStartTime is required")
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .withMessage("deliveryTimeStartTime must be in HH:mm format"),
+  body(`${fieldPrefix}.*.deliveryTimeEndTime`)
+    .exists({ checkFalsy: true })
+    .withMessage("deliveryTimeEndTime is required")
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .withMessage("deliveryTimeEndTime must be in HH:mm format"),
+  body(`${fieldPrefix}.*.deliveryTimeStartDate`)
+    .exists({ checkFalsy: false })
+    .withMessage("deliveryTimeStartDate is required")
+    .isNumeric()
+    .withMessage("deliveryTimeStartDate must be a number"),
+  body(`${fieldPrefix}.*.deliveryTimeEndDate`)
+    .exists({ checkFalsy: false })
+    .withMessage("deliveryTimeEndDate is required")
+    .isNumeric()
+    .withMessage("deliveryTimeEndDate must be a number"),
+  body(`${fieldPrefix}.*.label`)
+    .exists({ checkFalsy: true })
+    .withMessage("label is required")
+    .isString()
+    .withMessage("label must be a string"),
+];
 
-    body("pricingRules")
-      .exists({ checkFalsy: true })
-      .withMessage("pricingRules is required")
-      .isArray({ min: 1 })
-      .withMessage("pricingRules must be a non-empty array"),
+const quantityPricingsValidation = (fieldPrefix = "quantityPricings") => [
+  body(`${fieldPrefix}`)
+    .exists({ checkFalsy: true })
+    .withMessage(`${fieldPrefix} is required`)
+    .isArray({ min: 1 })
+    .withMessage(`${fieldPrefix} must be a non-empty array`),
+  body(`${fieldPrefix}.*.quantity`)
+    .exists({ checkFalsy: true })
+    .withMessage("quantity is required")
+    .isNumeric()
+    .withMessage("quantity must be a number"),
+  body(`${fieldPrefix}.*.price`)
+    .exists({ checkFalsy: true })
+    .withMessage("price is required")
+    .isNumeric()
+    .withMessage("price must be a number"),
+];
 
-    body("pricingRules.*.attribute")
-      .exists({ checkFalsy: true })
-      .withMessage("attribute is required")
-      .isString()
-      .withMessage("attribute must be a string"),
+// ----------- Validation Arrays -------------
+const createVendorProductValidation = [
+  body("vendorId")
+    .exists({ checkFalsy: true })
+    .withMessage("vendorId is required")
+    .isMongoId()
+    .withMessage("vendorId must be a valid MongoID"),
+  body("productId")
+    .exists({ checkFalsy: true })
+    .withMessage("productId is required")
+    .isMongoId()
+    .withMessage("productId must be a valid MongoID"),
+  ...pricingRulesValidation(),
+  ...deliverySlotsValidation(),
+  ...quantityPricingsValidation(),
+];
 
-    body("pricingRules.*.value")
-      .exists({ checkFalsy: true })
-      .withMessage("value is required")
-      .isString()
-      .withMessage("value must be a string"),
+const updateVendorProductValidation = [
+  ...pricingRulesValidation(),
+  ...deliverySlotsValidation(),
+  ...quantityPricingsValidation(),
+];
 
-    body("pricingRules.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("price is required")
-      .isNumeric()
-      .withMessage("price must be a number"),
+const bulkUploadVendorProductValidation = [
+  body("pricingRules.*.product_name")
+    .exists({ checkFalsy: true })
+    .withMessage("Each pricingRule must contain valid product_name"),
 
-    body("deliverySlots")
-      .exists({ checkFalsy: true })
-      .withMessage("deliverySlots is required")
-      .isArray({ min: 1 })
-      .withMessage("deliverySlots must be a non-empty array"),
+  body("pricingRules.*.vendor_email")
+    .exists({ checkFalsy: true })
+    .withMessage("Each pricingRule must contain valid vendor_email"),
+  body("deliverySlots.*.product_name")
+    .exists({ checkFalsy: true })
+    .withMessage("Each deliverySlot must contain valid product_name"),
 
-    body("deliverySlots.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("deliverySlot.price is required")
-      .isNumeric()
-      .withMessage("deliverySlot.price must be a number"),
+  body("deliverySlots.*.vendor_email")
+    .exists({ checkFalsy: true })
+    .withMessage("Each deliverySlot must contain valid vendor_email"),
+  body("quantityPricings.*.product_name")
+    .exists({ checkFalsy: true })
+    .withMessage("Each quantityPricing must contain valid product_name"),
 
-    body("deliverySlots.*.cutoffTime")
-      .exists({ checkFalsy: true })
-      .withMessage("cutoffTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("cutoffTime must be in HH:mm format"),
+  body("quantityPricings.*.vendor_email")
+    .exists({ checkFalsy: true })
+    .withMessage("Each quantityPricing must contain valid vendor_email"),
+  ...pricingRulesValidation(),
+  ...deliverySlotsValidation(),
+  ...quantityPricingsValidation(),
+];
 
-    body("deliverySlots.*.deliveryTimeStartTime")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeStartTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("deliveryTimeStartTime must be in HH:mm format"),
+// ----------- Routes -------------
 
-    body("deliverySlots.*.deliveryTimeEndTime")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeEndTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("deliveryTimeEndTime must be in HH:mm format"),
+router.get("/vendor-products", index);
 
-    body("deliverySlots.*.deliveryTimeStartDate")
-      .exists({ checkFalsy: false })
-      .withMessage("deliveryTimeStartDate is required")
-      .isNumeric()
-      .withMessage("deliveryTimeStartDate must be a number"),
-
-    body("deliverySlots.*.deliveryTimeEndDate")
-      .exists({ checkFalsy: false })
-      .withMessage("deliveryTimeEndDate is required")
-      .isNumeric()
-      .withMessage("deliveryTimeEndDate must be a number"),
-
-    body("deliverySlots.*.label")
-      .exists({ checkFalsy: true })
-      .withMessage("label is required")
-      .isString()
-      .withMessage("label must be a string"),
-
-    body("quantityPricings")
-      .exists({ checkFalsy: true })
-      .withMessage("quantityPricings is required")
-      .isArray({ min: 1 })
-      .withMessage("quantityPricings must be a non-empty array"),
-
-    body("quantityPricings.*.quantity")
-      .exists({ checkFalsy: true })
-      .withMessage("quantity is required")
-      .isNumeric()
-      .withMessage("quantity must be a number"),
-
-    body("quantityPricings.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("price is required")
-      .isNumeric()
-      .withMessage("price must be a number"),
-  ],
+router.post(
+  "/vendor-products/store",
+  createVendorProductValidation,
   validateRequest,
   storeVendorProduct
 );
-router.route("/vendor-products/:id").get(getVendorProduct);
-router.route("/vendor-products/:id").put(
-  [
-    body("pricingRules")
-      .exists({ checkFalsy: true })
-      .withMessage("pricingRules is required")
-      .isArray({ min: 1 })
-      .withMessage("pricingRules must be a non-empty array"),
 
-    body("pricingRules.*.attribute")
-      .exists({ checkFalsy: true })
-      .withMessage("attribute is required")
-      .isString()
-      .withMessage("attribute must be a string"),
+router.get("/vendor-products/:id", getVendorProduct);
 
-    body("pricingRules.*.value")
-      .exists({ checkFalsy: true })
-      .withMessage("value is required")
-      .isString()
-      .withMessage("value must be a string"),
-
-    body("pricingRules.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("price is required")
-      .isNumeric()
-      .withMessage("price must be a number"),
-
-    body("deliverySlots")
-      .exists({ checkFalsy: true })
-      .withMessage("deliverySlots is required")
-      .isArray({ min: 1 })
-      .withMessage("deliverySlots must be a non-empty array"),
-
-    body("deliverySlots.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("deliverySlot.price is required")
-      .isNumeric()
-      .withMessage("deliverySlot.price must be a number"),
-
-    body("deliverySlots.*.cutoffTime")
-      .exists({ checkFalsy: true })
-      .withMessage("cutoffTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("cutoffTime must be in HH:mm format"),
-
-    body("deliverySlots.*.deliveryTimeStartTime")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeStartTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("deliveryTimeStartTime must be in HH:mm format"),
-
-    body("deliverySlots.*.deliveryTimeEndTime")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeEndTime is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-      .withMessage("deliveryTimeEndTime must be in HH:mm format"),
-
-    body("deliverySlots.*.deliveryTimeStartDate")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeStartDate is required")
-      .isNumeric()
-      .withMessage("deliveryTimeStartDate must be a number"),
-
-    body("deliverySlots.*.deliveryTimeEndDate")
-      .exists({ checkFalsy: true })
-      .withMessage("deliveryTimeEndDate is required")
-      .isNumeric()
-      .withMessage("deliveryTimeEndDate must be a number"),
-
-    body("deliverySlots.*.label")
-      .exists({ checkFalsy: true })
-      .withMessage("label is required")
-      .isString()
-      .withMessage("label must be a string"),
-
-    body("quantityPricings")
-      .exists({ checkFalsy: true })
-      .withMessage("quantityPricings is required")
-      .isArray({ min: 1 })
-      .withMessage("quantityPricings must be a non-empty array"),
-
-    body("quantityPricings.*.quantity")
-      .exists({ checkFalsy: true })
-      .withMessage("quantity is required")
-      .isNumeric()
-      .withMessage("quantity must be a number"),
-
-    body("quantityPricings.*.price")
-      .exists({ checkFalsy: true })
-      .withMessage("price is required")
-      .isNumeric()
-      .withMessage("price must be a number"),
-  ],
+router.put(
+  "/vendor-products/:id",
+  updateVendorProductValidation,
   validateRequest,
   updateVendorProduct
 );
-router.route("/vendor-products/:id").delete(deleteVendorProduct);
-router.route("/vendor-products/bulk-upload").post(bulkInsertOrUpdate);
+
+router.delete("/vendor-products/:id", deleteVendorProduct);
+
+router.post(
+  "/vendor-products/bulk-upload",
+  bulkUploadVendorProductValidation,
+  validateRequest,
+  bulkInsertOrUpdate
+);
 
 export default router;
