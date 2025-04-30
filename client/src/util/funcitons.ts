@@ -5,3 +5,7 @@ export async function wait(s: number) {
     }, s * 1000);
   });
 }
+
+export function toInitialCap(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}

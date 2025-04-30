@@ -5,6 +5,7 @@ import { Product } from "@/types";
 import EmptyResourceState from "@/componets/EmptyResourceState";
 import Table from "@/componets/Table";
 import DeleteResourceButton from "@/componets/DeleteResource";
+import Button from "@/componets/Button";
 
 async function page() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
@@ -18,12 +19,9 @@ async function page() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Products</h1>
-        <Link
-          href="/products/add"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 ml-auto mr-1"
-        >
+        <Button href="/products/add" type="btnPrimary">
           Add New Product
-        </Link>
+        </Button>
       </div>
 
       {products.length === 0 ? (
@@ -44,7 +42,7 @@ async function page() {
 
                 <Table.Col className="text-sm font-medium flex justify-center">
                   <Link
-                    href={`/vendors/edit/${product.id}`}
+                    href={`/products/edit/${product.id}`}
                     className="text-indigo-600 hover:text-indigo-900"
                   >
                     Edit

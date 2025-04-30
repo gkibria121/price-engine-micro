@@ -9,33 +9,31 @@ function Table({
   headers: tableHeader[];
 } & PropsWithChildren) {
   return (
-    <div className="bg-white shadow rounded  ">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {headers.map((th) => (
-              <th
-                key={typeof th == "string" ? th : th.value}
-                colSpan={
-                  typeof th !== "string" && th.colSpan !== 0 ? th.colSpan : 1
-                }
-                rowSpan={
-                  typeof th !== "string" && th.rowSpan !== 0 ? th.rowSpan : 1
-                }
-                className={`px-6 py-3  text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                  typeof th !== "string" && th.isCenter
-                    ? "text-center"
-                    : "text-left"
-                }`}
-              >
-                {typeof th === "string" ? th : th.value}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">{children}</tbody>
-      </table>
-    </div>
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50">
+        <tr>
+          {headers.map((th) => (
+            <th
+              key={typeof th == "string" ? th : th.value}
+              colSpan={
+                typeof th !== "string" && th.colSpan !== 0 ? th.colSpan : 1
+              }
+              rowSpan={
+                typeof th !== "string" && th.rowSpan !== 0 ? th.rowSpan : 1
+              }
+              className={`px-6 py-3  text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                typeof th !== "string" && th.isCenter
+                  ? "text-center"
+                  : "text-left"
+              }`}
+            >
+              {typeof th === "string" ? th : th.value}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">{children}</tbody>
+    </table>
   );
 }
 
@@ -48,9 +46,7 @@ function Col({
 }: PropsWithChildren & {
   className?: string;
 }) {
-  return (
-    <td className={`px-6 py-4 whitespace-nowrap ${className}`}>{children}</td>
-  );
+  return <td className={`px-6 py-4 ${className}`}>{children}</td>;
 }
 Table.Row = Row;
 Table.Col = Col;
