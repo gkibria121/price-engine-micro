@@ -2,7 +2,7 @@ import app from "./app";
 import connectDatabase from "./config/connectdb";
 import dotenv from "dotenv";
 import path from "path";
-const PORT = 3000;
+const PORT = 8000;
 const setup = async () => {
   try {
     await connectDatabase();
