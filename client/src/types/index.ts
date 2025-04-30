@@ -30,7 +30,7 @@ export interface VendorProduct {
 
 // Vendor types
 export interface Vendor {
-  _id?: string;
+  id: string;
   name: string;
   email: string;
   address: string;

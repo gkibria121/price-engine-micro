@@ -9,7 +9,7 @@ function Table({
   headers: tableHeader[];
 } & PropsWithChildren) {
   return (
-    <div className="bg-white shadow rounded overflow-hidden">
+    <div className="bg-white shadow rounded  ">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
