@@ -4,7 +4,7 @@ import React from "react";
 import { Product } from "@/types";
 import EmptyResourceState from "@/componets/EmptyResourceState";
 import Table from "@/componets/Table";
-import Button from "@/componets/Button";
+import DeleteResourceButton from "@/componets/DeleteResource";
 
 async function page() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
@@ -49,7 +49,10 @@ async function page() {
                   >
                     Edit
                   </Link>
-                  <Button type="link">Delete</Button>
+                  <DeleteResourceButton
+                    resourcePath="/products"
+                    id={product.id}
+                  />
                 </Table.Col>
               </Table.Row>
             ))}
