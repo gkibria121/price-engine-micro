@@ -12,7 +12,6 @@ async function page() {
   if (!response.ok) {
     new Error("Faild to fetch!");
   }
-  console.log(response);
   const data = await response.json();
   const vendors = data.vendors as Vendor[];
   return (
