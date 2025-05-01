@@ -9,6 +9,15 @@ export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
   res.status(200).send({ vendors });
 }
+// GET /vendor
+export async function getVendor(req: Request, res: Response) {
+  const { id } = req.params as { id: string };
+  const vendor = await VendorModel.findById(id);
+  if (!vendor) {
+    throw new NotFoundException("Vendor not found!");
+  }
+  res.status(200).send({ vendor });
+}
 
 // POST /vendors/store
 export async function createVendor(req: Request, res: Response) {

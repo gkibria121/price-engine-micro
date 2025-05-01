@@ -5,42 +5,49 @@ import Button from "../Button";
 import { toast } from "react-toastify";
 import { setValidationErrors, wait } from "@/util/funcitons";
 import { useRouter } from "next/navigation";
+import { Vendor } from "@/types";
 
 interface VendorFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  vendor?: Vendor;
+  isEdit?: boolean;
 }
 type VendorFormType = {
   name: string;
   email: string;
   address: string;
-  rating: 0;
+  rating: number;
 };
-export default function VendorForm({}: VendorFormProps) {
+export default function VendorForm({
+  vendor,
+  isEdit = false,
+}: VendorFormProps) {
   const router = useRouter();
+  const defaultValues: VendorFormType = vendor || {
+    name: "",
+    email: "",
+    address: "",
+    rating: 0,
+  };
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isLoading },
   } = useForm<VendorFormType>({
-    defaultValues: {
-      name: "",
-      email: "",
-      address: "",
-      rating: 0,
-    },
+    defaultValues,
   });
 
   const onSubmit = async (data: VendorFormType) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/vendors/store`,
+        `${process.env.NEXT_PUBLIC_API_URL}/vendors/${
+          isEdit ? vendor?.id : "store"
+        }`,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          method: "POST",
+          method: isEdit ? "PUT" : "POST",
           body: JSON.stringify(data),
         }
       );
@@ -54,7 +61,7 @@ export default function VendorForm({}: VendorFormProps) {
         }
         return;
       }
-      toast("Vendor added sucessfullly!", {
+      toast(`Vendor ${isEdit ? "updated" : "added"} sucessfullly!`, {
         autoClose: 1000,
       });
 
@@ -111,7 +118,7 @@ export default function VendorForm({}: VendorFormProps) {
       />
 
       <div className="flex justify-start gap-4">
-        <Button type="btnWhite" href="/products">
+        <Button type="btnWhite" href="/vendors">
           Cancel
         </Button>
         <Button type="btnPrimary">{isLoading ? "Loading..." : "Submit"}</Button>

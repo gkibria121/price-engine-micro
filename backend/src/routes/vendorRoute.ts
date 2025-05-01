@@ -3,6 +3,7 @@ import {
   bulkInsertOrUpdate,
   createVendor,
   deleteVendor,
+  getVendor,
   index,
   updateVendor,
 } from "../controllers/vendorController";
@@ -55,6 +56,7 @@ router
     updateVendor
   );
 router.route("/vendors/:id").delete(validateObjectId("id"), deleteVendor);
+router.route("/vendors/:id").get(validateObjectId("id"), getVendor);
 router.route("/vendors/bulk-upload").post(bulkInsertOrUpdate);
 
 export default router;
