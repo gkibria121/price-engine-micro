@@ -5,16 +5,18 @@ import { toInitialCap } from "@/util/funcitons";
 function TextField({
   error,
   label,
+  type = "text",
   ...others
 }: {
   error?: string;
   label: string;
+  type?: HTMLInputElement["type"];
   others?: React.HTMLAttributes<HTMLInputElement>;
 }) {
   return (
     <div className="relative">
       <input
-        type="text"
+        type={type}
         {...others}
         id="floating_outlined"
         className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none   focus:outline-none focus:ring-0 focus:border-blue-600 peer"

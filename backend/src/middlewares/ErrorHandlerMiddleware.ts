@@ -19,6 +19,7 @@ export function errorHandler(
   if (err instanceof CustomException) {
     res.status(err.statusCode).json({
       message: err.message,
+      errors: err.errors,
     });
     return;
   }

@@ -36,3 +36,4 @@ export interface Vendor {
   address: string;
   rating: number;
 }
+export type ValidationErrors = Record<string, string[]>;
