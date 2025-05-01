@@ -52,3 +52,13 @@ export type VendorProductFormType = {
   }[];
   quantityPricings: { quantity: number; price: number }[];
 };
+
+export type DeliverySlot = {
+  label: string;
+  price: number;
+  deliveryTimeStartDate: number;
+  deliveryTimeStartTime: `${number}:${number}`;
+  deliveryTimeEndDate: number;
+  deliveryTimeEndTime: `${number}:${number}`;
+  cutoffTime: `${number}:${number}`;
+};

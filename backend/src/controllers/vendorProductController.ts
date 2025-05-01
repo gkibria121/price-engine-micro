@@ -60,7 +60,10 @@ export async function storeVendorProduct(req: Request, res: Response) {
     vendor: vendorId,
   });
   if (existingVendorProduct) {
-    throw new CustomValidationException("Vendor Product already exists");
+    throw new CustomValidationException("Vendor Product already exists", {
+      productId: ["Vendor Product already exists"],
+      vendorId: ["Vendor Product already exists"],
+    });
   }
   const vendor = await VendorModel.findById(vendorId);
   if (!vendor) {

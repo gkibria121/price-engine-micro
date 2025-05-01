@@ -9,6 +9,7 @@ import {
 } from "../controllers/vendorProductController";
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
+import { validateObjectId } from "../middlewares/validateObjectId";
 
 const router = express.Router();
 
@@ -158,16 +159,21 @@ router.post(
   storeVendorProduct
 );
 
-router.get("/vendor-products/:id", getVendorProduct);
+router.get("/vendor-products/:id", validateObjectId("id"), getVendorProduct);
 
 router.put(
   "/vendor-products/:id",
+  validateObjectId("id"),
   updateVendorProductValidation,
   validateRequest,
   updateVendorProduct
 );
 
-router.delete("/vendor-products/:id", deleteVendorProduct);
+router.delete(
+  "/vendor-products/:id",
+  validateObjectId("id"),
+  deleteVendorProduct
+);
 
 router.post(
   "/vendor-products/bulk-upload",

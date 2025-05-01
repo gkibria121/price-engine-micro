@@ -1,28 +1,34 @@
 "use client";
 
-import { Product, Vendor, VendorProductFormType } from "@/types";
+import { DeliverySlot, Product, Vendor, VendorProductFormType } from "@/types";
 import { FormProvider, useForm } from "react-hook-form";
 import Button from "../Button";
 import SelectionField from "./SelectionField";
 import PricingRulesForm from "./PricingRulesForm";
 import DeliveryRulesForm from "./DeliveryRulesForm";
 import QuantityPricingsForm from "./QuantityPricingsForm";
+import { toast } from "react-toastify";
+import { setValidationErrors, wait } from "@/util/funcitons";
+import { useRouter } from "next/navigation";
 
 interface ProductFormProps {
   isEdit?: boolean;
   products: Product[];
   vendors: Vendor[];
+  deliveryMethods: DeliverySlot[];
 }
 
 export default function VendorProductForm({
   products,
   vendors,
+  deliveryMethods,
 }: ProductFormProps) {
+  const router = useRouter();
   const defaultValues: VendorProductFormType = {
     productId: "",
     vendorId: "",
     pricingRules: [{ attribute: "", value: "", price: 0 }],
-    deliverySlots: [],
+    deliverySlots: deliveryMethods || [],
     quantityPricings: [{ quantity: 1, price: 0 }],
   };
   const methods = useForm<VendorProductFormType>({
@@ -31,11 +37,46 @@ export default function VendorProductForm({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { isLoading, errors },
   } = methods;
 
   const onSubmit = async (data: VendorProductFormType) => {
     console.log(data);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/store`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      if (response.status === 422) {
+        const data = await response.json();
+        if (!data.errors) {
+          toast(data.message, {
+            type: "error",
+          });
+        } else {
+          setValidationErrors(data.errors, setError);
+        }
+      } else {
+        const data = await response.json();
+        toast(data.message, {
+          type: "error",
+          autoClose: 1000,
+        });
+      }
+    }
+    toast("VendorProduct created successfully!", {
+      type: "success",
+      autoClose: 1000,
+    });
+    await wait(1.5);
+    router.push("/vendor-products");
   };
 
   return (
