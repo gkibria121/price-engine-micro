@@ -1,6 +1,12 @@
 "use client";
 
-import { DeliverySlot, Product, Vendor, VendorProductFormType } from "@/types";
+import {
+  DeliverySlot,
+  Product,
+  Vendor,
+  VendorProduct,
+  VendorProductFormType,
+} from "@/types";
 import { FormProvider, useForm } from "react-hook-form";
 import Button from "../Button";
 import SelectionField from "./SelectionField";
@@ -10,27 +16,40 @@ import QuantityPricingsForm from "./QuantityPricingsForm";
 import { toast } from "react-toastify";
 import { setValidationErrors, wait } from "@/util/funcitons";
 import { useRouter } from "next/navigation";
+import TextField from "./TextField";
 
 interface ProductFormProps {
   isEdit?: boolean;
   products: Product[];
   vendors: Vendor[];
   deliveryMethods: DeliverySlot[];
+  vendorProduct?: VendorProduct;
+  readonly?: boolean;
 }
 
 export default function VendorProductForm({
   products,
   vendors,
+  isEdit = false,
+  vendorProduct,
+  readonly = false,
   deliveryMethods,
 }: ProductFormProps) {
   const router = useRouter();
-  const defaultValues: VendorProductFormType = {
-    productId: "",
-    vendorId: "",
-    pricingRules: [{ attribute: "", value: "", price: 0 }],
-    deliverySlots: deliveryMethods || [],
-    quantityPricings: [{ quantity: 1, price: 0 }],
-  };
+  const defaultValues: VendorProductFormType =
+    isEdit && vendorProduct
+      ? {
+          vendorId: vendorProduct.vendor.id,
+          productId: vendorProduct.product.id,
+          ...vendorProduct,
+        }
+      : {
+          productId: "",
+          vendorId: "",
+          pricingRules: [{ attribute: "", value: "", price: 0 }],
+          deliverySlots: deliveryMethods || [],
+          quantityPricings: [{ quantity: 1, price: 0 }],
+        };
   const methods = useForm<VendorProductFormType>({
     defaultValues,
   });
@@ -42,11 +61,12 @@ export default function VendorProductForm({
   } = methods;
 
   const onSubmit = async (data: VendorProductFormType) => {
-    console.log(data);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/store`,
+      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${
+        isEdit ? vendorProduct?.id : "store"
+      }`,
       {
-        method: "POST",
+        method: isEdit ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -70,8 +90,9 @@ export default function VendorProductForm({
           autoClose: 1000,
         });
       }
+      return;
     }
-    toast("VendorProduct created successfully!", {
+    toast(`VendorProduct ${isEdit ? "updated" : "created"} successfully!`, {
       type: "success",
       autoClose: 1000,
     });
@@ -86,7 +107,20 @@ export default function VendorProductForm({
           <h2 className="text-xl font-semibold">Basic Information</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {
+            {readonly && vendorProduct ? (
+              <>
+                <TextField
+                  label="Product Name"
+                  readonly={readonly}
+                  defaultValue={vendorProduct.product.name}
+                />
+                <TextField
+                  label="Vendor Name"
+                  readonly={readonly}
+                  defaultValue={vendorProduct.vendor.name}
+                />
+              </>
+            ) : (
               <>
                 <SelectionField
                   label="Product"
@@ -111,25 +145,30 @@ export default function VendorProductForm({
                   })}
                 />
               </>
-            }
+            )}
           </div>
         </div>
         {/* Pricing Rules */}
-        <PricingRulesForm />
+        <PricingRulesForm readonly={readonly} />
         {/* Delivery Rules */}
-        <DeliveryRulesForm />
+        <DeliveryRulesForm readonly={readonly} />
 
         {/* Quantity Pricing */}
-        <QuantityPricingsForm />
-
-        <div className="flex justify-start gap-4">
-          <Button type="btnWhite" href="/vendors">
-            Cancel
+        <QuantityPricingsForm readonly={readonly} />
+        {readonly ? (
+          <Button type="btnPrimary" href="/vendor-products">
+            Back
           </Button>
-          <Button type="btnPrimary">
-            {isLoading ? "Loading..." : "Submit"}
-          </Button>
-        </div>
+        ) : (
+          <div className="flex justify-start gap-4">
+            <Button type="btnWhite" href="/vendor-products">
+              Cancel
+            </Button>
+            <Button type="btnPrimary">
+              {isLoading ? "Loading..." : "Submit"}
+            </Button>
+          </div>
+        )}
       </form>
     </FormProvider>
   );

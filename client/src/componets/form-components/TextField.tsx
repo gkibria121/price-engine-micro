@@ -7,11 +7,15 @@ function TextField({
   label,
   step,
   type = "text",
+  defaultValue,
+  readonly = false,
   ...others
 }: {
   error?: string | string[];
   label: string;
   step?: string;
+  defaultValue?: string;
+  readonly?: boolean;
   type?: HTMLInputElement["type"];
   others?: React.HTMLAttributes<HTMLInputElement>;
 }) {
@@ -20,6 +24,8 @@ function TextField({
       <input
         type={type}
         {...others}
+        defaultValue={defaultValue}
+        readOnly={readonly}
         step={step ? step : undefined}
         id="floating_outlined"
         className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none   focus:outline-none focus:ring-0 focus:border-blue-600 peer"

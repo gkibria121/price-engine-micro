@@ -11,7 +11,7 @@ export interface DeliveryRule {
 }
 
 export interface QuantityPricing {
-  minQty: number;
+  quantity: number;
   price: number;
 }
 
@@ -23,7 +23,7 @@ export interface VendorProduct {
   id: string;
   product: Product;
   pricingRules: PricingRule[];
-  deliverySlots: DeliveryRule[];
+  deliverySlots: DeliverySlot[];
   quantityPricings: QuantityPricing[];
   vendor: Vendor;
 }
@@ -35,22 +35,16 @@ export interface Vendor {
   email: string;
   address: string;
   rating: number;
+  vendor: Vendor;
+  product: Product;
 }
 export type ValidationErrors = Record<string, string[]>;
 export type VendorProductFormType = {
   productId: string;
   vendorId: string;
   pricingRules: { attribute: string; value: string; price: number }[];
-  deliverySlots: {
-    label: string;
-    price: number;
-    deliveryTimeStartDate: number;
-    deliveryTimeStartTime: `${number}:${number}`;
-    deliveryTimeEndDate: number;
-    deliveryTimeEndTime: `${number}:${number}`;
-    cutoffTime: `${number}:${number}`;
-  }[];
-  quantityPricings: { quantity: number; price: number }[];
+  deliverySlots: DeliverySlot[];
+  quantityPricings: QuantityPricing[];
 };
 
 export type DeliverySlot = {

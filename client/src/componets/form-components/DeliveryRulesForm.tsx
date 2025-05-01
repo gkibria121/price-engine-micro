@@ -4,7 +4,7 @@ import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
 
-function DeliveryRulesForm({}) {
+function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
   const {
     control,
     register,
@@ -17,6 +17,7 @@ function DeliveryRulesForm({}) {
   } = useFieldArray({ control, name: "deliverySlots" });
   return (
     <ObjectListField
+      readonly={readonly}
       defaultItem={{
         label: "",
         price: 0,
@@ -35,6 +36,7 @@ function DeliveryRulesForm({}) {
             <ObjectListField.Col>
               <TextField
                 label="Label"
+                readonly={readonly}
                 error={errors.deliverySlots?.[index]?.label?.message}
                 {...register(`deliverySlots.${index}.label` as const, {
                   required: "This field is required",
@@ -45,6 +47,7 @@ function DeliveryRulesForm({}) {
               <TextField
                 label="Price"
                 type="number"
+                readonly={readonly}
                 error={errors.deliverySlots?.[index]?.price?.message}
                 {...register(`deliverySlots.${index}.price` as const, {
                   required: "This field is required",
@@ -59,6 +62,7 @@ function DeliveryRulesForm({}) {
                 type="number"
                 min="0"
                 max="10"
+                readonly={readonly}
                 error={
                   errors.deliverySlots?.[index]?.deliveryTimeStartDate?.message
                 }
@@ -75,6 +79,7 @@ function DeliveryRulesForm({}) {
               <TextField
                 label="Start Time"
                 type="time"
+                readonly={readonly}
                 error={
                   errors.deliverySlots?.[index]?.deliveryTimeStartTime?.message
                 }
@@ -94,6 +99,7 @@ function DeliveryRulesForm({}) {
                 type="number"
                 min="0"
                 max="30"
+                readonly={readonly}
                 error={
                   errors.deliverySlots?.[index]?.deliveryTimeEndDate?.message
                 }
@@ -110,6 +116,7 @@ function DeliveryRulesForm({}) {
               <TextField
                 label="End Time"
                 type="time"
+                readonly={readonly}
                 error={
                   errors.deliverySlots?.[index]?.deliveryTimeEndTime?.message
                 }
@@ -127,6 +134,7 @@ function DeliveryRulesForm({}) {
               <TextField
                 label="Cutoff Time"
                 type="time"
+                readonly={readonly}
                 error={errors.deliverySlots?.[index]?.cutoffTime?.message}
                 {...register(`deliverySlots.${index}.cutoffTime` as const, {
                   required: "This field is required",
@@ -134,7 +142,9 @@ function DeliveryRulesForm({}) {
               />
             </ObjectListField.Col>
           </ObjectListField.Row>
-          <ObjectListField.Remove handleClick={() => removeDelivery(index)} />
+          {!readonly && (
+            <ObjectListField.Remove handleClick={() => removeDelivery(index)} />
+          )}
         </ObjectListField.Table>
       ))}
       <input

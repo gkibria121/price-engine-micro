@@ -4,7 +4,7 @@ import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
 
-function PricingRulesForm({}) {
+function PricingRulesForm({ readonly }: { readonly: boolean }) {
   const {
     control,
     register,
@@ -18,6 +18,7 @@ function PricingRulesForm({}) {
   console.log(errors);
   return (
     <ObjectListField
+      readonly={readonly}
       defaultItem={{ attribute: "", value: "", price: 0 }}
       label="Pricing Rules"
       append={appendPricing}
@@ -26,6 +27,7 @@ function PricingRulesForm({}) {
         <ObjectListField.Row key={field.id}>
           <ObjectListField.Col>
             <TextField
+              readonly={readonly}
               error={errors.pricingRules?.[index]?.attribute?.message}
               label="Attribute"
               {...register(`pricingRules.${index}.attribute` as const, {
@@ -37,6 +39,7 @@ function PricingRulesForm({}) {
           <ObjectListField.Col>
             <TextField
               label="Value"
+              readonly={readonly}
               error={errors.pricingRules?.[index]?.value?.message}
               {...register(`pricingRules.${index}.value` as const, {
                 required: "This field is required",
@@ -46,6 +49,7 @@ function PricingRulesForm({}) {
 
           <ObjectListField.Col>
             <TextField
+              readonly={readonly}
               error={errors.pricingRules?.[index]?.price?.message}
               {...register(`pricingRules.${index}.price` as const, {
                 required: "This field is required",
@@ -56,7 +60,9 @@ function PricingRulesForm({}) {
               step="0.01"
             />
           </ObjectListField.Col>
-          <ObjectListField.Remove handleClick={() => removePricing(index)} />
+          {!readonly && (
+            <ObjectListField.Remove handleClick={() => removePricing(index)} />
+          )}
         </ObjectListField.Row>
       ))}
       <input

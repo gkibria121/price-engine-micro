@@ -4,7 +4,7 @@ import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
 
-function QuantityPricingsForm({}) {
+function QuantityPricingsForm({ readonly }: { readonly: boolean }) {
   const {
     control,
     register,
@@ -17,6 +17,7 @@ function QuantityPricingsForm({}) {
   } = useFieldArray({ control, name: "quantityPricings" });
   return (
     <ObjectListField
+      readonly={readonly}
       defaultItem={{ quantity: 1, price: 0 }}
       label="Quantity Pricing"
       append={appendQuantity}
@@ -26,6 +27,7 @@ function QuantityPricingsForm({}) {
           <ObjectListField.Col>
             <TextField
               label="Quantity"
+              readonly={readonly}
               type="number"
               error={errors.quantityPricings?.[index]?.quantity?.message}
               {...register(`quantityPricings.${index}.quantity` as const, {
@@ -40,6 +42,7 @@ function QuantityPricingsForm({}) {
             <TextField
               type="number"
               step="0.01"
+              readonly={readonly}
               error={errors.quantityPricings?.[index]?.price?.message}
               {...register(`quantityPricings.${index}.price` as const, {
                 required: "This field is required",
@@ -48,8 +51,9 @@ function QuantityPricingsForm({}) {
               label="Price Per Unit"
             />
           </ObjectListField.Col>
-
-          <ObjectListField.Remove handleClick={() => removeQuantity(index)} />
+          {!readonly && (
+            <ObjectListField.Remove handleClick={() => removeQuantity(index)} />
+          )}
         </ObjectListField.Row>
       ))}
       <input

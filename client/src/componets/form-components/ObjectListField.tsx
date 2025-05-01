@@ -6,25 +6,29 @@ function ObjectListField<T extends Record<string, unknown>>({
   children,
   label,
   defaultItem,
+  readonly,
   append,
 }: PropsWithChildren & {
   label: string;
   defaultItem: FieldArray<T, ArrayPath<T>>;
   append: UseFieldArrayReturn<T>["append"];
+  readonly: boolean;
 }) {
   return (
     <div className="space-y-4  border-b">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">{label}</h2>
-        <Button
-          type="btnPrimary"
-          buttonType="button"
-          onClick={() => {
-            append(defaultItem);
-          }}
-        >
-          + Add Rule
-        </Button>
+        {!readonly && (
+          <Button
+            type="btnPrimary"
+            buttonType="button"
+            onClick={() => {
+              append(defaultItem);
+            }}
+          >
+            + Add Rule
+          </Button>
+        )}
       </div>
       {children}
     </div>
