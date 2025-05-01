@@ -20,7 +20,7 @@ export interface Product {
   name: string;
 }
 export interface VendorProduct {
-  _id?: string;
+  id: string;
   product: Product;
   pricingRules: PricingRule[];
   deliverySlots: DeliveryRule[];

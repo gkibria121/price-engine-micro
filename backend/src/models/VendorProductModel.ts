@@ -13,6 +13,15 @@ const VendorProductSchema = new Schema({
     { type: Schema.Types.ObjectId, ref: "QuantityPricing", required: true },
   ],
 });
+// Add toJSON transformation
+VendorProductSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 export default models.VendorProduct ||
   model("VendorProduct", VendorProductSchema);
