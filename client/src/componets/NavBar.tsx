@@ -14,6 +14,9 @@ export default function Navbar() {
           <Link href="/vendors" className="hover:text-blue-200">
             Vendors
           </Link>
+          <Link href="/vendor-products" className="hover:text-blue-200">
+            VendorProducts
+          </Link>
           <Link href="/calculate-price" className="hover:text-blue-200">
             Calculate Price
           </Link>

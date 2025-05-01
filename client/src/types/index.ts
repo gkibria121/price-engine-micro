@@ -37,3 +37,18 @@ export interface Vendor {
   rating: number;
 }
 export type ValidationErrors = Record<string, string[]>;
+export type VendorProductFormType = {
+  productId: string;
+  vendorId: string;
+  pricingRules: { attribute: string; value: string; price: number }[];
+  deliverySlots: {
+    label: string;
+    price: number;
+    deliveryTimeStartDate: number;
+    deliveryTimeStartTime: `${number}:${number}`;
+    deliveryTimeEndDate: number;
+    deliveryTimeEndTime: `${number}:${number}`;
+    cutoffTime: `${number}:${number}`;
+  }[];
+  quantityPricings: { quantity: number; price: number }[];
+};
