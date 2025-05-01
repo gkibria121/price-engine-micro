@@ -1,14 +1,17 @@
 import { toInitialCap } from "@/util/funcitons";
 import React from "react";
+import FieldError from "./FieldError";
 
 function SelectionField({
   options,
   label,
   className,
+  error,
   ...others
 }: {
   label: string;
   className?: string;
+  error?: string | string[];
   options: { name: string; value: string }[];
   others?: React.HTMLAttributes<HTMLSelectElement>;
 }) {
@@ -33,6 +36,11 @@ function SelectionField({
           </option>
         ))}
       </select>
+      {typeof error === "string" ? (
+        <FieldError>{error}</FieldError>
+      ) : (
+        error?.map((e) => <FieldError key={e}>{e}</FieldError>)
+      )}
     </div>
   );
 }
