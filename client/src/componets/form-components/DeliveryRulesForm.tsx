@@ -3,18 +3,28 @@ import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
+import { VendorProductFormType } from "@/types";
 
-function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
+function DeliveryRulesForm({
+  readonly,
+  formIndex,
+}: {
+  readonly: boolean;
+  formIndex: number;
+}) {
   const {
     control,
     register,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<VendorProductFormType>();
   const {
     fields: deliveryFields,
     append: appendDelivery,
     remove: removeDelivery,
-  } = useFieldArray({ control, name: "deliverySlots" });
+  } = useFieldArray({
+    control,
+    name: `vendorProducts.${formIndex}.deliverySlots`,
+  });
   return (
     <ObjectListField
       readonly={readonly}
@@ -37,10 +47,16 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
               <TextField
                 label="Label"
                 readonly={readonly}
-                error={errors.deliverySlots?.[index]?.label?.message}
-                {...register(`deliverySlots.${index}.label` as const, {
-                  required: "This field is required",
-                })}
+                error={
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.label?.message
+                }
+                {...register(
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.label` as const,
+                  {
+                    required: "This field is required",
+                  }
+                )}
               />
             </ObjectListField.Col>
             <ObjectListField.Col>
@@ -48,10 +64,16 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 label="Price"
                 type="number"
                 readonly={readonly}
-                error={errors.deliverySlots?.[index]?.price?.message}
-                {...register(`deliverySlots.${index}.price` as const, {
-                  required: "This field is required",
-                })}
+                error={
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.price?.message
+                }
+                {...register(
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.price` as const,
+                  {
+                    required: "This field is required",
+                  }
+                )}
               />
             </ObjectListField.Col>
           </ObjectListField.Row>
@@ -64,10 +86,11 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 max="10"
                 readonly={readonly}
                 error={
-                  errors.deliverySlots?.[index]?.deliveryTimeStartDate?.message
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.deliveryTimeStartDate?.message
                 }
                 {...register(
-                  `deliverySlots.${index}.deliveryTimeStartDate` as const,
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeStartDate` as const,
                   {
                     required: "This field is required",
                     valueAsNumber: true,
@@ -81,10 +104,11 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 type="time"
                 readonly={readonly}
                 error={
-                  errors.deliverySlots?.[index]?.deliveryTimeStartTime?.message
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.deliveryTimeStartTime?.message
                 }
                 {...register(
-                  `deliverySlots.${index}.deliveryTimeStartTime` as const,
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeStartTime` as const,
                   {
                     required: "This field is required",
                   }
@@ -101,10 +125,11 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 max="30"
                 readonly={readonly}
                 error={
-                  errors.deliverySlots?.[index]?.deliveryTimeEndDate?.message
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.deliveryTimeEndDate?.message
                 }
                 {...register(
-                  `deliverySlots.${index}.deliveryTimeEndDate` as const,
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeEndDate` as const,
                   {
                     required: "This field is required",
                     valueAsNumber: true,
@@ -118,10 +143,11 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 type="time"
                 readonly={readonly}
                 error={
-                  errors.deliverySlots?.[index]?.deliveryTimeEndTime?.message
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.deliveryTimeEndTime?.message
                 }
                 {...register(
-                  `deliverySlots.${index}.deliveryTimeEndTime` as const,
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeEndTime` as const,
                   {
                     required: "This field is required",
                   }
@@ -135,10 +161,16 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
                 label="Cutoff Time"
                 type="time"
                 readonly={readonly}
-                error={errors.deliverySlots?.[index]?.cutoffTime?.message}
-                {...register(`deliverySlots.${index}.cutoffTime` as const, {
-                  required: "This field is required",
-                })}
+                error={
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.cutoffTime?.message
+                }
+                {...register(
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.cutoffTime` as const,
+                  {
+                    required: "This field is required",
+                  }
+                )}
               />
             </ObjectListField.Col>
           </ObjectListField.Row>
@@ -149,14 +181,16 @@ function DeliveryRulesForm({ readonly }: { readonly: boolean }) {
       ))}
       <input
         type="hidden"
-        {...register("deliverySlots", {
+        {...register(`vendorProducts.${formIndex}.deliverySlots`, {
           validate: (value) =>
             value.length > 0 || "At least one delivery rule is required",
         })}
       />
-      {errors.deliverySlots?.root?.message && (
+      {errors.vendorProducts?.[formIndex]?.deliverySlots?.root?.message && (
         <FieldError>
-          {errors.deliverySlots?.root?.message?.toString()}
+          {errors.vendorProducts?.[
+            formIndex
+          ]?.deliverySlots?.root?.message?.toString()}
         </FieldError>
       )}
     </ObjectListField>

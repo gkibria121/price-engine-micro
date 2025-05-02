@@ -3,19 +3,26 @@ import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
+import { VendorProductFormType } from "@/types";
 
-function PricingRulesForm({ readonly }: { readonly: boolean }) {
+function PricingRulesForm({
+  readonly,
+  formIndex,
+}: {
+  readonly: boolean;
+  formIndex: number;
+}) {
   const {
     control,
     register,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<VendorProductFormType>();
   const {
     fields: pricingFields,
     append: appendPricing,
     remove: removePricing,
-  } = useFieldArray({ control, name: "pricingRules" });
-  console.log(errors);
+  } = useFieldArray({ control, name: `vendorProducts` });
+
   return (
     <ObjectListField
       readonly={readonly}
@@ -28,11 +35,17 @@ function PricingRulesForm({ readonly }: { readonly: boolean }) {
           <ObjectListField.Col>
             <TextField
               readonly={readonly}
-              error={errors.pricingRules?.[index]?.attribute?.message}
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRules?.[index]
+                  ?.attribute?.message
+              }
               label="Attribute"
-              {...register(`pricingRules.${index}.attribute` as const, {
-                required: "This field is required",
-              })}
+              {...register(
+                `vendorProducts.${formIndex}.pricingRules.${index}.attribute` as const,
+                {
+                  required: "This field is required",
+                }
+              )}
             />
           </ObjectListField.Col>
 
@@ -40,21 +53,33 @@ function PricingRulesForm({ readonly }: { readonly: boolean }) {
             <TextField
               label="Value"
               readonly={readonly}
-              error={errors.pricingRules?.[index]?.value?.message}
-              {...register(`pricingRules.${index}.value` as const, {
-                required: "This field is required",
-              })}
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRules?.[index]?.value
+                  ?.message
+              }
+              {...register(
+                `vendorProducts.${formIndex}.pricingRules.${index}.value` as const,
+                {
+                  required: "This field is required",
+                }
+              )}
             />
           </ObjectListField.Col>
 
           <ObjectListField.Col>
             <TextField
               readonly={readonly}
-              error={errors.pricingRules?.[index]?.price?.message}
-              {...register(`pricingRules.${index}.price` as const, {
-                required: "This field is required",
-                valueAsNumber: true,
-              })}
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRules?.[index]?.price
+                  ?.message
+              }
+              {...register(
+                `vendorProducts.${formIndex}.pricingRules.${index}.price` as const,
+                {
+                  required: "This field is required",
+                  valueAsNumber: true,
+                }
+              )}
               label="Price Adjustment"
               type="number"
               step="0.01"
@@ -67,14 +92,14 @@ function PricingRulesForm({ readonly }: { readonly: boolean }) {
       ))}
       <input
         type="hidden"
-        {...register("pricingRules", {
+        {...register(`vendorProducts.${formIndex}.pricingRules`, {
           validate: (value) =>
             value.length > 0 || "At least one pricing rule is required",
         })}
       />
-      {errors.pricingRules?.root?.message && (
+      {errors?.[formIndex]?.pricingRules?.root?.message && (
         <FieldError>
-          {errors.pricingRules?.root?.message?.toString()}
+          {errors?.[formIndex]?.pricingRules?.root?.message?.toString()}
         </FieldError>
       )}
     </ObjectListField>

@@ -6,6 +6,7 @@ import {
   getVendorProduct,
   index,
   updateVendorProduct,
+  bulkStore,
 } from "../controllers/vendorProductController";
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
@@ -147,7 +148,24 @@ const bulkUploadVendorProductValidation = [
   ...deliverySlotsValidation(),
   ...quantityPricingsValidation(),
 ];
-
+const bulkStoreVendorProductValidation = [
+  body("vendorProducts")
+    .isArray({ min: 1 })
+    .withMessage("vendorProducts must be a non-empty array"),
+  body("vendorProducts.*.productId")
+    .exists({ checkFalsy: true })
+    .withMessage("This field is required")
+    .isMongoId()
+    .withMessage("This field must be a valid mongo ID"),
+  body("vendorProducts.*.vendorId")
+    .exists({ checkFalsy: true })
+    .withMessage("This field is required")
+    .isMongoId()
+    .withMessage("This field must be a valid mongo ID"),
+  ...pricingRulesValidation("vendorProducts.*.pricingRules"),
+  ...deliverySlotsValidation("vendorProducts.*.deliverySlots"),
+  ...quantityPricingsValidation("vendorProducts.*.quantityPricings"),
+];
 // ----------- Routes -------------
 
 router.get("/vendor-products", index);
@@ -181,5 +199,10 @@ router.post(
   validateRequest,
   bulkInsertOrUpdate
 );
-
+router.post(
+  "/vendor-products/bulk-store",
+  bulkStoreVendorProductValidation,
+  validateRequest,
+  bulkStore
+);
 export default router;

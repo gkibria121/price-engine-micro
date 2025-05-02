@@ -40,11 +40,13 @@ export interface Vendor {
 }
 export type ValidationErrors = Record<string, string[]>;
 export type VendorProductFormType = {
-  productId: string;
-  vendorId: string;
-  pricingRules: { attribute: string; value: string; price: number }[];
-  deliverySlots: DeliverySlot[];
-  quantityPricings: QuantityPricing[];
+  vendorProducts: {
+    productId: string;
+    vendorId: string;
+    pricingRules: { attribute: string; value: string; price: number }[];
+    deliverySlots: DeliverySlot[];
+    quantityPricings: QuantityPricing[];
+  }[];
 };
 
 export type DeliverySlot = {

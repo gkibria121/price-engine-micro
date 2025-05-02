@@ -15,9 +15,9 @@ function ObjectListField<T extends Record<string, unknown>>({
   readonly: boolean;
 }) {
   return (
-    <div className="space-y-4  border-b">
+    <div className="space-y-4  border-b mt-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">{label}</h2>
+        <h2 className="text-xl space-y-1 font-semibold">{label}</h2>
         {!readonly && (
           <Button
             type="btnPrimary"

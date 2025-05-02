@@ -3,18 +3,28 @@ import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FieldError from "./FieldError";
+import { VendorProductFormType } from "@/types";
 
-function QuantityPricingsForm({ readonly }: { readonly: boolean }) {
+function QuantityPricingsForm({
+  readonly,
+  formIndex,
+}: {
+  formIndex: number;
+  readonly: boolean;
+}) {
   const {
     control,
     register,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<VendorProductFormType>();
   const {
     fields: quantityFields,
     append: appendQuantity,
     remove: removeQuantity,
-  } = useFieldArray({ control, name: "quantityPricings" });
+  } = useFieldArray({
+    control,
+    name: `vendorProducts.${formIndex}.pricingRules`,
+  });
   return (
     <ObjectListField
       readonly={readonly}
@@ -29,12 +39,18 @@ function QuantityPricingsForm({ readonly }: { readonly: boolean }) {
               label="Quantity"
               readonly={readonly}
               type="number"
-              error={errors.quantityPricings?.[index]?.quantity?.message}
-              {...register(`quantityPricings.${index}.quantity` as const, {
-                required: "This field is required",
-                valueAsNumber: true,
-                min: { value: 1, message: "Must be at least 1" },
-              })}
+              error={
+                errors.vendorProducts?.[formIndex]?.quantityPricings?.[index]
+                  ?.quantity?.message
+              }
+              {...register(
+                `vendorProducts.${formIndex}.quantityPricings.${index}.quantity` as const,
+                {
+                  required: "This field is required",
+                  valueAsNumber: true,
+                  min: { value: 1, message: "Must be at least 1" },
+                }
+              )}
             />
           </ObjectListField.Col>
 
@@ -43,11 +59,17 @@ function QuantityPricingsForm({ readonly }: { readonly: boolean }) {
               type="number"
               step="0.01"
               readonly={readonly}
-              error={errors.quantityPricings?.[index]?.price?.message}
-              {...register(`quantityPricings.${index}.price` as const, {
-                required: "This field is required",
-                valueAsNumber: true,
-              })}
+              error={
+                errors.vendorProducts?.[formIndex]?.quantityPricings?.[index]
+                  ?.price?.message
+              }
+              {...register(
+                `vendorProducts.${formIndex}.quantityPricings.${index}.price` as const,
+                {
+                  required: "This field is required",
+                  valueAsNumber: true,
+                }
+              )}
               label="Price Per Unit"
             />
           </ObjectListField.Col>
@@ -58,14 +80,16 @@ function QuantityPricingsForm({ readonly }: { readonly: boolean }) {
       ))}
       <input
         type="hidden"
-        {...register("quantityPricings", {
+        {...register(`vendorProducts.${formIndex}.quantityPricings`, {
           validate: (value) =>
             value.length > 0 || "At least one quantity pricing is required",
         })}
       />
-      {errors.quantityPricings?.root?.message && (
+      {errors.vendorProducts?.[formIndex]?.quantityPricings?.root?.message && (
         <FieldError>
-          {errors.quantityPricings?.root?.message?.toString()}
+          {errors.vendorProducts?.[
+            formIndex
+          ]?.quantityPricings?.root?.message?.toString()}
         </FieldError>
       )}
     </ObjectListField>

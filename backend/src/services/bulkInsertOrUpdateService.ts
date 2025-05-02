@@ -8,6 +8,7 @@ import PricingRuleModel from "../models/PricingRuleModel";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import { Request, Response } from "express";
+import { ValidationErrors } from "../Exceptions/ValidationError";
 
 export function validateBulkInput(
   pricingRules: any[],
@@ -180,4 +181,42 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
     message: "Bulk insert/update completed successfully.",
     vendorProducts: results,
   });
+}
+
+export async function validateBulkStoreRequest(vendorProducts: any[]) {
+  const errors: Record<string, string[]> = {};
+
+  for (let index = 0; index < vendorProducts.length; index++) {
+    const vendorProduct = vendorProducts[index];
+    const { productId, vendorId } = vendorProduct;
+
+    const product = await ProductModel.findById(productId);
+    const vendor = await VendorModel.findById(vendorId);
+
+    if (!product) {
+      errors[`vendorProducts.${index}.productId`] = ["Product not found"];
+    }
+
+    if (!vendor) {
+      errors[`vendorProducts.${index}.vendorId`] = ["Vendor not found"];
+    }
+
+    const existingVendorProduct = await VendorProductModel.findOne({
+      product: productId,
+      vendor: vendorId,
+    });
+
+    if (existingVendorProduct) {
+      errors[`vendorProducts.${index}.vendorId`] = [
+        "VendorProduct already exists",
+      ];
+      errors[`vendorProducts.${index}.productId`] = [
+        "VendorProduct already exists",
+      ];
+    }
+  }
+
+  if (Object.keys(errors).length !== 0) {
+    throw new CustomValidationException("Some data are not valid.", errors);
+  }
 }

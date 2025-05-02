@@ -8,12 +8,12 @@ import QuantityPricingModel from "../models/QuantityPricingModel";
 import PricingRuleModel from "../models/PricingRuleModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
-import { ObjectId } from "mongoose";
 import {
   createVendorProduct,
   extractUniqueVendorProductIdentifiers,
   validateAndFetchProductVendor,
   validateBulkInput,
+  validateBulkStoreRequest,
   validateDeliverySlot,
   validatePricingRule,
   validateQuantityPricing,
@@ -225,6 +225,50 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
     );
 
     results.push(vendorProduct);
+  }
+
+  res.status(201).json({
+    message: "Bulk insert/update completed successfully.",
+    vendorProducts: results,
+  });
+}
+
+export async function bulkStore(req: Request, res: Response) {
+  const { vendorProducts } = req.body;
+
+  await validateBulkStoreRequest(vendorProducts);
+  const results = [] as any[];
+
+  for (const vendorProduct of vendorProducts) {
+    const {
+      productId,
+      vendorId,
+      pricingRules: productPricingRules,
+      deliverySlots: productDeliverySlots,
+      quantityPricings: productQuantityPricings,
+    } = vendorProduct;
+    const product = await ProductModel.findById(productId);
+    const vendor = await VendorModel.findById(vendorId);
+
+    if (!product) {
+      throw new CustomValidationException("Product not found!", {
+        productId: ["Product not found!"],
+      });
+    }
+    if (!vendor) {
+      throw new CustomValidationException("vendor not found!", {
+        vendorId: ["vendor not found!"],
+      });
+    }
+    const newVendorProduct = await createVendorProduct(
+      product,
+      vendor,
+      productPricingRules,
+      productDeliverySlots,
+      productQuantityPricings
+    );
+
+    results.push(newVendorProduct);
   }
 
   res.status(201).json({
