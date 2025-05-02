@@ -1,5 +1,6 @@
 import { ValidationErrors } from "@/types";
 import { UseFormReturn, Path } from "react-hook-form";
+import { Id, ToastContent, ToastOptions } from "react-toastify";
 
 export async function wait(s: number) {
   return new Promise((resolve) => {
@@ -15,18 +16,29 @@ export function toInitialCap(s: string) {
 
 export function setValidationErrors<T extends Record<string, unknown>>(
   errors: ValidationErrors,
-  setError: UseFormReturn<T>["setError"],
-  mode: "first" | "all" = "first"
+  setError?: UseFormReturn<T>["setError"],
+  toast?: (
+    content: ToastContent<unknown>,
+    options?: ToastOptions<unknown>
+  ) => Id,
+  mode: "first" | "all" | "toast" = "first"
 ) {
   Object.keys(errors).forEach((key) => {
     const path = key as Path<T>; // ✅ cast to Path<T> for TS compatibility
 
     const messages = errors[key];
+    if (mode == "toast" && toast) {
+      messages.forEach((m) => {
+        toast(m, {
+          type: "error",
+        });
+      });
+    }
     const message = mode === "all" ? messages.join(", ") : messages[0];
-
-    setError(path, {
-      type: "custom",
-      message,
-    });
+    if (mode !== "toast" && setError)
+      setError(path, {
+        type: "custom",
+        message,
+      });
   });
 }

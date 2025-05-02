@@ -4,8 +4,9 @@ import Button from "../Button";
 import TextField from "./TextField";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { wait } from "@/util/funcitons";
+import { setValidationErrors, wait } from "@/util/funcitons";
 import { Product } from "@/types";
+import UploadCSV from "../UploadCSV";
 
 type ProductFormType = {
   name: string;
@@ -71,25 +72,64 @@ export default function ProductForm({ isEdit = false, product }: props) {
       }
     }
   };
+  const uploadBulk = async (productData: unknown[]) => {
+    const products = productData as Partial<Product>[];
+    console.log(products);
+
+    const respone = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/products/bulk-upload`,
+      {
+        method: "POST",
+        body: JSON.stringify({ products }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!respone.ok) {
+      if (respone.status === 422) {
+        const data = await respone.json();
+
+        setValidationErrors(data.errors, undefined, toast, "toast");
+      } else {
+        toast("Something went wrong!", {
+          type: "error",
+        });
+        throw new Error("Something went wrong!");
+      }
+    }
+    const data = await respone.json();
+    toast(data.message, {
+      type: "success",
+    });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextField
-            label="name"
-            error={errors.name?.message}
-            {...register("name", { required: "Product name is required" })}
-          />
+    <>
+      <div className="flex justify-end">
+        <UploadCSV name="prodcuts" handleFileUpload={uploadBulk} />
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TextField
+              label="name"
+              error={errors.name?.message}
+              {...register("name", { required: "Product name is required" })}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="flex justify-start gap-4">
-        <Button type="btnWhite" href="/products">
-          Cancel
-        </Button>
-        <Button type="btnPrimary">{isLoading ? "Loading..." : "Submit"}</Button>
-      </div>
-    </form>
+        <div className="flex justify-start gap-4">
+          <Button type="btnWhite" href="/products">
+            Cancel
+          </Button>
+          <Button type="btnPrimary">
+            {isLoading ? "Loading..." : "Submit"}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
