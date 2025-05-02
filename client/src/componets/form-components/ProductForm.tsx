@@ -74,7 +74,17 @@ export default function ProductForm({ isEdit = false, product }: props) {
   };
   const uploadBulk = async (productData: unknown[]) => {
     const products = productData as Partial<Product>[];
-    console.log(products);
+
+    const isError = products.some(
+      (product) => !product.name || Object.keys(product).length !== 1
+    );
+    if (isError) {
+      toast("Invalid CSV format. Please provide CSV with only name", {
+        type: "warning",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     const respone = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products/bulk-upload`,
