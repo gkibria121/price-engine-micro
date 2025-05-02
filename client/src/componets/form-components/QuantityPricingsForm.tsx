@@ -23,8 +23,9 @@ function QuantityPricingsForm({
     remove: removeQuantity,
   } = useFieldArray({
     control,
-    name: `vendorProducts.${formIndex}.pricingRules`,
+    name: `vendorProducts.${formIndex}.quantityPricings`,
   });
+  console.log(quantityFields);
   return (
     <ObjectListField
       readonly={readonly}

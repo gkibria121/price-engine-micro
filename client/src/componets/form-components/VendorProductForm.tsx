@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { setValidationErrors, wait } from "@/util/funcitons";
 import { useRouter } from "next/navigation";
 import TextField from "./TextField";
+import VendorProductCSVImport from "./VendorProductCSVImport";
 
 interface ProductFormProps {
   isEdit?: boolean;
@@ -61,6 +62,7 @@ export default function VendorProductForm({
     register,
     handleSubmit,
     setError,
+    setValue,
     control,
 
     formState: { isLoading, errors },
@@ -87,10 +89,10 @@ export default function VendorProductForm({
     if (!response.ok) {
       if (response.status === 422) {
         const data = await response.json();
+        toast(data.message, {
+          type: "error",
+        });
         if (!data.errors) {
-          toast(data.message, {
-            type: "error",
-          });
         } else {
           setValidationErrors(data.errors, setError);
         }
@@ -113,6 +115,11 @@ export default function VendorProductForm({
 
   return (
     <FormProvider {...methods}>
+      <VendorProductCSVImport
+        products={products}
+        vendors={vendors}
+        setVendorsValue={setValue}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {vendorProducts.map((vendorProductField, index) => (
           <div key={vendorProductField.id ?? index}>

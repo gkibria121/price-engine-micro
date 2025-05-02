@@ -5,8 +5,10 @@ import React, { useRef, useState } from "react";
 function UploadCSV({
   name,
   handleFileUpload,
+  label,
 }: {
   name: string;
+  label?: string;
   handleFileUpload: (data: unknown[]) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -62,7 +64,7 @@ function UploadCSV({
         type="button"
         disabled={loading}
       >
-        {loading ? "Processing..." : "Upload CSV"}
+        {loading ? "Processing..." : label ?? "Upload CSV"}
       </button>
     </div>
   );
