@@ -42,3 +42,23 @@ export function setValidationErrors<T extends Record<string, unknown>>(
       });
   });
 }
+// Helper functions
+export function extractUniqueVendorProductIdentifiers(
+  combinedData: { product_name: string; vendor_email: string }[]
+) {
+  return combinedData.reduce(
+    (acc: { product_name: string; vendor_email: string }[], curr) => {
+      if (
+        !acc.some(
+          (el) =>
+            el.vendor_email === curr.vendor_email &&
+            el.product_name === curr.product_name
+        )
+      ) {
+        acc.push(curr);
+      }
+      return acc;
+    },
+    []
+  );
+}

@@ -115,11 +115,14 @@ export default function VendorProductForm({
 
   return (
     <FormProvider {...methods}>
-      <VendorProductCSVImport
-        products={products}
-        vendors={vendors}
-        setVendorsValue={setValue}
-      />
+      {!isEdit && !readonly && (
+        <VendorProductCSVImport
+          products={products}
+          vendors={vendors}
+          setVendorsValue={setValue}
+        />
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {vendorProducts.map((vendorProductField, index) => (
           <div key={vendorProductField.id ?? index}>

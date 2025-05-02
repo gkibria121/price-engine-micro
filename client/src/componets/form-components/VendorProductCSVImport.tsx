@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import UploadCSV from "../UploadCSV";
-import Button from "../Button";
 import { useForm, UseFormSetValue } from "react-hook-form";
-import { Product, Vendor, VendorProductFormType } from "@/types";
 import { toast } from "react-toastify";
+import { extractUniqueVendorProductIdentifiers } from "@/util/funcitons";
+// Components
+import Button from "../Button";
+import UploadCSV from "../UploadCSV";
 import FieldError from "./FieldError";
+
+// Types
+import { Product, Vendor, VendorProductFormType } from "@/types";
+import Modal from "../Modal";
+
+// Type definitions
 type ProductNameWithVendorEmail = {
   product_name: string;
   vendor_email: string;
@@ -19,25 +26,34 @@ type VendorCSVFormType = {
     ProductNameWithVendorEmail)[];
 };
 
-export function extractUniqueVendorProductIdentifiers(
-  combinedData: { product_name: string; vendor_email: string }[]
-) {
-  return combinedData.reduce(
-    (acc: { product_name: string; vendor_email: string }[], curr) => {
-      if (
-        !acc.some(
-          (el) =>
-            el.vendor_email === curr.vendor_email &&
-            el.product_name === curr.product_name
-        )
-      ) {
-        acc.push(curr);
-      }
-      return acc;
-    },
-    []
-  );
-}
+type CSVImportSectionProps = {
+  title: string;
+  data: unknown[];
+  errorMessage?: string;
+  handleFileUpload: (data: unknown[]) => void;
+  name: string;
+  label: string;
+};
+
+// Sub-components
+const CSVImportSection = ({
+  title,
+  data,
+  errorMessage,
+  handleFileUpload,
+  name,
+  label,
+}: CSVImportSectionProps) => (
+  <div className="p-4 border rounded-md flex justify-between">
+    <div className="font-medium mb-2">
+      {title} {data?.length ? `(${data.length})` : ""}
+      {errorMessage && <FieldError>{errorMessage}</FieldError>}
+    </div>
+    <UploadCSV handleFileUpload={handleFileUpload} name={name} label={label} />
+  </div>
+);
+
+// Main component
 function VendorProductCSVImport({
   products,
   vendors,
@@ -49,13 +65,6 @@ function VendorProductCSVImport({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
   const {
     setValue,
     setError,
@@ -64,25 +73,30 @@ function VendorProductCSVImport({
     handleSubmit,
     formState: { errors },
   } = useForm<VendorCSVFormType>({});
+
+  // Modal handlers
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  // CSV import handlers
   const handlePricingRuleImport = (pricingRuleData: unknown[]) => {
     const pricingRules = pricingRuleData as VendorCSVFormType["pricingRules"];
-    for (const pricingRule of pricingRules) {
-      if (
-        pricingRule.attribute &&
-        pricingRule.price &&
-        pricingRule.product_name &&
-        pricingRule.value &&
-        pricingRule.vendor_email
-      ) {
-        continue;
-      }
+
+    const isValidFormat = pricingRules.every(
+      (rule) =>
+        rule.attribute &&
+        rule.price &&
+        rule.product_name &&
+        rule.value &&
+        rule.vendor_email
+    );
+
+    if (!isValidFormat) {
       toast(
-        "Inavlid CSV format, Please import csv with attribute,value,price,product_name,vendor_email",
-        {
-          type: "warning",
-          autoClose: 1000,
-        }
+        "Invalid CSV format, Please import csv with attribute,value,price,product_name,vendor_email",
+        { type: "warning", autoClose: 1000 }
       );
+
       setError("pricingRules", {
         type: "custom",
         message:
@@ -90,29 +104,34 @@ function VendorProductCSVImport({
       });
       return;
     }
+
     clearErrors("pricingRules");
     setValue("pricingRules", pricingRules);
   };
-  const handleDeliveryRuleImport = (pricingRuleData: unknown[]) => {
-    const deliverySlots = pricingRuleData as VendorCSVFormType["deliverySlots"];
-    for (const deliverySlot of deliverySlots) {
-      if (
-        deliverySlot.cutoffTime &&
-        deliverySlot.deliveryTimeEndDate !== undefined &&
-        deliverySlot.deliveryTimeEndTime &&
-        deliverySlot.deliveryTimeStartDate !== undefined &&
-        deliverySlot.deliveryTimeStartTime &&
-        deliverySlot.label &&
-        deliverySlot.price &&
-        deliverySlot.product_name &&
-        deliverySlot.vendor_email
-      ) {
-        continue;
-      }
-      toast("Inavlid CSV format for delierySlots", {
+
+  const handleDeliveryRuleImport = (deliveryRuleData: unknown[]) => {
+    const deliverySlots =
+      deliveryRuleData as VendorCSVFormType["deliverySlots"];
+
+    const isValidFormat = deliverySlots.every(
+      (slot) =>
+        slot.cutoffTime &&
+        slot.deliveryTimeEndDate !== undefined &&
+        slot.deliveryTimeEndTime &&
+        slot.deliveryTimeStartDate !== undefined &&
+        slot.deliveryTimeStartTime &&
+        slot.label &&
+        slot.price &&
+        slot.product_name &&
+        slot.vendor_email
+    );
+
+    if (!isValidFormat) {
+      toast("Invalid CSV format for deliverySlots", {
         type: "warning",
         autoClose: 1000,
       });
+
       setError("deliverySlots", {
         type: "custom",
         message:
@@ -120,44 +139,50 @@ function VendorProductCSVImport({
       });
       return;
     }
+
     clearErrors("deliverySlots");
     setValue("deliverySlots", deliverySlots);
   };
-  const handlePiceQuanityImport = (quantityPricingsData: unknown[]) => {
+
+  const handleQuantityPricingImport = (quantityPricingsData: unknown[]) => {
     const quantityPricings =
       quantityPricingsData as VendorCSVFormType["quantityPricings"];
-    for (const quantityPricing of quantityPricings) {
-      if (
-        quantityPricing.price &&
-        quantityPricing.quantity !== undefined &&
-        quantityPricing.product_name &&
-        quantityPricing.vendor_email
-      ) {
-        continue;
-      }
-      toast("Inavlid CSV format for quantityPricings", {
+
+    const isValidFormat = quantityPricings.every(
+      (pricing) =>
+        pricing.price &&
+        pricing.quantity !== undefined &&
+        pricing.product_name &&
+        pricing.vendor_email
+    );
+
+    if (!isValidFormat) {
+      toast("Invalid CSV format for quantityPricings", {
         type: "warning",
         autoClose: 1000,
       });
+
       setError("quantityPricings", {
         type: "custom",
         message: "Import csv with quantity,price,product_name,vendor_email",
       });
       return;
     }
+
     clearErrors("quantityPricings");
     setValue("quantityPricings", quantityPricings);
   };
 
-  const pricingRules = getValues("pricingRules");
-  const deliverySlots = getValues("deliverySlots");
-  const quantityPricings = getValues("quantityPricings");
-
+  // Form submission
   const onSubmit = () => {
+    const pricingRules = getValues("pricingRules") || [];
+    const deliverySlots = getValues("deliverySlots") || [];
+    const quantityPricings = getValues("quantityPricings") || [];
+
     if (
-      !pricingRules?.length ||
-      !deliverySlots?.length ||
-      !pricingRules?.length
+      !pricingRules.length ||
+      !deliverySlots.length ||
+      !quantityPricings.length
     ) {
       toast("Please import necessary files", {
         type: "info",
@@ -178,6 +203,7 @@ function VendorProductCSVImport({
     for (const id of vendorProductIdentifiers) {
       const product = products.find((el) => el.name === id.product_name);
       const vendor = vendors.find((el) => el.email === id.vendor_email);
+
       const productPricingRules = pricingRules.filter(
         (rule) =>
           rule.product_name === id.product_name &&
@@ -208,6 +234,31 @@ function VendorProductCSVImport({
     setVendorsValue("vendorProducts", vendorProducts);
     closeModal();
   };
+
+  // Form data
+  const pricingRules = getValues("pricingRules") || [];
+  const deliverySlots = getValues("deliverySlots") || [];
+  const quantityPricings = getValues("quantityPricings") || [];
+
+  // Modal footer buttons
+  const modalFooter = (
+    <>
+      <button
+        onClick={closeModal}
+        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors mr-2"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+        type="submit"
+      >
+        Import
+      </button>
+    </>
+  );
+
   return (
     <div className="flex flex-col">
       <div className="flex justify-end mb-4">
@@ -216,90 +267,41 @@ function VendorProductCSVImport({
         </Button>
       </div>
 
-      {/* Modal Backdrop */}
-      {isModalOpen && (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="fixed inset-0 bg-[rgba(0,0,0,.5)] flex items-center justify-center z-50"
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          title="Import CSV Files"
+          footer={modalFooter}
         >
-          {/* Modal Content */}
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Import CSV Files</h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
+          <CSVImportSection
+            title="Pricing rules"
+            data={pricingRules}
+            errorMessage={errors.pricingRules?.message}
+            handleFileUpload={handlePricingRuleImport}
+            name="pricingRules"
+            label="Import Pricing Rules"
+          />
 
-            {/* Modal Body */}
-            <div className="space-y-6">
-              <div className="p-4 border rounded-md flex justify-between">
-                <div className="font-medium mb-2">
-                  Pricing rules{" "}
-                  {pricingRules?.length ? `(${pricingRules.length})` : ""}
-                  {errors.pricingRules?.message && (
-                    <FieldError>{errors.pricingRules?.message}</FieldError>
-                  )}
-                </div>
-                <UploadCSV
-                  handleFileUpload={handlePricingRuleImport}
-                  name="pricingRules"
-                  label="Import Pricing Rules"
-                />
-              </div>
+          <CSVImportSection
+            title="Delivery rules"
+            data={deliverySlots}
+            errorMessage={errors.deliverySlots?.message}
+            handleFileUpload={handleDeliveryRuleImport}
+            name="deliveryRules"
+            label="Import Delivery Rules"
+          />
 
-              <div className="p-4 border rounded-md flex justify-between">
-                <div className="font-medium mb-2">
-                  Delivery rules
-                  {deliverySlots?.length ? `(${deliverySlots.length})` : ""}
-                  {errors.deliverySlots?.message && (
-                    <FieldError>{errors.deliverySlots?.message}</FieldError>
-                  )}
-                </div>
-                <UploadCSV
-                  handleFileUpload={handleDeliveryRuleImport}
-                  name="deliveryRules"
-                  label="Import Delivery Rules"
-                />
-              </div>
-
-              <div className="p-4 border rounded-md flex justify-between">
-                <div className="font-medium mb-2">
-                  Quantity pricings{" "}
-                  {quantityPricings?.length
-                    ? `(${quantityPricings.length})`
-                    : ""}
-                  {errors.quantityPricings?.message && (
-                    <FieldError>{errors.quantityPricings?.message}</FieldError>
-                  )}
-                </div>
-                <UploadCSV
-                  handleFileUpload={handlePiceQuanityImport}
-                  name="quantityPricings"
-                  label="Import Quantity Pricings"
-                />
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors mr-2"
-              >
-                Cancel
-              </button>
-              <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
-                Import
-              </button>
-            </div>
-          </div>
-        </form>
-      )}
+          <CSVImportSection
+            title="Quantity pricings"
+            data={quantityPricings}
+            errorMessage={errors.quantityPricings?.message}
+            handleFileUpload={handleQuantityPricingImport}
+            name="quantityPricings"
+            label="Import Quantity Pricings"
+          />
+        </Modal>
+      </form>
     </div>
   );
 }
