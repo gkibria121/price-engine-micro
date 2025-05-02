@@ -23,7 +23,7 @@ export function setValidationErrors<T extends Record<string, unknown>>(
   ) => Id,
   mode: "first" | "all" | "toast" = "first"
 ) {
-  Object.keys(errors).forEach((key) => {
+  Object.keys(errors ?? []).forEach((key) => {
     const path = key as Path<T>; // ✅ cast to Path<T> for TS compatibility
 
     const messages = errors[key];

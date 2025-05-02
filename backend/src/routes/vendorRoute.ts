@@ -10,7 +10,26 @@ import {
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
 import { validateObjectId } from "../middlewares/validateObjectId";
-
+const validateBulkVendors = [
+  body()
+    .isArray({ min: 1 })
+    .withMessage("Request body must be a non-empty array"),
+  body("*.name").notEmpty().withMessage("Name is required"),
+  body("*.email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .bail()
+    .isEmail()
+    .withMessage("This field must be a valid email."),
+  body("*.address").notEmpty().withMessage("Address is required"),
+  body("*.rating")
+    .notEmpty()
+    .withMessage("Rating is required")
+    .bail()
+    .isNumeric()
+    .withMessage("Rating must be a number"),
+  validateRequest,
+];
 const router = express.Router();
 
 router.route("/vendors").get(index);
@@ -57,6 +76,8 @@ router
   );
 router.route("/vendors/:id").delete(validateObjectId("id"), deleteVendor);
 router.route("/vendors/:id").get(validateObjectId("id"), getVendor);
-router.route("/vendors/bulk-upload").post(bulkInsertOrUpdate);
+router
+  .route("/vendors/bulk-store")
+  .post(validateBulkVendors, bulkInsertOrUpdate);
 
 export default router;

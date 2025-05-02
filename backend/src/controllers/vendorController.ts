@@ -78,7 +78,7 @@ export async function deleteVendor(req: Request, res: Response) {
 
 // POST /vendors/bulk-upload
 export async function bulkInsertOrUpdate(req: Request, res: Response) {
-  const { vendors } = req.body;
+  const vendors = req.body;
 
   if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
     res.status(422).send({ message: "Missing or invalid vendor data" });

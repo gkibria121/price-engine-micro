@@ -33,8 +33,12 @@ function UploadCSV({
 
   const onFileUpload = (fileContent: string) => {
     const jsonData = csvToJson(fileContent, { headers: true });
-    if (jsonData) handleFileUpload(jsonData);
-    else console.log("File does not contain  any csv");
+    try {
+      if (jsonData) handleFileUpload(jsonData);
+      else console.log("File does not contain  any csv");
+    } catch (e: unknown) {
+      console.log(e);
+    }
   };
 
   return (
