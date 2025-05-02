@@ -59,6 +59,7 @@ function UploadCSV({
       <button
         onClick={handleButtonClick}
         className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded cursor-pointer"
+        type="button"
         disabled={loading}
       >
         {loading ? "Processing..." : "Upload CSV"}

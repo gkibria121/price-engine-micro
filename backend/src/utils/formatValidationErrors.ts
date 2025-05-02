@@ -6,12 +6,13 @@ export function formatValidationErrors(errors: ValidationError[]) {
   errors.forEach((error) => {
     const fieldError = error as FieldValidationError;
     if (fieldError.type !== "field") return;
-
-    if (!formatted[fieldError.path]) {
-      formatted[fieldError.path] = [];
+    const formattedPath =
+      fieldError.path?.replace(/\[(\d+)\]/g, ".$1") ?? fieldError.path;
+    if (!formatted[formattedPath]) {
+      formatted[formattedPath] = [];
     }
 
-    formatted[fieldError.path].push(fieldError.msg);
+    formatted[formattedPath].push(fieldError.msg);
   });
   return {
     message: "The given data was invalid.",

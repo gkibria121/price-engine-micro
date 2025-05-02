@@ -11,23 +11,28 @@ import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
 import { validateObjectId } from "../middlewares/validateObjectId";
 const validateBulkVendors = [
-  body()
+  body("vendors")
     .isArray({ min: 1 })
-    .withMessage("Request body must be a non-empty array"),
-  body("*.name").notEmpty().withMessage("Name is required"),
-  body("*.email")
+    .withMessage("vendors must be a non-empty array"),
+
+  body("vendors.*.name").notEmpty().withMessage("Name is required"),
+
+  body("vendors.*.email")
     .notEmpty()
     .withMessage("Email is required")
     .bail()
     .isEmail()
     .withMessage("This field must be a valid email."),
-  body("*.address").notEmpty().withMessage("Address is required"),
-  body("*.rating")
+
+  body("vendors.*.address").notEmpty().withMessage("Address is required"),
+
+  body("vendors.*.rating")
     .notEmpty()
     .withMessage("Rating is required")
     .bail()
     .isNumeric()
     .withMessage("Rating must be a number"),
+
   validateRequest,
 ];
 const router = express.Router();

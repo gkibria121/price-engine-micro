@@ -69,7 +69,7 @@ export default function VendorForm({
           method: isEdit ? "PUT" : "POST",
           body: isEdit
             ? JSON.stringify(formData.vendors[0])
-            : JSON.stringify(formData.vendors),
+            : JSON.stringify({ vendors: formData.vendors }),
         }
       );
 
@@ -80,6 +80,7 @@ export default function VendorForm({
             type: "error",
             autoClose: 1000,
           });
+
           setValidationErrors(data.errors, setError);
         } else {
           throw new Error("Something went wrong!");

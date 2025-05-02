@@ -203,7 +203,7 @@ describe("Test update vendor api", () => {
 
 describe("Test bulk upload vendor api", () => {
   it("Should return 422 for missing vendors", async () => {
-    const res = await request(app).post("/api/v1/vendors/bulk-upload").send({});
+    const res = await request(app).post("/api/v1/vendors/bulk-store").send({});
     expect(res.status).toBe(422);
   });
 
@@ -216,22 +216,18 @@ describe("Test bulk upload vendor api", () => {
     });
 
     const res = await request(app)
-      .post("/api/v1/vendors/bulk-upload")
-      .send({
-        vendors: [{ name: "A", email: "dupe@e.com", address: "B", rating: 5 }],
-      });
+      .post("/api/v1/vendors/bulk-store")
+      .send([{ name: "A", email: "dupe@e.com", address: "B", rating: 5 }]);
     expect(res.status).toBe(422);
   });
 
   it("Should create vendors", async () => {
     const res = await request(app)
-      .post("/api/v1/vendors/bulk-upload")
-      .send({
-        vendors: [
-          { name: "A", email: "a@e.com", address: "X", rating: 1 },
-          { name: "B", email: "b@e.com", address: "Y", rating: 2 },
-        ],
-      });
+      .post("/api/v1/vendors/bulk-store")
+      .send([
+        { name: "A", email: "a@e.com", address: "X", rating: 1 },
+        { name: "B", email: "b@e.com", address: "Y", rating: 2 },
+      ]);
     expect(res.status).toBe(201);
     expect(res.body.vendors.length).toBe(2);
   });
