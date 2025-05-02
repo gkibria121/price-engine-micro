@@ -40,7 +40,7 @@ describe("Vendor Product Controller", () => {
         `/api/v1/vendor-products/${vendorProduct._id}`
       );
       expect(res.status).toBe(200);
-      expect(res.body.vendorProduct._id).toEqual(vendorProduct._id.toString());
+      expect(res.body.vendorProduct.id).toEqual(vendorProduct._id.toString());
     });
 
     it("should return 404 if fetching non-existent vendor product", async () => {
@@ -167,7 +167,7 @@ describe("Vendor Product Controller", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Product updated successfully");
-      expect(res.body.vendorProduct._id).toBe(
+      expect(res.body.vendorProduct.id).toBe(
         updatedVendorProduct._id.toHexString()
       );
 
@@ -347,7 +347,7 @@ describe("Vendor Product Controller - Validation Errors", () => {
       });
 
     expect(res.status).toBe(422);
-    expect(res.body.errors["pricingRules[0].attribute"]).toBeDefined();
+    expect(res.body.errors["pricingRules.0.attribute"]).toBeDefined();
   });
 
   it("should reject invalid format inside deliverySlots array", async () => {
@@ -374,7 +374,7 @@ describe("Vendor Product Controller - Validation Errors", () => {
       });
 
     expect(res.status).toBe(422);
-    expect(res.body.errors["deliverySlots[0].price"]).toBeDefined();
+    expect(res.body.errors["deliverySlots.0.price"]).toBeDefined();
   });
 
   it("should reject invalid format inside quantityPricings array", async () => {
@@ -401,132 +401,10 @@ describe("Vendor Product Controller - Validation Errors", () => {
       });
 
     expect(res.status).toBe(422);
-    expect(res.body.errors["quantityPricings[0].quantity"]).toBeDefined();
+    expect(res.body.errors["quantityPricings.0.quantity"]).toBeDefined();
   });
 });
 describe("Vendor Product Controller - Bulk Insert or Update", () => {
-  it("should bulk insert vendor products with pricing rules, delivery slots, and quantity pricings", async () => {
-    const vendor = await createVendor();
-    const product = await createProduct();
-
-    const bulkData = {
-      pricingRules: [
-        {
-          product_name: product.name,
-          vendor_email: vendor.email,
-          attribute: "Color",
-          value: "Red",
-          price: 100,
-        },
-      ],
-      deliverySlots: [
-        {
-          product_name: product.name,
-          vendor_email: vendor.email,
-          price: 50,
-          label: "Standard",
-          cutoffTime: "15:00",
-          deliveryTimeStartTime: "09:00",
-          deliveryTimeEndTime: "18:00",
-          deliveryTimeStartDate: 1,
-          deliveryTimeEndDate: 5,
-        },
-      ],
-      quantityPricings: [
-        {
-          product_name: product.name,
-          vendor_email: vendor.email,
-          quantity: 10,
-          price: 90,
-        },
-      ],
-    };
-    const res = await request(app)
-      .post("/api/v1/vendor-products/bulk-upload")
-      .send(bulkData);
-    expect(res.status).toBe(201);
-    expect(res.body.message).toBe("Bulk insert/update completed successfully.");
-    expect(res.body.vendorProducts.length).toBe(1);
-  });
-
-  it("should fail when pricingRules, deliverySlots, or quantityPricings are missing", async () => {
-    const res = await request(app)
-      .post("/api/v1/vendor-products/bulk-upload")
-      .send({
-        pricingRules: "not-an-array",
-        deliverySlots: [],
-        quantityPricings: [],
-      });
-    expect(res.status).toBe(422); // or 422 depending on your error middleware
-    expect(res.body.errors).toEqual({
-      pricingRules: ["pricingRules must be a non-empty array"],
-      deliverySlots: ["deliverySlots must be a non-empty array"],
-      quantityPricings: ["quantityPricings must be a non-empty array"],
-    });
-  });
-
-  it("should fail when required fields are missing in items", async () => {
-    const res = await request(app)
-      .post("/api/v1/vendor-products/bulk-upload")
-      .send({
-        pricingRules: [{ attribute: "Color", value: "Red", price: 100 }], // Missing product_name, vendor_email
-        deliverySlots: [],
-        quantityPricings: [],
-      });
-
-    expect(res.status).toBe(422); // or 422 depending on error handling
-    expect(res.body.message).toContain("The given data was invalid.");
-    expect(res.body.errors).toEqual({
-      "pricingRules[0].product_name": [
-        "Each pricingRule must contain valid product_name",
-      ],
-      "pricingRules[0].vendor_email": [
-        "Each pricingRule must contain valid vendor_email",
-      ],
-      deliverySlots: ["deliverySlots must be a non-empty array"],
-      quantityPricings: ["quantityPricings must be a non-empty array"],
-    });
-  });
-
-  it("should fail if product or vendor not found", async () => {
-    const res = await request(app)
-      .post("/api/v1/vendor-products/bulk-upload")
-      .send({
-        pricingRules: [
-          {
-            product_name: "NonExistentProduct",
-            vendor_email: "nonexistent@example.com",
-            attribute: "Size",
-            value: "Large",
-            price: 200,
-          },
-        ],
-        deliverySlots: [
-          {
-            price: 143,
-            cutoffTime: "23:56",
-            deliveryTimeStartTime: "14:06",
-            label: "Super Express Today by 5 PM",
-            deliveryTimeStartDate: 0,
-            deliveryTimeEndDate: 1,
-            deliveryTimeEndTime: "17:00",
-            product_name: "Product 1",
-            vendor_email: "dnp.uk1@gmail.com",
-          },
-        ],
-        quantityPricings: [
-          {
-            quantity: 10,
-            price: 100,
-            product_name: "Product 1",
-            vendor_email: "dnp.uk1@gmail.com",
-          },
-        ],
-      });
-
-    expect(res.status).toBe(404);
-
-    expect(res.body.message).toContain("Product not found");
-    // or Vendor not found, depending on what fails first
-  });
+  it.todo("Should create vendor Product");
+  it.todo("Should return 422");
 });

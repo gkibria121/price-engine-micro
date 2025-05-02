@@ -1,6 +1,5 @@
 import express from "express";
 import {
-  bulkInsertOrUpdate,
   storeVendorProduct,
   deleteVendorProduct,
   getVendorProduct,
@@ -193,12 +192,6 @@ router.delete(
   deleteVendorProduct
 );
 
-router.post(
-  "/vendor-products/bulk-upload",
-  bulkUploadVendorProductValidation,
-  validateRequest,
-  bulkInsertOrUpdate
-);
 router.post(
   "/vendor-products/bulk-store",
   bulkStoreVendorProductValidation,

@@ -120,7 +120,7 @@ describe("Test calculate-price API validations", () => {
         },
       });
     expect(response.statusCode).toBe(422);
-    expect(response.body.errors["attributes[0].name"][0]).toBe(
+    expect(response.body.errors["attributes.0.name"][0]).toBe(
       "Each attribute must have a name"
     );
   });
@@ -140,7 +140,7 @@ describe("Test calculate-price API validations", () => {
         },
       });
     expect(response.statusCode).toBe(422);
-    expect(response.body.errors["attributes[0].value"][0]).toBe(
+    expect(response.body.errors["attributes.0.value"][0]).toBe(
       "Attribute value must be a string"
     );
   });

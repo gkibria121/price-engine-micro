@@ -224,10 +224,12 @@ describe("Test bulk upload vendor api", () => {
   it("Should create vendors", async () => {
     const res = await request(app)
       .post("/api/v1/vendors/bulk-store")
-      .send([
-        { name: "A", email: "a@e.com", address: "X", rating: 1 },
-        { name: "B", email: "b@e.com", address: "Y", rating: 2 },
-      ]);
+      .send({
+        vendors: [
+          { name: "A", email: "a@e.com", address: "X", rating: 1 },
+          { name: "B", email: "b@e.com", address: "Y", rating: 2 },
+        ],
+      });
     expect(res.status).toBe(201);
     expect(res.body.vendors.length).toBe(2);
   });

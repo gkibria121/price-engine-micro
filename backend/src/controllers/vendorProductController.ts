@@ -10,19 +10,9 @@ import { NotFoundException } from "../Exceptions/NotFoundException";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import {
   createVendorProduct,
-  extractUniqueVendorProductIdentifiers,
-  validateAndFetchProductVendor,
-  validateBulkInput,
   validateBulkStoreRequest,
-  validateDeliverySlot,
-  validatePricingRule,
-  validateQuantityPricing,
 } from "../services/bulkInsertOrUpdateService";
 
-type ProductNameWithVendorMail = {
-  product_name: string;
-  vendor_email: string;
-};
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
     "product",
@@ -174,62 +164,6 @@ export async function updateVendorProduct(req: Request, res: Response) {
   res.status(200).send({
     message: "Product updated successfully",
     vendorProduct: updatedVendorProduct,
-  });
-}
-
-export async function bulkInsertOrUpdate(req: Request, res: Response) {
-  const { pricingRules, deliverySlots, quantityPricings } = req.body;
-
-  validateBulkInput(pricingRules, deliverySlots, quantityPricings);
-
-  const combinedData = [...pricingRules, ...deliverySlots, ...quantityPricings];
-  const vendorProductIdentifiers =
-    extractUniqueVendorProductIdentifiers(combinedData);
-
-  const results = [] as any[];
-
-  for (const id of vendorProductIdentifiers) {
-    const { product, vendor } = await validateAndFetchProductVendor(
-      id.product_name,
-      id.vendor_email
-    );
-
-    const productPricingRules = pricingRules.filter(
-      (rule) =>
-        rule.product_name === id.product_name &&
-        rule.vendor_email === id.vendor_email
-    );
-
-    const productDeliverySlots = deliverySlots.filter(
-      (slot) =>
-        slot.product_name === id.product_name &&
-        slot.vendor_email === id.vendor_email
-    );
-
-    const productQuantityPricings = quantityPricings.filter(
-      (pricing) =>
-        pricing.product_name === id.product_name &&
-        pricing.vendor_email === id.vendor_email
-    );
-
-    productPricingRules.forEach(validatePricingRule);
-    productDeliverySlots.forEach(validateDeliverySlot);
-    productQuantityPricings.forEach(validateQuantityPricing);
-
-    const vendorProduct = await createVendorProduct(
-      product,
-      vendor,
-      productPricingRules,
-      productDeliverySlots,
-      productQuantityPricings
-    );
-
-    results.push(vendorProduct);
-  }
-
-  res.status(201).json({
-    message: "Bulk insert/update completed successfully.",
-    vendorProducts: results,
   });
 }
 
