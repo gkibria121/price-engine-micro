@@ -4,6 +4,7 @@ import VendorProductModel from "../models/VendorProductModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
 import "express-async-errors";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
+import { ValidationErrors } from "../Exceptions/ValidationError";
 // GET /vendors
 export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
@@ -78,7 +79,7 @@ export async function deleteVendor(req: Request, res: Response) {
 
 // POST /vendors/bulk-upload
 export async function bulkInsertOrUpdate(req: Request, res: Response) {
-  const vendors = req.body;
+  const { vendors } = req.body;
 
   if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
     res.status(422).send({ message: "Missing or invalid vendor data" });
@@ -90,11 +91,17 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
   }).distinct("email");
 
   if (existingEmails.length > 0) {
-    res.status(422).send({
-      message: "Some emails are already taken",
-      existingEmails,
+    const errors = {} as ValidationErrors;
+    vendors.map((vendor, index) => {
+      if (existingEmails.indexOf(vendor.email) !== -1) {
+        errors[`vendors.${index}.email`] = ["Email already taken."];
+      }
     });
-    return;
+
+    throw new CustomValidationException(
+      "Some emails are already taken",
+      errors
+    );
   }
 
   const savedVendors = await VendorModel.insertMany(vendors);
