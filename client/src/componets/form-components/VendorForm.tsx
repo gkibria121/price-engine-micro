@@ -46,7 +46,6 @@ export default function VendorForm({
     handleSubmit,
     control,
     setValue,
-    getValues,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<VendorFormType>({ defaultValues });
@@ -120,9 +119,8 @@ export default function VendorForm({
         "Invalid CSV format. Please provide CSV with name,rating,email,address"
       );
     }
-    const exsistingVendors = getValues("vendors");
-    setValue("vendors", [...exsistingVendors, ...vendors]);
-    console.log(vendors, exsistingVendors);
+
+    setValue("vendors", [...vendors]);
   }
 
   return (
