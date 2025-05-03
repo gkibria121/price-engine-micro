@@ -1,32 +1,14 @@
 import VendorProductForm from "@/componets/form-components/VendorProductForm";
-import { Product, Vendor } from "@/types";
+import { getDeliverySlots } from "@/services/deliverySlots";
+import { getProducts } from "@/services/productService";
+import { getVendors } from "@/services/vendorService";
 export const dynamic = "force-dynamic";
 
 export default async function AddProductPage() {
   try {
-    const [productsRes, vendorsRes, deliveryRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/vendors`, {
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/delivery-slots`, {
-        cache: "no-store",
-      }),
-    ]);
-
-    if (!productsRes.ok || !vendorsRes.ok || !deliveryRes.ok) {
-      throw new Error("One or more API responses failed.");
-    }
-
-    const productsData = await productsRes.json();
-    const vendorsData = await vendorsRes.json();
-    const deliveryData = await deliveryRes.json();
-
-    const products = productsData.products as Product[];
-    const vendors = vendorsData.vendors as Vendor[];
-    const deliveryMethods = deliveryData;
+    const products = await getProducts();
+    const vendors = await getVendors();
+    const deliveryMethods = await getDeliverySlots();
 
     return (
       <div>

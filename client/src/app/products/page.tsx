@@ -1,20 +1,14 @@
 import Link from "next/link";
 import React from "react";
 // import ProductCard from "../../componets/ProductCard";
-import { Product } from "@/types";
 import EmptyResourceState from "@/componets/EmptyResourceState";
 import Table from "@/componets/Table";
 import DeleteResourceButton from "@/componets/DeleteResource";
 import Button from "@/componets/Button";
+import { getProducts } from "@/services/productService";
 
 async function page() {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
-  if (!response.ok) {
-    new Error("Faild to fetch!");
-  }
-
-  const data = await response.json();
-  const products = data.products as Product[];
+  const products = await getProducts();
   return (
     <div>
       <div className="flex justify-between items-center mb-6">

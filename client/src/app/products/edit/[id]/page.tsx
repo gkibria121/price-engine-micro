@@ -1,16 +1,12 @@
 import ProductForm from "@/componets/form-components/ProductForm";
-import { Product } from "@/types";
+import { getProduct } from "@/services/productService";
 import React from "react";
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 async function page({ params }: PageProps) {
   const { id } = await params;
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
-  );
-  if (!response.ok) throw new Error("Something went wrong!");
-  const product = (await response.json()) as Product;
+  const product = await getProduct(id);
 
   return (
     <div>

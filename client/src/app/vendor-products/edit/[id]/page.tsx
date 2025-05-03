@@ -1,43 +1,17 @@
 import VendorProductForm from "@/componets/form-components/VendorProductForm";
-import { PageProps, Product, Vendor, VendorProduct } from "@/types";
+import { getDeliverySlots } from "@/services/deliverySlots";
+import { getProducts } from "@/services/productService";
+import { getVendorProduct } from "@/services/vendorProductService";
+import { getVendors } from "@/services/vendorService";
+import { PageProps } from "@/types";
 
 export default async function page({ params }: PageProps) {
   const { id } = await params;
   try {
-    const [vendorProductRes, productsRes, vendorsRes, deliveryRes] =
-      await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${id}`, {
-          cache: "no-store",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-          cache: "no-store",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/vendors`, {
-          cache: "no-store",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/delivery-slots`, {
-          cache: "no-store",
-        }),
-      ]);
-
-    if (
-      !vendorProductRes.ok ||
-      !productsRes.ok ||
-      !vendorsRes.ok ||
-      !deliveryRes.ok
-    ) {
-      throw new Error("One or more API responses failed.");
-    }
-
-    const productsData = await productsRes.json();
-    const vendorsData = await vendorsRes.json();
-    const deliveryData = await deliveryRes.json();
-
-    const vendorProductData = await vendorProductRes.json();
-    const products = productsData.products as Product[];
-    const vendors = vendorsData.vendors as Vendor[];
-    const vendorProduct = vendorProductData.vendorProduct as VendorProduct;
-    const deliveryMethods = deliveryData;
+    const products = await getProducts();
+    const vendors = await getVendors();
+    const vendorProduct = await getVendorProduct(id);
+    const deliveryMethods = await getDeliverySlots();
 
     return (
       <div>

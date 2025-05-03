@@ -1,22 +1,13 @@
 import Link from "next/link";
 import React from "react";
-// import ProductCard from "../../componets/ProductCard";
-import { VendorProduct } from "@/types";
 import EmptyResourceState from "@/componets/EmptyResourceState";
 import Table from "@/componets/Table";
 import DeleteResourceButton from "@/componets/DeleteResource";
 import Button from "@/componets/Button";
+import { getVendorProducts } from "@/services/vendorProductService";
 
 async function page() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`
-  );
-  if (!response.ok) {
-    new Error("Faild to fetch!");
-  }
-
-  const data = await response.json();
-  const vendorProducts = data.vendorProducts as VendorProduct[];
+  const vendorProducts = await getVendorProducts();
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
