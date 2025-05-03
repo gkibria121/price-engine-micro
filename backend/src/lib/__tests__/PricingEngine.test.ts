@@ -1,5 +1,6 @@
 // __tests__/PricingEngine.test.ts
 
+import { PriceEngineException } from "../../Exceptions/PriceEngineException";
 import PriceCalculationRequest from "../PriceCalculationRequest";
 import PricingEngine from "../PriceEngine";
 import DeliveryRule from "../product/DeliveryRule";
@@ -11,7 +12,7 @@ describe("PricingEngine", () => {
   const product = new Product("Poster");
 
   // Train with quantities from 10 to 20
-  product.quantityPricing = [
+  product.quantityPricings = [
     new QuantityPricing(10, 800),
     new QuantityPricing(15, 1100),
     new QuantityPricing(20, 1400),
@@ -106,7 +107,28 @@ describe("PricingEngine", () => {
   });
 
   // *** NEW TEST ***
-  it.todo("should calculate price for small quantity (below trained range)");
+  it("should handle large and small quantity (below and above trained range)", () => {
+    const smallQuantityRequest = new PriceCalculationRequest(
+      "Poster",
+      1,
+      [],
+      "Standard"
+    );
+    const largeQuantityRequest = new PriceCalculationRequest(
+      "Poster",
+      30,
+      [],
+      "Standard"
+    );
+
+    expect(() => engine.calculatePrice(smallQuantityRequest)).toThrow(
+      PriceEngineException
+    );
+    expect(() => engine.calculatePrice(largeQuantityRequest)).toThrow(
+      PriceEngineException
+    );
+  });
+
   it("should handle zero or negative quantity gracefully", () => {
     const zeroQuantityRequest = new PriceCalculationRequest(
       "Poster",
@@ -136,6 +158,4 @@ describe("PricingEngine", () => {
     expect(negativeResult.breakdown.attributeCost).toBeCloseTo(0);
     expect(negativeResult.breakdown.deliveryCharge).toBeCloseTo(0);
   });
-
-  it.todo("should handle large quantities correctly");
 });

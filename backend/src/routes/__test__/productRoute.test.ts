@@ -8,7 +8,13 @@ describe("Test products api", () => {
     expect(response.body.products.length).toBe(0);
     expect(response.statusCode).toBe(200);
   });
-  it.todo("Should return list of products");
+
+  it("Should return list of products", async () => {
+    await createProduct();
+    const response = await request(app).get("/api/v1/products");
+    expect(response.body.products.length).toBe(1);
+    expect(response.statusCode).toBe(200);
+  });
 });
 
 describe("Test create product api", () => {

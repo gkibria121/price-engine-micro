@@ -233,10 +233,10 @@ describe("Test calculate-price API", () => {
     expect(response.body).toEqual({
       productName: "Product 1",
       quantity: 5,
-      totalPrice: 585.6874999999975,
+      totalPrice: 547.32125,
       breakdown: {
-        basePrice: 56.24999999999969,
-        attributeCost: 386.43749999999784,
+        basePrice: 51.375,
+        attributeCost: 352.94625,
         deliveryCharge: 143,
       },
     });

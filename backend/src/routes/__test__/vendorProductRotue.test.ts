@@ -405,6 +405,139 @@ describe("Vendor Product Controller - Validation Errors", () => {
   });
 });
 describe("Vendor Product Controller - Bulk Insert or Update", () => {
-  it.todo("Should create vendor Product");
-  it.todo("Should return 422");
+  it("Should create vendor Product", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const response = await request(app)
+      .post("/api/v1/vendor-products/bulk-store")
+      .send({
+        vendorProducts: [
+          {
+            vendorId: vendor._id,
+            productId: product._id,
+            pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+            deliverySlots: [
+              {
+                price: 143,
+                cutoffTime: "23:56",
+                deliveryTimeStartTime: "14:06",
+                label: "express",
+                deliveryTimeStartDate: 4,
+                deliveryTimeEndDate: 21,
+                deliveryTimeEndTime: "05:12",
+              },
+            ],
+            quantityPricings: [{ quantity: 10, price: 100 }],
+          },
+        ],
+      });
+    expect(response.body.vendorProducts[0].product).toBe(
+      product._id.toHexString()
+    );
+    expect(response.status).toBe(201);
+  });
+  it("Should return 422 for empty pricingRules deliverySlots, quantityPricings", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const response = await request(app)
+      .post("/api/v1/vendor-products/bulk-store")
+      .send({
+        vendorProducts: [
+          {
+            vendorId: vendor._id,
+            productId: product._id,
+            pricingRules: [],
+            deliverySlots: [],
+            quantityPricings: [],
+          },
+        ],
+      });
+    expect(response.body).toEqual({
+      message: "The given data was invalid.",
+      errors: {
+        "vendorProducts.0.pricingRules": [
+          "vendorProducts.*.pricingRules must be a non-empty array",
+        ],
+        "vendorProducts.0.deliverySlots": [
+          "vendorProducts.*.deliverySlots must be a non-empty array",
+        ],
+        "vendorProducts.0.quantityPricings": [
+          "vendorProducts.*.quantityPricings must be a non-empty array",
+        ],
+      },
+    });
+    expect(response.status).toBe(422);
+  });
+
+  it("Should return 422 for invalid pricingRules deliverySlots, quantityPricings", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const response = await request(app)
+      .post("/api/v1/vendor-products/bulk-store")
+      .send({
+        vendorProducts: [
+          {
+            vendorId: vendor._id,
+            productId: product._id,
+            pricingRules: [{}],
+            deliverySlots: [{}],
+            quantityPricings: [{}],
+          },
+        ],
+      });
+    expect(response.body).toEqual({
+      message: "The given data was invalid.",
+      errors: {
+        "vendorProducts.0.pricingRules.0.attribute": [
+          "attribute is required",
+          "attribute must be a string",
+        ],
+        "vendorProducts.0.pricingRules.0.value": [
+          "value is required",
+          "value must be a string",
+        ],
+        "vendorProducts.0.pricingRules.0.price": [
+          "price is required",
+          "price must be a number",
+        ],
+        "vendorProducts.0.deliverySlots.0.price": [
+          "deliverySlot.price is required",
+          "deliverySlot.price must be a number",
+        ],
+        "vendorProducts.0.deliverySlots.0.cutoffTime": [
+          "cutoffTime is required",
+          "cutoffTime must be in HH:mm format",
+        ],
+        "vendorProducts.0.deliverySlots.0.deliveryTimeStartTime": [
+          "deliveryTimeStartTime is required",
+          "deliveryTimeStartTime must be in HH:mm format",
+        ],
+        "vendorProducts.0.deliverySlots.0.deliveryTimeEndTime": [
+          "deliveryTimeEndTime is required",
+          "deliveryTimeEndTime must be in HH:mm format",
+        ],
+        "vendorProducts.0.deliverySlots.0.deliveryTimeStartDate": [
+          "deliveryTimeStartDate is required",
+          "deliveryTimeStartDate must be a number",
+        ],
+        "vendorProducts.0.deliverySlots.0.deliveryTimeEndDate": [
+          "deliveryTimeEndDate is required",
+          "deliveryTimeEndDate must be a number",
+        ],
+        "vendorProducts.0.deliverySlots.0.label": [
+          "label is required",
+          "label must be a string",
+        ],
+        "vendorProducts.0.quantityPricings.0.quantity": [
+          "quantity is required",
+          "quantity must be a number",
+        ],
+        "vendorProducts.0.quantityPricings.0.price": [
+          "price is required",
+          "price must be a number",
+        ],
+      },
+    });
+    expect(response.status).toBe(422);
+  });
 });

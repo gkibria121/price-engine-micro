@@ -39,6 +39,7 @@ export async function createVendorProduct() {
   });
   // Create multiple quantity pricing entries
   const quantityPricings = await QuantityPricingModel.insertMany([
+    { quantity: 0, price: 0 },
     { quantity: 10, price: 100 },
     { quantity: 20, price: 180 },
     { quantity: 30, price: 250 },
