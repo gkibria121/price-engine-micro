@@ -58,3 +58,6 @@ export type DeliverySlot = {
   deliveryTimeEndTime: `${number}:${number}`;
   cutoffTime: `${number}:${number}`;
 };
+export type PageProps = {
+  params: Promise<{ id: string }>;
+};

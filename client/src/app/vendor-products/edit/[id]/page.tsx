@@ -1,9 +1,6 @@
 import VendorProductForm from "@/componets/form-components/VendorProductForm";
-import { Product, Vendor, VendorProduct } from "@/types";
+import { PageProps, Product, Vendor, VendorProduct } from "@/types";
 
-type PageProps = {
-  params: { id: string };
-};
 export default async function page({ params }: PageProps) {
   const { id } = await params;
   try {

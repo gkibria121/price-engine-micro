@@ -2,7 +2,7 @@ import ProductForm from "@/componets/form-components/ProductForm";
 import { Product } from "@/types";
 import React from "react";
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 async function page({ params }: PageProps) {
   const { id } = await params;

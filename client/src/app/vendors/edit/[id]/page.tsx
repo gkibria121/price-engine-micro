@@ -1,9 +1,7 @@
 import React from "react";
 import VendorForm from "@/componets/form-components/VendorForm";
-import { Vendor } from "@/types";
-type PageProps = {
-  params: { id: string };
-};
+import { PageProps, Vendor } from "@/types";
+
 export default async function page({ params }: PageProps) {
   const { id } = await params;
   const response = await fetch(

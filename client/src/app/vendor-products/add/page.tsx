@@ -1,5 +1,6 @@
 import VendorProductForm from "@/componets/form-components/VendorProductForm";
 import { Product, Vendor } from "@/types";
+export const dynamic = "force-dynamic";
 
 export default async function AddProductPage() {
   try {
