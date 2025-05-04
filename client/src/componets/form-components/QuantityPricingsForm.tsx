@@ -1,8 +1,7 @@
 import React from "react";
 import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import FieldError from "./FieldError";
+import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
 
 function QuantityPricingsForm({
@@ -12,20 +11,21 @@ function QuantityPricingsForm({
   formIndex: number;
   readonly: boolean;
 }) {
-  const {
-    control,
-    register,
-    formState: { errors },
-  } = useFormContext<VendorProductFormType>();
+  const { register } = useFormContext<VendorProductFormType>();
   const {
     fields: quantityFields,
     append: appendQuantity,
     remove: removeQuantity,
   } = useFieldArray({
-    control,
+    name: `vendorProducts.${formIndex}.quantityPricings`,
+    rules: {
+      validate: (value) =>
+        value.length > 0 || "At least one quantity pricing is required",
+    },
+  });
+  const { errors } = useFormState({
     name: `vendorProducts.${formIndex}.quantityPricings`,
   });
-  console.log(quantityFields);
   return (
     <ObjectListField
       readonly={readonly}
@@ -74,25 +74,11 @@ function QuantityPricingsForm({
               label="Price Per Unit"
             />
           </ObjectListField.Col>
-          {!readonly && (
+          {!readonly && quantityFields.length > 1 && (
             <ObjectListField.Remove handleClick={() => removeQuantity(index)} />
           )}
         </ObjectListField.Row>
       ))}
-      <input
-        type="hidden"
-        {...register(`vendorProducts.${formIndex}.quantityPricings`, {
-          validate: (value) =>
-            value.length > 0 || "At least one quantity pricing is required",
-        })}
-      />
-      {errors.vendorProducts?.[formIndex]?.quantityPricings?.root?.message && (
-        <FieldError>
-          {errors.vendorProducts?.[
-            formIndex
-          ]?.quantityPricings?.root?.message?.toString()}
-        </FieldError>
-      )}
     </ObjectListField>
   );
 }

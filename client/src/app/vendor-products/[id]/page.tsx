@@ -1,28 +1,16 @@
 import VendorProductForm from "@/componets/form-components/VendorProductForm";
 import { getDeliverySlots } from "@/services/deliverySlots";
 import { getProducts } from "@/services/productService";
+import { getVendorProduct } from "@/services/vendorProductService";
 import { getVendors } from "@/services/vendorService";
-import { PageProps, VendorProduct } from "@/types";
+import { PageProps } from "@/types";
 
 export default async function page({ params }: PageProps) {
   const { id } = await params;
   try {
-    const vendorProductRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${id}`,
-      {
-        cache: "no-store",
-      }
-    );
-
-    if (!vendorProductRes.ok) {
-      throw new Error("Vendor Product failed to fetch.");
-    }
-
-    const vendorProductData = await vendorProductRes.json();
-
     const products = await getProducts();
     const vendors = await getVendors();
-    const vendorProduct = vendorProductData.vendorProduct as VendorProduct;
+    const vendorProduct = await getVendorProduct(id);
     const deliveryMethods = await getDeliverySlots();
 
     return (

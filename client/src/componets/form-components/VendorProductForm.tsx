@@ -7,7 +7,13 @@ import {
   VendorProduct,
   VendorProductFormType,
 } from "@/types";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  UseFieldArrayAppend,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import Button from "../Button";
 import SelectionField from "./SelectionField";
 import PricingRulesForm from "./PricingRulesForm";
@@ -58,15 +64,7 @@ export default function VendorProductForm({
   const methods = useForm<VendorProductFormType>({
     defaultValues,
   });
-  const {
-    register,
-    handleSubmit,
-    setError,
-    setValue,
-    control,
-
-    formState: { isLoading, errors },
-  } = methods;
+  const { handleSubmit, setError, setValue, control } = methods;
 
   const {
     fields: vendorProducts,
@@ -125,61 +123,24 @@ export default function VendorProductForm({
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {vendorProducts.map((vendorProductField, index) => (
-          <div key={vendorProductField.id ?? index}>
-            <div className="space-y-4 relative">
-              {vendorProducts.length > 1 && (
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 text-red-500"
-                  onClick={() => removeVendorProducts(index)}
-                >
-                  Remove
-                </button>
-              )}
-              <h2 className="text-xl font-semibold">Basic Information</h2>
+          <div key={vendorProductField.id ?? index} className="relative">
+            <VendorProductBasicInfo
+              products={products}
+              vendorProduct={vendorProduct}
+              vendors={vendors}
+              readonly={readonly}
+              index={index}
+            />
+            {vendorProducts.length > 1 && (
+              <button
+                type="button"
+                className="absolute top-2 right-2 text-red-500"
+                onClick={() => removeVendorProducts(index)}
+              >
+                Remove
+              </button>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {readonly && vendorProduct ? (
-                  <>
-                    <TextField
-                      label="Product Name"
-                      readonly={readonly}
-                      defaultValue={vendorProduct.product.name}
-                    />
-                    <TextField
-                      label="Vendor Name"
-                      readonly={readonly}
-                      defaultValue={vendorProduct.vendor.name}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <SelectionField
-                      label="Product"
-                      error={errors.vendorProducts?.[index]?.productId?.message}
-                      options={products.map((product) => ({
-                        name: product.name,
-                        value: product.id,
-                      }))}
-                      {...register(`vendorProducts.${index}.productId`, {
-                        required: "Please select a product",
-                      })}
-                    />
-                    <SelectionField
-                      label="Vendor"
-                      error={errors.vendorProducts?.[index]?.vendorId?.message}
-                      options={vendors.map((vendor) => ({
-                        name: vendor.name,
-                        value: vendor.id,
-                      }))}
-                      {...register(`vendorProducts.${index}.vendorId`, {
-                        required: "Please select a vendor",
-                      })}
-                    />
-                  </>
-                )}
-              </div>
-            </div>
             {/* Pricing Rules */}
             <PricingRulesForm readonly={readonly} formIndex={index} />
             {/* Delivery Rules */}
@@ -189,38 +150,128 @@ export default function VendorProductForm({
             <QuantityPricingsForm readonly={readonly} formIndex={index} />
           </div>
         ))}
-        {readonly ? (
-          <Button type="btnPrimary" href="/vendor-products">
-            Back
-          </Button>
-        ) : (
-          <div className="flex justify-start gap-4">
-            <Button type="btnWhite" href="/vendor-products">
-              Cancel
-            </Button>
-            <Button type="btnPrimary">
-              {isLoading ? "Loading..." : "Submit"}
-            </Button>
-            {!isEdit && (
-              <Button
-                type="btnSecondary"
-                buttonType="button"
-                onClick={() =>
-                  appendVendorProcuts({
-                    productId: "",
-                    vendorId: "",
-                    pricingRules: [{ attribute: "", value: "", price: 0 }],
-                    deliverySlots: deliveryMethods || [],
-                    quantityPricings: [{ quantity: 1, price: 0 }],
-                  })
-                }
-              >
-                Add Vendor
-              </Button>
-            )}
-          </div>
-        )}
+        <VendorProductFormActions
+          appendVendorProcuts={appendVendorProcuts}
+          deliveryMethods={deliveryMethods}
+          isEdit={isEdit}
+        />
       </form>
     </FormProvider>
+  );
+}
+
+function VendorProductFormActions({
+  readonly = undefined,
+  isEdit = undefined,
+  deliveryMethods,
+  appendVendorProcuts,
+}: {
+  readonly?: boolean;
+  isEdit?: boolean;
+  deliveryMethods: DeliverySlot[];
+  appendVendorProcuts: UseFieldArrayAppend<
+    VendorProductFormType,
+    "vendorProducts"
+  >;
+}) {
+  const {
+    formState: { isSubmitting },
+  } = useFormContext<VendorProductFormType>();
+  return readonly ? (
+    <Button type="btnPrimary" href="/vendor-products">
+      Back
+    </Button>
+  ) : (
+    <div className="flex justify-start gap-4">
+      <Button type="btnWhite" href="/vendor-products">
+        Cancel
+      </Button>
+      <Button type="btnPrimary">
+        {isSubmitting ? "Loading..." : "Submit"}
+      </Button>
+      {!isEdit && (
+        <Button
+          type="btnSecondary"
+          buttonType="button"
+          onClick={() =>
+            appendVendorProcuts({
+              productId: "",
+              vendorId: "",
+              pricingRules: [{ attribute: "", value: "", price: 0 }],
+              deliverySlots: deliveryMethods || [],
+              quantityPricings: [{ quantity: 1, price: 0 }],
+            })
+          }
+        >
+          Add Vendor
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function VendorProductBasicInfo({
+  readonly = false,
+  vendorProduct,
+  vendors,
+  index,
+  products,
+}: {
+  readonly?: boolean;
+  vendorProduct?: VendorProduct;
+  index: number;
+  products: Product[];
+  vendors: Vendor[];
+}) {
+  const {
+    formState: { errors },
+    register,
+  } = useFormContext<VendorProductFormType>();
+  return (
+    <div className="space-y-4 ">
+      <h2 className="text-xl font-semibold">Basic Information</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {readonly && vendorProduct ? (
+          <>
+            <TextField
+              label="Product Name"
+              readonly={readonly}
+              defaultValue={vendorProduct.product.name}
+            />
+            <TextField
+              label="Vendor Name"
+              readonly={readonly}
+              defaultValue={vendorProduct.vendor.name}
+            />
+          </>
+        ) : (
+          <>
+            <SelectionField
+              label="Product"
+              error={errors.vendorProducts?.[index]?.productId?.message}
+              options={products.map((product) => ({
+                name: product.name,
+                value: product.id,
+              }))}
+              {...register(`vendorProducts.${index}.productId`, {
+                required: "Please select a product",
+              })}
+            />
+            <SelectionField
+              label="Vendor"
+              error={errors.vendorProducts?.[index]?.vendorId?.message}
+              options={vendors.map((vendor) => ({
+                name: vendor.name,
+                value: vendor.id,
+              }))}
+              {...register(`vendorProducts.${index}.vendorId`, {
+                required: "Please select a vendor",
+              })}
+            />
+          </>
+        )}
+      </div>
+    </div>
   );
 }

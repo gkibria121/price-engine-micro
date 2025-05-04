@@ -1,8 +1,7 @@
 import React from "react";
 import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import FieldError from "./FieldError";
+import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
 
 function PricingRulesForm({
@@ -12,16 +11,21 @@ function PricingRulesForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const {
-    control,
-    register,
-    formState: { errors },
-  } = useFormContext<VendorProductFormType>();
+  const { register } = useFormContext<VendorProductFormType>();
   const {
     fields: pricingFields,
     append: appendPricing,
     remove: removePricing,
-  } = useFieldArray({ control, name: `vendorProducts` });
+  } = useFieldArray({
+    name: `vendorProducts.${formIndex}.pricingRules`,
+    rules: {
+      validate: (value) =>
+        value.length > 0 || "At least one pricing rule is required",
+    },
+  });
+  const { errors } = useFormState<VendorProductFormType>({
+    name: `vendorProducts.${formIndex}.pricingRules`,
+  });
 
   return (
     <ObjectListField
@@ -85,23 +89,11 @@ function PricingRulesForm({
               step="0.01"
             />
           </ObjectListField.Col>
-          {!readonly && (
+          {!readonly && pricingFields.length != 1 && (
             <ObjectListField.Remove handleClick={() => removePricing(index)} />
           )}
         </ObjectListField.Row>
       ))}
-      <input
-        type="hidden"
-        {...register(`vendorProducts.${formIndex}.pricingRules`, {
-          validate: (value) =>
-            value.length > 0 || "At least one pricing rule is required",
-        })}
-      />
-      {errors?.[formIndex]?.pricingRules?.root?.message && (
-        <FieldError>
-          {errors?.[formIndex]?.pricingRules?.root?.message?.toString()}
-        </FieldError>
-      )}
     </ObjectListField>
   );
 }

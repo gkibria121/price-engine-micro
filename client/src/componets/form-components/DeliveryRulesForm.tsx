@@ -1,8 +1,7 @@
 import React from "react";
 import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import FieldError from "./FieldError";
+import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
 
 function DeliveryRulesForm({
@@ -12,17 +11,19 @@ function DeliveryRulesForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const {
-    control,
-    register,
-    formState: { errors },
-  } = useFormContext<VendorProductFormType>();
+  const { register } = useFormContext<VendorProductFormType>();
   const {
     fields: deliveryFields,
     append: appendDelivery,
     remove: removeDelivery,
   } = useFieldArray({
-    control,
+    name: `vendorProducts.${formIndex}.deliverySlots`,
+    rules: {
+      validate: (value) =>
+        value.length > 0 || "At least one delivery rule is required",
+    },
+  });
+  const { errors } = useFormState({
     name: `vendorProducts.${formIndex}.deliverySlots`,
   });
   return (
@@ -174,25 +175,11 @@ function DeliveryRulesForm({
               />
             </ObjectListField.Col>
           </ObjectListField.Row>
-          {!readonly && (
+          {!readonly && deliveryFields.length > 1 && (
             <ObjectListField.Remove handleClick={() => removeDelivery(index)} />
           )}
         </ObjectListField.Table>
       ))}
-      <input
-        type="hidden"
-        {...register(`vendorProducts.${formIndex}.deliverySlots`, {
-          validate: (value) =>
-            value.length > 0 || "At least one delivery rule is required",
-        })}
-      />
-      {errors.vendorProducts?.[formIndex]?.deliverySlots?.root?.message && (
-        <FieldError>
-          {errors.vendorProducts?.[
-            formIndex
-          ]?.deliverySlots?.root?.message?.toString()}
-        </FieldError>
-      )}
     </ObjectListField>
   );
 }
