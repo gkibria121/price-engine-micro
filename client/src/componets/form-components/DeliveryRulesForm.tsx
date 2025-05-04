@@ -60,23 +60,6 @@ function DeliveryRulesForm({
                 )}
               />
             </ObjectListField.Col>
-            <ObjectListField.Col>
-              <TextField
-                label="Price"
-                type="number"
-                readonly={readonly}
-                error={
-                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
-                    ?.price?.message
-                }
-                {...register(
-                  `vendorProducts.${formIndex}.deliverySlots.${index}.price` as const,
-                  {
-                    required: "This field is required",
-                  }
-                )}
-              />
-            </ObjectListField.Col>
           </ObjectListField.Row>
           <ObjectListField.Row>
             <ObjectListField.Col>
@@ -168,6 +151,23 @@ function DeliveryRulesForm({
                 }
                 {...register(
                   `vendorProducts.${formIndex}.deliverySlots.${index}.cutoffTime` as const,
+                  {
+                    required: "This field is required",
+                  }
+                )}
+              />
+            </ObjectListField.Col>
+            <ObjectListField.Col>
+              <TextField
+                label="Price"
+                type="number"
+                readonly={readonly}
+                error={
+                  errors.vendorProducts?.[formIndex]?.deliverySlots?.[index]
+                    ?.price?.message
+                }
+                {...register(
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.price` as const,
                   {
                     required: "This field is required",
                   }
