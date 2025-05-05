@@ -16,7 +16,60 @@ interface ProductOrderFlowContextType {
   firstStep: number;
   priceCalculationStep: number;
 }
-
+const pricingRuleOptions = [
+  {
+    attribute: "Sides",
+    inputType: "radio",
+    required: true,
+    description: "",
+    hasOther: false,
+    default: 2,
+    values: ["Single Side", "Double Side"],
+  },
+  {
+    attribute: "Orientation",
+    required: true,
+    description: "",
+    inputType: "radio",
+    hasOther: false,
+    default: 2,
+    values: ["Portrait", "Landscape"],
+  },
+  {
+    attribute: "Paper Thickness",
+    required: false,
+    inputType: "radio",
+    description:
+      "GSM stands for 'Grams per Square Meter'. The higher the GSM number, the heavier the paper.",
+    hasOther: true,
+    default: 2,
+    values: [
+      "130 GSM (Thin)",
+      "170 GSM (Medium)",
+      "250 GSM (Moderately Thick)",
+      "300 GSM (Thick)",
+      "350 GSM (Extra Thick)",
+    ],
+  },
+  {
+    attribute: "Finished Size",
+    required: true,
+    inputType: "radio",
+    description: "",
+    hasOther: true,
+    default: 2,
+    values: ["A6", "A5", "A4"],
+  },
+  {
+    attribute: "Paper Type",
+    required: true,
+    description: "",
+    inputType: "radio",
+    hasOther: true,
+    default: 2,
+    values: ["Silk (Matt)", "Gloss"],
+  },
+];
 // Create context
 const ProductOrderFlowContext = createContext<
   ProductOrderFlowContextType | undefined
@@ -29,12 +82,18 @@ export const ProductOrderFlowProvider = ({
   children: ReactNode;
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
+
   const options = [
     {
       step: 1,
       label: "Product",
       /* Product Selection Form */
-      render: (key: number) => <ProductSelectionForm key={key} />,
+      render: (key: number) => (
+        <ProductSelectionForm
+          key={key}
+          pricingRuleOptions={pricingRuleOptions}
+        />
+      ),
     },
     {
       step: 2,

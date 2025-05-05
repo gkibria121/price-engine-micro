@@ -35,3 +35,13 @@ export type PageProps = {
   params: Promise<{ id: string }>;
 };
 export type VendorFormType = z.infer<typeof vendorFormSchema>;
+
+export type PricingRuleSelectionType = {
+  attribute: string;
+  inputType: HTMLInputElement["type"];
+  required: boolean;
+  description: string;
+  hasOther: boolean;
+  default: number;
+  values: string[];
+}[];

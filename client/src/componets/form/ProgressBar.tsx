@@ -34,9 +34,14 @@ function ProgressBar({ currentStep, options }: ProgressBarProps) {
           style={{
             width: `${(currentStep / options.length) * 100}%`,
           }}
-          className={`h-full bg-blue-500    absolute top-0 left-0 z-10`}
+          className={`h-full bg-blue-500    absolute top-0 left-0 z-10 `}
         ></div>
-        <div className="h-full w-full bg-slate-400 absolute top-0 left-0"></div>
+        <div
+          style={{
+            boxShadow: "10px 100px 10px rgba(0,0,0,1)",
+          }}
+          className="h-full w-full bg-slate-200 outline-slate-200 absolute top-0 left-0"
+        ></div>
       </div>
     </div>
   );

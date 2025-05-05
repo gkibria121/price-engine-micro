@@ -17,25 +17,40 @@ function SelectionField({
 }) {
   return (
     <div>
-      <label
-        form={label}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >
+      <label form={label} className="block font-medium mb-2">
         {toInitialCap(label)}
       </label>
-      <select
-        className={`"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " ${className}`}
-        {...others}
-      >
-        <option value="" disabled>
-          Select a {toInitialCap(label)}
-        </option>
-        {options.map((product) => (
-          <option key={product.value} value={product.value}>
-            {product.name}
+      <div className="relative">
+        <select
+          className={`w-full p-2 border border-slate-200 outline-slate-200 rounded appearance-none ${className}`}
+          {...others}
+        >
+          <option value="" disabled>
+            Select a {toInitialCap(label)}
           </option>
-        ))}
-      </select>
+          {options.map((product) => (
+            <option key={product.value} value={product.value}>
+              {product.name}
+            </option>
+          ))}
+        </select>{" "}
+        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg
+            className="w-4 h-4 text-gray-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </div>
+      </div>
       {typeof error === "string" ? (
         <FieldError>{error}</FieldError>
       ) : (
