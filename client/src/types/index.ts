@@ -5,7 +5,7 @@ import {
   pricingRuleSchema,
   quantityPricingSchema,
   VendorProductFormSchema,
-} from "@/zod-schemas/vendor-product";
+} from "@daynightprint/shared";
 import { z } from "zod";
 
 // Product types
