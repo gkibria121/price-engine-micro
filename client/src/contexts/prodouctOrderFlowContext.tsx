@@ -3,6 +3,7 @@ import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
 import { ProductOrderFlowFormType, VendorProduct } from "@/types";
+import { getPricingRuleOptions } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -54,18 +55,26 @@ const ProductOrderFlowContext = createContext<
 export const ProductOrderFlowProvider = ({
   children,
   vendorProducts,
+  defaultVendorProduct,
 }: {
   children: ReactNode;
   vendorProducts: VendorProduct[];
+  defaultVendorProduct?: VendorProduct;
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const priceCalculationStep = 2;
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
+  const pricingRuleOptions = getPricingRuleOptions(defaultVendorProduct);
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
-    product: "",
+    product: defaultVendorProduct?.product?.id ?? "",
     quantity: 10,
-    pricingRules: [],
+    pricingRules: [
+      ...pricingRuleOptions.map((pro) => ({
+        attribute: pro.attribute,
+        value: pro.values[pro.default],
+      })),
+    ],
   };
   const medhods = useForm({
     resolver: zodResolver(ProductOrderFlowFormSchema),
