@@ -1,10 +1,12 @@
 import { toTitleCase } from "@/util/funcitons";
 import React, { HTMLAttributes, PropsWithChildren } from "react";
+import FieldError from "./FieldError";
 
 type CheckboxProps = {
   title: string;
   required?: boolean;
   description?: string;
+  error?: string;
 };
 
 function RadioBox({
@@ -12,6 +14,7 @@ function RadioBox({
   required = undefined,
   description = undefined,
   children,
+  error = undefined,
 }: CheckboxProps & PropsWithChildren) {
   return (
     <div className="mb-6">
@@ -24,6 +27,8 @@ function RadioBox({
       ) : (
         ""
       )}
+      {error && <FieldError>{error}</FieldError>}
+
       <div className="space-y-2">{children}</div>
     </div>
   );
@@ -31,11 +36,12 @@ function RadioBox({
 type RadioInputProps = {
   optinos?: HTMLAttributes<HTMLInputElement>;
   label: string;
+  value: string;
 };
-function RadioInput({ label, ...optinos }: RadioInputProps) {
+function RadioInput({ label, value, ...optinos }: RadioInputProps) {
   return (
     <label className="flex items-center">
-      <input type="radio" name="thickness" className="mr-2" {...optinos} />
+      <input type="radio" value={value} className="mr-2" {...optinos} />
       <span className="text-slate-700">{label}</span>
     </label>
   );

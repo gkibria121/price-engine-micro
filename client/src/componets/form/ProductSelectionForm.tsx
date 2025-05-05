@@ -3,9 +3,22 @@ import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
+import { useFormContext, useFormState } from "react-hook-form";
+import { ProductOrderFlowFormType } from "@/types";
+import { getPricingRuleOptions } from "@/util/funcitons";
 
 function ProductSelectionForm({}) {
-  const { pricingRuleOptions, vendorProducts } = useProductOrderFlow();
+  const { vendorProducts } = useProductOrderFlow();
+  const { register, watch } = useFormContext<ProductOrderFlowFormType>();
+  const { errors } = useFormState({
+    name: ["product", "quantity", "pricingRules"],
+  });
+  const productId = watch("product");
+  const pricingRuleOptions = getPricingRuleOptions(
+    vendorProducts.find((vp) => vp.product.id === productId)
+  );
+  console.log(pricingRuleOptions);
+
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -24,24 +37,46 @@ function ProductSelectionForm({}) {
             name: vp.product.name,
             value: vp.product.id,
           }))}
+          {...register("product")}
+          error={errors.product?.message?.toString()}
         />
 
         {/* Quantity */}
-        <TextField label="Quantity" variant="stacked" placeholder="10" />
+        <TextField
+          label="Quantity"
+          variant="stacked"
+          placeholder="10"
+          {...register("quantity", { valueAsNumber: true })}
+          error={errors.quantity?.message?.toString()}
+        />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {pricingRuleOptions.map((rule) => (
+        {pricingRuleOptions.map((rule, index) => (
           <RadioBox
             title={rule.attribute}
             required={rule.required}
             key={rule.attribute}
             description={rule.description}
           >
+            <input
+              type="hidden"
+              {...register(`pricingRules.${index}.attribute`)}
+              value={rule.attribute}
+            />
             {rule.values.map((option) => (
-              <RadioBox.RadioInput label={option} key={option} />
+              <RadioBox.RadioInput
+                label={option}
+                key={option}
+                value={option}
+                {...register(`pricingRules.${index}.value`)}
+              />
             ))}
             {rule.hasOther && (
-              <RadioBox.RadioInput label={"Other"} key={"other"} />
+              <RadioBox.RadioInput
+                value={"others"}
+                label={"Other"}
+                key={"other"}
+              />
             )}
           </RadioBox>
         ))}

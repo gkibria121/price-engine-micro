@@ -24,7 +24,7 @@ interface ProductOrderFlowContextType {
   firstStep: number;
   priceCalculationStep: number;
   vendorProducts: VendorProduct[];
-  pricingRuleOptions: PricingRuleSelectionType;
+  pricingRuleOptions: PricingRuleSelectionType[];
 }
 const pricingRuleOptions = [
   {
@@ -33,7 +33,7 @@ const pricingRuleOptions = [
     required: true,
     description: "",
     hasOther: false,
-    default: 2,
+    default: 1,
     values: ["Single Side", "Double Side"],
   },
   {
@@ -42,7 +42,7 @@ const pricingRuleOptions = [
     description: "",
     inputType: "radio",
     hasOther: false,
-    default: 2,
+    default: 0,
     values: ["Portrait", "Landscape"],
   },
   {
@@ -52,7 +52,7 @@ const pricingRuleOptions = [
     description:
       "GSM stands for 'Grams per Square Meter'. The higher the GSM number, the heavier the paper.",
     hasOther: true,
-    default: 2,
+    default: 1,
     values: [
       "130 GSM (Thin)",
       "170 GSM (Medium)",
@@ -76,7 +76,7 @@ const pricingRuleOptions = [
     description: "",
     inputType: "radio",
     hasOther: true,
-    default: 2,
+    default: 0,
     values: ["Silk (Matt)", "Gloss"],
   },
 ];
@@ -120,8 +120,15 @@ export const ProductOrderFlowProvider = ({
   const priceCalculationStep = 2;
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
+
+  const pricingRuls = pricingRuleOptions.map((rule) => ({
+    attribute: rule.attribute,
+    value: rule.values[rule.default],
+  }));
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     product: "",
+    quantity: 10,
+    pricingRules: pricingRuls,
   };
   const medhods = useForm({
     resolver: zodResolver(ProductOrderFlowFormSchema),

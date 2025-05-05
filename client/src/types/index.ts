@@ -45,7 +45,7 @@ export type PricingRuleSelectionType = {
   hasOther: boolean;
   default: number;
   values: string[];
-}[];
+};
 
 export type ProductOrderFlowFormType = z.infer<
   typeof ProductOrderFlowFormSchema

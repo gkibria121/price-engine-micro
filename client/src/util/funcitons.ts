@@ -1,4 +1,8 @@
-import { ValidationErrors } from "@/types";
+import {
+  PricingRuleSelectionType,
+  ValidationErrors,
+  VendorProduct,
+} from "@/types";
 import { UseFormReturn, Path } from "react-hook-form";
 import { Id, ToastContent, ToastOptions } from "react-toastify";
 
@@ -68,4 +72,46 @@ export function toTitleCase(str: string) {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+// Convert Title Case to snake_case
+export function titleToSnake(title) {
+  return title.trim().toLowerCase().replace(/\s+/g, "_"); // replace spaces with underscores
+}
+// Convert snake_case to Title Case
+export function snakeToTitle(snake) {
+  return snake
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize each word
+    .join(" ");
+}
+
+export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
+  if (!vendorProduct) return [] as PricingRuleSelectionType[];
+
+  const pricingRules = vendorProduct.pricingRules;
+
+  const pricingRuleOptions = pricingRules.reduce<PricingRuleSelectionType[]>(
+    (acc, curr) => {
+      const existingRule = acc.find((rl) => rl.attribute === curr.attribute);
+      if (!existingRule) {
+        return [
+          ...acc,
+          {
+            attribute: curr.attribute,
+            values: [curr.value],
+            default: 0,
+            description: "",
+            hasOther: false,
+            inputType: "radio",
+            required: false,
+          } as PricingRuleSelectionType,
+        ];
+      }
+      existingRule.values.push(curr.value);
+      return acc;
+    },
+    []
+  );
+
+  return pricingRuleOptions;
 }
