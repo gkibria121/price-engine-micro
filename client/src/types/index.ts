@@ -4,7 +4,7 @@ import {
   deliverySlotSchem,
   pricingRuleSchema,
   quantityPricingSchema,
-  vendorProductSchema,
+  VendorProductFormSchema,
 } from "@/zod-schemas/vendor-product";
 import { z } from "zod";
 
@@ -28,15 +28,7 @@ export interface VendorProduct {
 // Vendor types
 export type Vendor = z.infer<typeof vendorSchema>;
 export type ValidationErrors = Record<string, string[]>;
-export type VendorProductFormType = {
-  vendorProducts: (Omit<
-    z.infer<typeof vendorProductSchema>,
-    "product" | "vendor" | "id"
-  > & {
-    productId: string;
-    vendorId: string;
-  })[];
-};
+export type VendorProductFormType = z.infer<typeof VendorProductFormSchema>;
 
 export type DeliverySlot = z.infer<typeof deliverySlotSchem>;
 export type PageProps = {

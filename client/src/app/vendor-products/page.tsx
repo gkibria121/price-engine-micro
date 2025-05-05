@@ -19,8 +19,8 @@ async function page() {
 
       {vendorProducts.length === 0 ? (
         <EmptyResourceState
-          addResource="/products/add"
-          resourceName="product"
+          addResource="/vendor-products/add"
+          resourceName="vendor product"
         />
       ) : (
         <div className="bg-white shadow rounded overflow-hidden">

@@ -18,10 +18,6 @@ function PricingRulesForm({
     remove: removePricing,
   } = useFieldArray({
     name: `vendorProducts.${formIndex}.pricingRules`,
-    rules: {
-      validate: (value) =>
-        value.length > 0 || "At least one pricing rule is required",
-    },
   });
   const { errors } = useFormState<VendorProductFormType>({
     name: `vendorProducts.${formIndex}.pricingRules`,
@@ -45,10 +41,7 @@ function PricingRulesForm({
               }
               label="Attribute"
               {...register(
-                `vendorProducts.${formIndex}.pricingRules.${index}.attribute` as const,
-                {
-                  required: "This field is required",
-                }
+                `vendorProducts.${formIndex}.pricingRules.${index}.attribute` as const
               )}
             />
           </ObjectListField.Col>
@@ -62,10 +55,7 @@ function PricingRulesForm({
                   ?.message
               }
               {...register(
-                `vendorProducts.${formIndex}.pricingRules.${index}.value` as const,
-                {
-                  required: "This field is required",
-                }
+                `vendorProducts.${formIndex}.pricingRules.${index}.value` as const
               )}
             />
           </ObjectListField.Col>
@@ -80,7 +70,6 @@ function PricingRulesForm({
               {...register(
                 `vendorProducts.${formIndex}.pricingRules.${index}.price` as const,
                 {
-                  required: "This field is required",
                   valueAsNumber: true,
                 }
               )}

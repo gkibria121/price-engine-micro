@@ -24,12 +24,18 @@ import { setValidationErrors, wait } from "@/util/funcitons";
 import { useRouter } from "next/navigation";
 import TextField from "./TextField";
 import VendorProductCSVImport from "./VendorProductCSVImport";
+import { z } from "zod";
+import {
+  deliverySlotSchem,
+  VendorProductFormSchema,
+} from "@/zod-schemas/vendor-product";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface ProductFormProps {
   isEdit?: boolean;
   products: Product[];
   vendors: Vendor[];
-  deliveryMethods: DeliverySlot[];
+  deliveryMethods: z.infer<typeof deliverySlotSchem>[];
   vendorProduct?: VendorProduct;
   readonly?: boolean;
 }
@@ -48,9 +54,11 @@ export default function VendorProductForm({
       return {
         vendorProducts: [
           {
-            vendorId: vendorProduct.vendor.id,
             productId: vendorProduct.product.id,
-            ...vendorProduct,
+            vendorId: vendorProduct.vendor.id,
+            deliverySlots: vendorProduct.deliverySlots,
+            pricingRules: vendorProduct.pricingRules,
+            quantityPricings: vendorProduct.quantityPricings,
           },
         ],
       };
@@ -60,7 +68,7 @@ export default function VendorProductForm({
           productId: "",
           vendorId: "",
           pricingRules: [{ attribute: "", value: "", price: 0 }],
-          deliverySlots: deliveryMethods || [],
+          deliverySlots: deliveryMethods,
           quantityPricings: [{ quantity: 1, price: 0 }],
         },
       ],
@@ -69,6 +77,7 @@ export default function VendorProductForm({
 
   const methods = useForm<VendorProductFormType>({
     defaultValues,
+    resolver: zodResolver(VendorProductFormSchema),
   });
   const { handleSubmit, setError, setValue, control } = methods;
 
@@ -78,6 +87,7 @@ export default function VendorProductForm({
     remove: removeVendorProducts,
   } = useFieldArray({ control, name: "vendorProducts" });
   const onSubmit = async (data: VendorProductFormType) => {
+    return;
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${
         isEdit ? vendorProduct?.id : "bulk-store"
@@ -204,12 +214,12 @@ function VendorProductFormActions({
               productId: "",
               vendorId: "",
               pricingRules: [{ attribute: "", value: "", price: 0 }],
-              deliverySlots: deliveryMethods || [],
+              deliverySlots: deliveryMethods,
               quantityPricings: [{ quantity: 1, price: 0 }],
             })
           }
         >
-          Add Vendor
+          Add Vendor Product
         </Button>
       )}
     </div>
@@ -260,9 +270,7 @@ function VendorProductBasicInfo({
                 name: product.name,
                 value: product.id,
               }))}
-              {...register(`vendorProducts.${index}.productId`, {
-                required: "Please select a product",
-              })}
+              {...register(`vendorProducts.${index}.productId`)}
             />
             <SelectionField
               label="Vendor"
@@ -271,9 +279,7 @@ function VendorProductBasicInfo({
                 name: vendor.name,
                 value: vendor.id,
               }))}
-              {...register(`vendorProducts.${index}.vendorId`, {
-                required: "Please select a vendor",
-              })}
+              {...register(`vendorProducts.${index}.vendorId`)}
             />
           </>
         )}
