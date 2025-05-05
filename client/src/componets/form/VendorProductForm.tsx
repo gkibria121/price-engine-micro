@@ -67,7 +67,9 @@ export default function VendorProductForm({
         {
           productId: "",
           vendorId: "",
-          pricingRules: [{ attribute: "", value: "", price: 0 }],
+          pricingRules: [
+            { attribute: "", value: "", price: 0, isDefault: false },
+          ],
           deliverySlots: deliveryMethods,
           quantityPricings: [{ quantity: 1, price: 0 }],
         },
@@ -87,7 +89,6 @@ export default function VendorProductForm({
     remove: removeVendorProducts,
   } = useFieldArray({ control, name: "vendorProducts" });
   const onSubmit = async (data: VendorProductFormType) => {
-    console.log(data);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${
         isEdit ? vendorProduct?.id : "bulk-store"

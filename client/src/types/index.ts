@@ -39,12 +39,12 @@ export type VendorFormType = z.infer<typeof vendorFormSchema>;
 
 export type PricingRuleSelectionType = {
   attribute: string;
+  default: number;
+  values: string[];
   inputType: HTMLInputElement["type"];
   required: boolean;
   description: string;
   hasOther: boolean;
-  default: number;
-  values: string[];
 };
 
 export type ProductOrderFlowFormType = z.infer<

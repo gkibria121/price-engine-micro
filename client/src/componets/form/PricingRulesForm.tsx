@@ -1,9 +1,10 @@
 import React from "react";
 import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
+
 import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
-
+import CheckBox from "./CheckBox";
 function PricingRulesForm({
   readonly,
   formIndex,
@@ -78,6 +79,12 @@ function PricingRulesForm({
               step="0.01"
             />
           </ObjectListField.Col>
+          <CheckBox
+            label="is default"
+            {...register(
+              `vendorProducts.${formIndex}.pricingRules.${index}.isDefault` as const
+            )}
+          />
           {!readonly && pricingFields.length != 1 && (
             <ObjectListField.Remove handleClick={() => removePricing(index)} />
           )}
