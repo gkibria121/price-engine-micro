@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
@@ -9,7 +9,8 @@ import { getPricingRuleOptions } from "@/util/funcitons";
 
 function ProductSelectionForm({}) {
   const { vendorProducts } = useProductOrderFlow();
-  const { register, watch } = useFormContext<ProductOrderFlowFormType>();
+  const { register, setValue, watch } =
+    useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
   });
@@ -17,7 +18,14 @@ function ProductSelectionForm({}) {
   const pricingRuleOptions = getPricingRuleOptions(
     vendorProducts.find((vp) => vp.product.id === productId)
   );
-  console.log(pricingRuleOptions);
+  useEffect(() => {
+    setValue("pricingRules", [
+      ...pricingRuleOptions.map((pro) => ({
+        attribute: pro.attribute,
+        value: pro.values[pro.default],
+      })),
+    ]);
+  }, [productId, pricingRuleOptions, setValue]);
 
   return (
     <>

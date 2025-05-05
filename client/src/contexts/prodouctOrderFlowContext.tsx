@@ -120,15 +120,10 @@ export const ProductOrderFlowProvider = ({
   const priceCalculationStep = 2;
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
-
-  const pricingRuls = pricingRuleOptions.map((rule) => ({
-    attribute: rule.attribute,
-    value: rule.values[rule.default],
-  }));
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     product: "",
     quantity: 10,
-    pricingRules: pricingRuls,
+    pricingRules: [],
   };
   const medhods = useForm({
     resolver: zodResolver(ProductOrderFlowFormSchema),

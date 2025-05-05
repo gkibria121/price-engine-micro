@@ -87,6 +87,7 @@ export default function VendorProductForm({
     remove: removeVendorProducts,
   } = useFieldArray({ control, name: "vendorProducts" });
   const onSubmit = async (data: VendorProductFormType) => {
+    console.log(data);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${
         isEdit ? vendorProduct?.id : "bulk-store"
@@ -96,7 +97,9 @@ export default function VendorProductForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: isEdit
+          ? JSON.stringify(data.vendorProducts[0])
+          : JSON.stringify(data),
       }
     );
     if (!response.ok) {
