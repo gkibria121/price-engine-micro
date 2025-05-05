@@ -1,5 +1,6 @@
 "use client";
-import ProductSelectionForm from "@/componets/ProductSelectionForm";
+import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
+import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 type OptionType = {
   step: number;
@@ -13,6 +14,7 @@ interface ProductOrderFlowContextType {
   options: OptionType[];
   finalStep: number;
   firstStep: number;
+  priceCalculationStep: number;
 }
 
 // Create context
@@ -37,7 +39,7 @@ export const ProductOrderFlowProvider = ({
     {
       step: 2,
       label: "Delivery Details",
-      render: (key: number) => <div key={key}> No elements</div>,
+      render: (key: number) => <DeliverySelectionForm key={key} />,
     },
     {
       step: 3,
@@ -50,11 +52,19 @@ export const ProductOrderFlowProvider = ({
       render: (key: number) => <div key={key}> No elements</div>,
     },
   ];
+  const priceCalculationStep = 2;
   const finalStep = options[options.length - 1].step;
   const firstStep = options[0].step;
   return (
     <ProductOrderFlowContext.Provider
-      value={{ currentStep, options, setCurrentStep, finalStep, firstStep }}
+      value={{
+        currentStep,
+        options,
+        setCurrentStep,
+        finalStep,
+        firstStep,
+        priceCalculationStep,
+      }}
     >
       {children}
     </ProductOrderFlowContext.Provider>

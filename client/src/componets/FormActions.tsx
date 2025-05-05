@@ -4,8 +4,13 @@ import Button from "./Button";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 
 function FormActions() {
-  const { finalStep, firstStep, currentStep, setCurrentStep } =
-    useProductOrderFlow();
+  const {
+    finalStep,
+    firstStep,
+    currentStep,
+    priceCalculationStep,
+    setCurrentStep,
+  } = useProductOrderFlow();
   return (
     <div
       className={`flex mt-8 justify-${
@@ -20,6 +25,11 @@ function FormActions() {
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
+        </Button>
+      )}
+      {currentStep === priceCalculationStep && (
+        <Button type="btnSecondary" className="ml-auto">
+          Calculate Price
         </Button>
       )}
       {currentStep !== finalStep && (
