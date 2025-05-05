@@ -5,17 +5,15 @@ import Button from "../Button";
 import { toast } from "react-toastify";
 import { setValidationErrors, wait } from "@/util/funcitons";
 import { useRouter } from "next/navigation";
-import { Vendor } from "@/types";
+import { Vendor, VendorFormType } from "@/types";
 import UploadCSV from "../UploadCSV";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { vendorFormSchema } from "@/zod-schemas/vendor";
 
 interface VendorFormProps {
   vendor?: Vendor;
   isEdit?: boolean;
 }
-
-type VendorFormType = {
-  vendors: Omit<Vendor, "id">[];
-};
 
 export default function VendorForm({
   vendor,
@@ -47,7 +45,10 @@ export default function VendorForm({
     setValue,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<VendorFormType>({ defaultValues });
+  } = useForm<VendorFormType>({
+    defaultValues,
+    resolver: zodResolver(vendorFormSchema),
+  });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -88,6 +89,7 @@ export default function VendorForm({
 
       toast(`Vendors ${isEdit ? "updated" : "added"} successfully!`, {
         autoClose: 1000,
+        type: "success",
       });
 
       await wait(1.5);
@@ -147,35 +149,26 @@ export default function VendorForm({
           <TextField
             label="Vendor Name"
             error={errors.vendors?.[index]?.name?.message}
-            {...register(`vendors.${index}.name`, {
-              required: "Vendor name is required",
-            })}
+            {...register(`vendors.${index}.name`)}
           />
           <TextField
             label="Email"
             type="email"
             error={errors.vendors?.[index]?.email?.message}
-            {...register(`vendors.${index}.email`, {
-              required: "Email is required",
-            })}
+            {...register(`vendors.${index}.email`)}
           />
           <TextField
             label="Rating"
             type="number"
             step="0.1"
             error={errors.vendors?.[index]?.rating?.message}
-            {...register(`vendors.${index}.rating`, {
-              required: "Rating is required",
-              min: { value: 0, message: "Rating must be greater than 0" },
-            })}
+            {...register(`vendors.${index}.rating`, { valueAsNumber: true })}
           />
           <TextField
             label="Address"
             type="text"
             error={errors.vendors?.[index]?.address?.message}
-            {...register(`vendors.${index}.address`, {
-              required: "Address is required",
-            })}
+            {...register(`vendors.${index}.address`)}
           />
         </div>
       ))}

@@ -1,5 +1,5 @@
 import { productSchema } from "@/zod-schemas/product";
-import { vendorSchema } from "@/zod-schemas/vendor";
+import { vendorFormSchema, vendorSchema } from "@/zod-schemas/vendor";
 import {
   deliverySlotSchem,
   pricingRuleSchema,
@@ -42,3 +42,4 @@ export type DeliverySlot = z.infer<typeof deliverySlotSchem>;
 export type PageProps = {
   params: Promise<{ id: string }>;
 };
+export type VendorFormType = z.infer<typeof vendorFormSchema>;
