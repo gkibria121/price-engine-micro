@@ -7,14 +7,16 @@ import { useRouter } from "next/navigation";
 import { setValidationErrors, wait } from "@/util/funcitons";
 import { Product } from "@/types";
 import UploadCSV from "../UploadCSV";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productSchema } from "@/zod-schemas/product";
 
-type ProductFormType = Partial<Omit<Product, "id">>;
+type ProductFormType = Omit<Product, "id">;
 type props = {
   isEdit?: boolean;
   product?: Product;
 };
 export default function ProductForm({ isEdit = false, product }: props) {
-  const defaultValues: Partial<Product> = product || {
+  const defaultValues: Omit<Product, "id"> = product || {
     name: "",
   };
   const {
@@ -24,6 +26,7 @@ export default function ProductForm({ isEdit = false, product }: props) {
     formState: { errors, isLoading },
   } = useForm<ProductFormType>({
     defaultValues,
+    resolver: zodResolver(productSchema.omit({ id: true })),
   });
   const router = useRouter();
 
@@ -41,10 +44,8 @@ export default function ProductForm({ isEdit = false, product }: props) {
           body: JSON.stringify(data),
         }
       );
-
       if (!response.ok) {
         const errorData = await response.json();
-
         if (response.status === 422) {
           setError("name", {
             type: "custom",
@@ -55,7 +56,6 @@ export default function ProductForm({ isEdit = false, product }: props) {
         }
         return;
       }
-
       toast(`Product ${isEdit ? "updated" : "created"} successfully!`, {
         type: "success",
         autoClose: 1000,
@@ -124,7 +124,7 @@ export default function ProductForm({ isEdit = false, product }: props) {
             <TextField
               label="name"
               error={errors.name?.message}
-              {...register("name", { required: "Product name is required" })}
+              {...register("name")}
             />
           </div>
         </div>
