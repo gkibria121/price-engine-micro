@@ -452,17 +452,18 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           },
         ],
       });
+    console.log(response.body);
     expect(response.body).toEqual({
       message: "The given data was invalid.",
       errors: {
         "vendorProducts.0.pricingRules": [
-          "vendorProducts.*.pricingRules must be a non-empty array",
+          "At least one pricing rule is required",
         ],
         "vendorProducts.0.deliverySlots": [
-          "vendorProducts.*.deliverySlots must be a non-empty array",
+          "At least one delivery slot is required",
         ],
         "vendorProducts.0.quantityPricings": [
-          "vendorProducts.*.quantityPricings must be a non-empty array",
+          "At least one quantity pricing is required",
         ],
       },
     });
@@ -477,65 +478,42 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
       .send({
         vendorProducts: [
           {
-            vendorId: vendor._id,
-            productId: product._id,
+            vendorId: vendor._id.toHexString(),
+            productId: product._id.toHexString(),
             pricingRules: [{}],
             deliverySlots: [{}],
             quantityPricings: [{}],
           },
         ],
       });
+
     expect(response.body).toEqual({
       message: "The given data was invalid.",
       errors: {
-        "vendorProducts.0.pricingRules.0.attribute": [
-          "attribute is required",
-          "attribute must be a string",
-        ],
-        "vendorProducts.0.pricingRules.0.value": [
-          "value is required",
-          "value must be a string",
-        ],
-        "vendorProducts.0.pricingRules.0.price": [
-          "price is required",
-          "price must be a number",
-        ],
-        "vendorProducts.0.deliverySlots.0.price": [
-          "deliverySlot.price is required",
-          "deliverySlot.price must be a number",
-        ],
-        "vendorProducts.0.deliverySlots.0.cutoffTime": [
-          "cutoffTime is required",
-          "cutoffTime must be in HH:mm format",
+        "vendorProducts.0.pricingRules.0.attribute": ["Attribute is required"],
+        "vendorProducts.0.pricingRules.0.value": ["Value is required"],
+        "vendorProducts.0.pricingRules.0.price": ["Invalid input"],
+        "vendorProducts.0.deliverySlots.0.label": ["Label is required"],
+        "vendorProducts.0.deliverySlots.0.price": ["Price is required"],
+        "vendorProducts.0.deliverySlots.0.deliveryTimeStartDate": [
+          "Start date is required",
         ],
         "vendorProducts.0.deliverySlots.0.deliveryTimeStartTime": [
-          "deliveryTimeStartTime is required",
-          "deliveryTimeStartTime must be in HH:mm format",
-        ],
-        "vendorProducts.0.deliverySlots.0.deliveryTimeEndTime": [
-          "deliveryTimeEndTime is required",
-          "deliveryTimeEndTime must be in HH:mm format",
-        ],
-        "vendorProducts.0.deliverySlots.0.deliveryTimeStartDate": [
-          "deliveryTimeStartDate is required",
-          "deliveryTimeStartDate must be a number",
+          "Start time is required",
         ],
         "vendorProducts.0.deliverySlots.0.deliveryTimeEndDate": [
-          "deliveryTimeEndDate is required",
-          "deliveryTimeEndDate must be a number",
+          "End date is required",
         ],
-        "vendorProducts.0.deliverySlots.0.label": [
-          "label is required",
-          "label must be a string",
+        "vendorProducts.0.deliverySlots.0.deliveryTimeEndTime": [
+          "End time is required",
+        ],
+        "vendorProducts.0.deliverySlots.0.cutoffTime": [
+          "Cutoff time is required",
         ],
         "vendorProducts.0.quantityPricings.0.quantity": [
-          "quantity is required",
-          "quantity must be a number",
+          "Quantity is required",
         ],
-        "vendorProducts.0.quantityPricings.0.price": [
-          "price is required",
-          "price must be a number",
-        ],
+        "vendorProducts.0.quantityPricings.0.price": ["Price is required"],
       },
     });
     expect(response.status).toBe(422);

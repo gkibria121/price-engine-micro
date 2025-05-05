@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { FieldValidationError, validationResult } from "express-validator";
 import { ValidationException } from "../Exceptions/ValidationException";
 import { formatValidationErrors } from "../utils/formatValidationErrors";
+import { z, ZodError } from "zod";
 
 export function validateRequest(
   req: Request,
