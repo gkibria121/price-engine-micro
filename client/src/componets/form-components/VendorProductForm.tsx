@@ -43,22 +43,28 @@ export default function VendorProductForm({
   deliveryMethods,
 }: ProductFormProps) {
   const router = useRouter();
-  const defaultValues: VendorProductFormType = {
-    vendorProducts: [
-      isEdit && vendorProduct
-        ? {
+  const defaultValues = async (): Promise<VendorProductFormType> => {
+    if (isEdit && vendorProduct)
+      return {
+        vendorProducts: [
+          {
             vendorId: vendorProduct.vendor.id,
             productId: vendorProduct.product.id,
             ...vendorProduct,
-          }
-        : {
-            productId: "",
-            vendorId: "",
-            pricingRules: [{ attribute: "", value: "", price: 0 }],
-            deliverySlots: deliveryMethods || [],
-            quantityPricings: [{ quantity: 1, price: 0 }],
           },
-    ],
+        ],
+      };
+    return {
+      vendorProducts: [
+        {
+          productId: "",
+          vendorId: "",
+          pricingRules: [{ attribute: "", value: "", price: 0 }],
+          deliverySlots: deliveryMethods || [],
+          quantityPricings: [{ quantity: 1, price: 0 }],
+        },
+      ],
+    };
   };
 
   const methods = useForm<VendorProductFormType>({

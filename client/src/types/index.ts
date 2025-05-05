@@ -1,24 +1,21 @@
+import { productSchema } from "@/zod-schemas/product";
+import { vendorSchema } from "@/zod-schemas/vendor";
+import {
+  deliverySlotSchem,
+  pricingRuleSchema,
+  quantityPricingSchema,
+  vendorProductSchema,
+} from "@/zod-schemas/vendor-product";
+import { z } from "zod";
+
 // Product types
-export interface PricingRule {
-  attribute: string;
-  value: string;
-  price: number;
-}
+export type PricingRule = z.infer<typeof pricingRuleSchema>;
 
-export interface DeliveryRule {
-  method: string;
-  price: number;
-}
+export type DeliveryRule = z.infer<typeof deliverySlotSchem>;
 
-export interface QuantityPricing {
-  quantity: number;
-  price: number;
-}
+export type QuantityPricing = z.infer<typeof quantityPricingSchema>;
 
-export interface Product {
-  id: string;
-  name: string;
-}
+export type Product = z.infer<typeof productSchema>;
 export interface VendorProduct {
   id: string;
   product: Product;
@@ -29,35 +26,19 @@ export interface VendorProduct {
 }
 
 // Vendor types
-export interface Vendor {
-  id: string;
-  name: string;
-  email: string;
-  address: string;
-  rating: number;
-  vendor: Vendor;
-  product: Product;
-}
+export type Vendor = z.infer<typeof vendorSchema>;
 export type ValidationErrors = Record<string, string[]>;
 export type VendorProductFormType = {
-  vendorProducts: {
+  vendorProducts: (Omit<
+    z.infer<typeof vendorProductSchema>,
+    "product" | "vendor" | "id"
+  > & {
     productId: string;
     vendorId: string;
-    pricingRules: { attribute: string; value: string; price: number }[];
-    deliverySlots: DeliverySlot[];
-    quantityPricings: QuantityPricing[];
-  }[];
+  })[];
 };
 
-export type DeliverySlot = {
-  label: string;
-  price: number;
-  deliveryTimeStartDate: number;
-  deliveryTimeStartTime: `${number}:${number}`;
-  deliveryTimeEndDate: number;
-  deliveryTimeEndTime: `${number}:${number}`;
-  cutoffTime: `${number}:${number}`;
-};
+export type DeliverySlot = z.infer<typeof deliverySlotSchem>;
 export type PageProps = {
   params: Promise<{ id: string }>;
 };

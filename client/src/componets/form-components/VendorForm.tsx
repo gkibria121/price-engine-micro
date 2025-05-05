@@ -14,12 +14,7 @@ interface VendorFormProps {
 }
 
 type VendorFormType = {
-  vendors: {
-    name: string;
-    email: string;
-    address: string;
-    rating: number;
-  }[];
+  vendors: Omit<Vendor, "id">[];
 };
 
 export default function VendorForm({
@@ -28,17 +23,21 @@ export default function VendorForm({
 }: VendorFormProps) {
   const router = useRouter();
 
-  const defaultValues: VendorFormType = {
-    vendors: vendor
-      ? [{ ...vendor }]
-      : [
-          {
-            name: "",
-            email: "",
-            address: "",
-            rating: 0,
-          },
-        ],
+  const defaultValues = async (): Promise<VendorFormType> => {
+    if (vendor)
+      return {
+        vendors: [vendor],
+      };
+    return {
+      vendors: [
+        {
+          name: "",
+          email: "",
+          address: "",
+          rating: 0,
+        },
+      ],
+    };
   };
 
   const {

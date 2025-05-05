@@ -8,9 +8,7 @@ import { setValidationErrors, wait } from "@/util/funcitons";
 import { Product } from "@/types";
 import UploadCSV from "../UploadCSV";
 
-type ProductFormType = {
-  name: string;
-};
+type ProductFormType = Partial<Omit<Product, "id">>;
 type props = {
   isEdit?: boolean;
   product?: Product;
