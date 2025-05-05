@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@daynightprint/shared": "^1.0.9",
     "@hookform/resolvers": "^5.0.1",
     "lucide-react": "^0.507.0",
     "mongoose": "^8.14.1",
