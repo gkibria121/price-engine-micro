@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Vendor, VendorFormType } from "@/types";
 import UploadCSV from "../UploadCSV";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { vendorFormSchema } from "@/zod-schemas/vendor";
+import { vendorFormSchema } from "@daynightprint/shared";
 
 interface VendorFormProps {
   vendor?: Vendor;

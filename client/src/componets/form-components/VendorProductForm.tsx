@@ -28,7 +28,7 @@ import { z } from "zod";
 import {
   deliverySlotSchem,
   VendorProductFormSchema,
-} from "@/zod-schemas/vendor-product";
+} from "@daynightprint/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 interface ProductFormProps {
@@ -87,7 +87,6 @@ export default function VendorProductForm({
     remove: removeVendorProducts,
   } = useFieldArray({ control, name: "vendorProducts" });
   const onSubmit = async (data: VendorProductFormType) => {
-    return;
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${
         isEdit ? vendorProduct?.id : "bulk-store"

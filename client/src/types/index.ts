@@ -1,5 +1,5 @@
-import { productSchema } from "@/zod-schemas/product";
-import { vendorFormSchema, vendorSchema } from "@/zod-schemas/vendor";
+import { productSchema } from "@daynightprint/shared";
+import { vendorFormSchema, vendorSchema } from "@daynightprint/shared";
 import {
   deliverySlotSchem,
   pricingRuleSchema,

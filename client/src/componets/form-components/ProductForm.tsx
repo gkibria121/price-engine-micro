@@ -8,7 +8,7 @@ import { setValidationErrors, wait } from "@/util/funcitons";
 import { Product } from "@/types";
 import UploadCSV from "../UploadCSV";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productSchema } from "@/zod-schemas/product";
+import { productSchema } from "@daynightprint/shared";
 
 type ProductFormType = Omit<Product, "id">;
 type props = {
