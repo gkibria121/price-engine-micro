@@ -2,14 +2,10 @@ import React from "react";
 import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
-import { PricingRuleSelectionType } from "@/types";
+import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 
-type ProductSelectionFormProps = {
-  pricingRuleOptions: PricingRuleSelectionType;
-};
-function ProductSelectionForm({
-  pricingRuleOptions,
-}: ProductSelectionFormProps) {
+function ProductSelectionForm({}) {
+  const { pricingRuleOptions, vendorProducts } = useProductOrderFlow();
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -24,7 +20,10 @@ function ProductSelectionForm({
 
         <SelectionField
           label="Product Type"
-          options={[{ name: "Flyers", value: "flyers" }]}
+          options={vendorProducts.map((vp) => ({
+            name: vp.product.name,
+            value: vp.product.id,
+          }))}
         />
 
         {/* Quantity */}

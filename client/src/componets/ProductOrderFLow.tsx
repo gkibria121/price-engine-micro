@@ -4,18 +4,28 @@ import ProgressBar from "./form/ProgressBar";
 import FormActions from "./FormActions";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 import PriceCalculationResult from "./PriceCalculationResult";
+import { useFormContext } from "react-hook-form";
 
 const ProductOrderFlow = () => {
-  const { options, currentStep } = useProductOrderFlow();
-
+  const { formBodies, currentStep, setCurrentStep } = useProductOrderFlow();
+  const { handleSubmit } = useFormContext();
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <form
+      className="max-w-4xl mx-auto p-4"
+      onSubmit={handleSubmit(
+        (data) => {
+          console.log(data);
+          setCurrentStep((prev) => prev + 1);
+        },
+        (error) => console.log(error)
+      )}
+    >
       {/* Progress Steps */}
-      <ProgressBar options={options} currentStep={currentStep} />
+      <ProgressBar options={formBodies} currentStep={currentStep} />
 
       <div className="min-h-[65vh]">
         {/* Form body*/}
-        {options.map(
+        {formBodies.map(
           (option) =>
             option.step === currentStep && option.render?.(option.step)
         )}
@@ -24,7 +34,7 @@ const ProductOrderFlow = () => {
 
       {/* Next Button */}
       <FormActions />
-    </div>
+    </form>
   );
 };
 

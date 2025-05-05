@@ -21,6 +21,7 @@ function FormActions() {
         <Button
           type="btnSecondary"
           className="flex items-center"
+          buttonType="button"
           onClick={() => setCurrentStep((prev) => prev - 1)}
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
@@ -28,16 +29,12 @@ function FormActions() {
         </Button>
       )}
       {currentStep === priceCalculationStep && (
-        <Button type="btnSecondary" className="ml-auto">
+        <Button type="btnSecondary" className="ml-auto" buttonType="button">
           Calculate Price
         </Button>
       )}
       {currentStep !== finalStep && (
-        <Button
-          type="btnPrimary"
-          className="flex items-center"
-          onClick={() => setCurrentStep((prev) => prev + 1)}
-        >
+        <Button type="btnPrimary" className="flex items-center">
           Next
           <ArrowRight className="ml-2 w-4 h-4" />
         </Button>

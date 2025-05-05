@@ -1,8 +1,16 @@
 "use client";
 import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
+import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
+import {
+  PricingRuleSelectionType,
+  ProductOrderFlowFormType,
+  VendorProduct,
+} from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { createContext, useContext, useState, ReactNode } from "react";
-type OptionType = {
+import { FormProvider, useForm } from "react-hook-form";
+type FormBodyType = {
   step: number;
   label: string;
   render: (key: number) => React.JSX.Element;
@@ -11,10 +19,12 @@ type OptionType = {
 interface ProductOrderFlowContextType {
   currentStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  options: OptionType[];
+  formBodies: FormBodyType[];
   finalStep: number;
   firstStep: number;
   priceCalculationStep: number;
+  vendorProducts: VendorProduct[];
+  pricingRuleOptions: PricingRuleSelectionType;
 }
 const pricingRuleOptions = [
   {
@@ -70,6 +80,29 @@ const pricingRuleOptions = [
     values: ["Silk (Matt)", "Gloss"],
   },
 ];
+const formBodies = [
+  {
+    step: 1,
+    label: "Product",
+    /* Product Selection Form */
+    render: (key: number) => <ProductSelectionForm key={key} />,
+  },
+  {
+    step: 2,
+    label: "Delivery Details",
+    render: (key: number) => <DeliverySelectionForm key={key} />,
+  },
+  {
+    step: 3,
+    label: "Upload Design File (Optional)",
+    render: (key: number) => <div key={key}> No elements</div>,
+  },
+  {
+    step: 4,
+    label: "Final",
+    render: (key: number) => <div key={key}> No elements</div>,
+  },
+];
 // Create context
 const ProductOrderFlowContext = createContext<
   ProductOrderFlowContextType | undefined
@@ -78,54 +111,37 @@ const ProductOrderFlowContext = createContext<
 // Provider component
 export const ProductOrderFlowProvider = ({
   children,
+  vendorProducts,
 }: {
   children: ReactNode;
+  vendorProducts: VendorProduct[];
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-
-  const options = [
-    {
-      step: 1,
-      label: "Product",
-      /* Product Selection Form */
-      render: (key: number) => (
-        <ProductSelectionForm
-          key={key}
-          pricingRuleOptions={pricingRuleOptions}
-        />
-      ),
-    },
-    {
-      step: 2,
-      label: "Delivery Details",
-      render: (key: number) => <DeliverySelectionForm key={key} />,
-    },
-    {
-      step: 3,
-      label: "Upload Design File (Optional)",
-      render: (key: number) => <div key={key}> No elements</div>,
-    },
-    {
-      step: 4,
-      label: "Final",
-      render: (key: number) => <div key={key}> No elements</div>,
-    },
-  ];
   const priceCalculationStep = 2;
-  const finalStep = options[options.length - 1].step;
-  const firstStep = options[0].step;
+  const finalStep = formBodies[formBodies.length - 1].step;
+  const firstStep = formBodies[0].step;
+  const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
+    product: "",
+  };
+  const medhods = useForm({
+    resolver: zodResolver(ProductOrderFlowFormSchema),
+    defaultValues: productOrderFlowDefaultValues,
+  });
+
   return (
     <ProductOrderFlowContext.Provider
       value={{
         currentStep,
-        options,
+        formBodies,
         setCurrentStep,
         finalStep,
         firstStep,
+        pricingRuleOptions,
         priceCalculationStep,
+        vendorProducts,
       }}
     >
-      {children}
+      <FormProvider {...medhods}>{children}</FormProvider>
     </ProductOrderFlowContext.Provider>
   );
 };

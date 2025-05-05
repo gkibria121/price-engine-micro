@@ -1,3 +1,4 @@
+import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
 import { productSchema } from "@daynightprint/shared";
 import { vendorFormSchema, vendorSchema } from "@daynightprint/shared";
 import {
@@ -45,3 +46,7 @@ export type PricingRuleSelectionType = {
   default: number;
   values: string[];
 }[];
+
+export type ProductOrderFlowFormType = z.infer<
+  typeof ProductOrderFlowFormSchema
+>;
