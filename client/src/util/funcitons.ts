@@ -91,11 +91,12 @@ export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
   const pricingRules = vendorProduct.pricingRules;
 
   const pricingRuleOptions = pricingRules.reduce<PricingRuleSelectionType[]>(
-    (acc, curr) => {
-      const existingRule = acc.find((rl) => rl.attribute === curr.attribute);
+    (rules, curr) => {
+      const existingRule = rules.find((rl) => rl.attribute === curr.attribute);
+
       if (!existingRule) {
         return [
-          ...acc,
+          ...rules,
           {
             attribute: curr.attribute,
             values: [curr.value],
@@ -107,8 +108,12 @@ export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
           } as PricingRuleSelectionType,
         ];
       }
+
+      if (curr.isDefault) {
+        existingRule.default = existingRule.values.length;
+      }
       existingRule.values.push(curr.value);
-      return acc;
+      return rules;
     },
     []
   );
