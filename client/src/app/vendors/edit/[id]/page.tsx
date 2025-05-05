@@ -1,5 +1,5 @@
 import React from "react";
-import VendorForm from "@/componets/form-components/VendorForm";
+import VendorForm from "@/componets/form/VendorForm";
 import { PageProps, Vendor } from "@/types";
 
 export default async function page({ params }: PageProps) {

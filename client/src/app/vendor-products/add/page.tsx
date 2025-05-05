@@ -1,4 +1,4 @@
-import VendorProductForm from "@/componets/form-components/VendorProductForm";
+import VendorProductForm from "@/componets/form/VendorProductForm";
 import { getDeliverySlots } from "@/services/deliverySlots";
 import { getProducts } from "@/services/productService";
 import { getVendors } from "@/services/vendorService";

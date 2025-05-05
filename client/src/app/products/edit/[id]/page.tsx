@@ -1,4 +1,4 @@
-import ProductForm from "@/componets/form-components/ProductForm";
+import ProductForm from "@/componets/form/ProductForm";
 import { getProduct } from "@/services/productService";
 import React from "react";
 type PageProps = {

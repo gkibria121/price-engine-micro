@@ -1,5 +1,5 @@
 import React from "react";
-import VendorForm from "@/componets/form-components/VendorForm";
+import VendorForm from "@/componets/form/VendorForm";
 
 export default function Page() {
   return (
