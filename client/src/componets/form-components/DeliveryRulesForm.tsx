@@ -53,10 +53,7 @@ function DeliveryRulesForm({
                     ?.label?.message
                 }
                 {...register(
-                  `vendorProducts.${formIndex}.deliverySlots.${index}.label` as const,
-                  {
-                    required: "This field is required",
-                  }
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.label` as const
                 )}
               />
             </ObjectListField.Col>
@@ -76,7 +73,6 @@ function DeliveryRulesForm({
                 {...register(
                   `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeStartDate` as const,
                   {
-                    required: "This field is required",
                     valueAsNumber: true,
                   }
                 )}
@@ -92,10 +88,7 @@ function DeliveryRulesForm({
                     ?.deliveryTimeStartTime?.message
                 }
                 {...register(
-                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeStartTime` as const,
-                  {
-                    required: "This field is required",
-                  }
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeStartTime` as const
                 )}
               />
             </ObjectListField.Col>
@@ -115,7 +108,6 @@ function DeliveryRulesForm({
                 {...register(
                   `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeEndDate` as const,
                   {
-                    required: "This field is required",
                     valueAsNumber: true,
                   }
                 )}
@@ -131,10 +123,7 @@ function DeliveryRulesForm({
                     ?.deliveryTimeEndTime?.message
                 }
                 {...register(
-                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeEndTime` as const,
-                  {
-                    required: "This field is required",
-                  }
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.deliveryTimeEndTime` as const
                 )}
               />
             </ObjectListField.Col>
@@ -150,10 +139,7 @@ function DeliveryRulesForm({
                     ?.cutoffTime?.message
                 }
                 {...register(
-                  `vendorProducts.${formIndex}.deliverySlots.${index}.cutoffTime` as const,
-                  {
-                    required: "This field is required",
-                  }
+                  `vendorProducts.${formIndex}.deliverySlots.${index}.cutoffTime` as const
                 )}
               />
             </ObjectListField.Col>
@@ -169,7 +155,7 @@ function DeliveryRulesForm({
                 {...register(
                   `vendorProducts.${formIndex}.deliverySlots.${index}.price` as const,
                   {
-                    required: "This field is required",
+                    valueAsNumber: true,
                   }
                 )}
               />

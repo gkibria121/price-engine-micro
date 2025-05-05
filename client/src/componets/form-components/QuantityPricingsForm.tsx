@@ -47,9 +47,7 @@ function QuantityPricingsForm({
               {...register(
                 `vendorProducts.${formIndex}.quantityPricings.${index}.quantity` as const,
                 {
-                  required: "This field is required",
                   valueAsNumber: true,
-                  min: { value: 1, message: "Must be at least 1" },
                 }
               )}
             />
@@ -67,7 +65,6 @@ function QuantityPricingsForm({
               {...register(
                 `vendorProducts.${formIndex}.quantityPricings.${index}.price` as const,
                 {
-                  required: "This field is required",
                   valueAsNumber: true,
                 }
               )}
