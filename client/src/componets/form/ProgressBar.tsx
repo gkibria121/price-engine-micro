@@ -19,7 +19,7 @@ function ProgressBar({ currentStep, options }: ProgressBarProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-center gap-x-4 md:justify-between  mb-4">
         {options.map((option) => (
           <Step
             state={getStatus(currentStep, option.step)}
@@ -29,12 +29,12 @@ function ProgressBar({ currentStep, options }: ProgressBarProps) {
           />
         ))}
       </div>
-      <div className="h-0.5 w-full relative mb-12 overflow-hidden">
+      <div className="h-0.5 w-1/2 mx-auto  md:w-full relative mb-12 overflow-hidden">
         <div
           style={{
             width: `${(currentStep / options.length) * 100}%`,
           }}
-          className={`h-full bg-blue-500  transition-[width] duration-500 absolute top-0 left-0 z-10`}
+          className={`h-full bg-blue-500    absolute top-0 left-0 z-10`}
         ></div>
         <div className="h-full w-full bg-slate-400 absolute top-0 left-0"></div>
       </div>
@@ -61,14 +61,14 @@ function Step({ step, label, state = "in-active" }: StepPorops) {
         style={{
           boxShadow: "1px 2px 3px rgba(0,0,0,.2)",
         }}
-        className={`flex items-center justify-center w-8 h-8 rounded-full shadow-round  ${style[state]}`}
+        className={`flex items-center   justify-center w-8 h-8 rounded-full shadow-round  ${style[state]}`}
       >
         {state !== "complete" ? step : <Check size={24} />}
       </div>
       <span
         className={`text-sm ${
-          state === "active" ? "font-bold" : "font-semibold"
-        }`}
+          state === "active" ? "font-semibold" : "font-[405]"
+        }   ${state !== "active" && "hidden md:block"} `}
       >
         {toInitialCap(label)}
       </span>
