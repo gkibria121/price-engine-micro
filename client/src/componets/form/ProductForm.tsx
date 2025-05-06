@@ -114,7 +114,10 @@ export default function ProductForm({ isEdit = false, product }: props) {
     const data = await respone.json();
     toast(data.message, {
       type: "success",
+      autoClose: 1000,
     });
+    await wait(1.5);
+    router.push("/products");
   };
 
   return (
