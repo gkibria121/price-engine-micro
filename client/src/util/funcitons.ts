@@ -103,7 +103,7 @@ export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
             values: [curr.value],
             default: 0,
             description: "",
-            hasOther: true,
+            hasOther: false,
             inputType: "radio",
             required: false,
           } as PricingRuleSelectionType,

@@ -15,6 +15,7 @@ function ProductSelectionForm({}) {
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
+  const pricingRules = watch("pricingRules");
   const pricingRuleOptions = useMemo(
     () =>
       getPricingRuleOptions(
@@ -32,6 +33,7 @@ function ProductSelectionForm({}) {
     ]);
   }, [productId, pricingRuleOptions, setValue]);
 
+  console.log(pricingRules);
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -96,7 +98,10 @@ function ProductSelectionForm({}) {
                   {watch(`pricingRules.${index}.value`) === "other" && (
                     <TextField
                       placeholder={rule.values[0].replace(/\(.*?\)/g, "")}
-                      {...register(`pricingRules.${index}.value`)}
+                      {...register(`pricingRules.${index}.otherValue`, {
+                        required: "This field cannot be empty",
+                      })}
+                      error={errors.pricingRules?.[index]?.otherValue}
                     />
                   )}
                 </>

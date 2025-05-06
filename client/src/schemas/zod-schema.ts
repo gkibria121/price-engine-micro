@@ -1,11 +1,16 @@
-import { pricingRuleSchema } from "@daynightprint/shared";
 import { z } from "zod";
 
 export const ProductSelectionSchema = z.object({
   product: z.string().min(1, "Please select a product"),
   quantity: z.number().min(1, "Quantity must be at least 1."),
   pricingRules: z
-    .array(pricingRuleSchema.omit({ price: true }))
+    .array(
+      z.object({
+        attribute: z.string(),
+        value: z.string(),
+        otherValue: z.string().optional(),
+      })
+    )
     .min(1, "Please select one attribute"),
 });
 
