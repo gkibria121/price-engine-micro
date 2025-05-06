@@ -6,8 +6,7 @@ import React from "react";
 async function page({
   searchParams,
 }: {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const vendorProducts = await getVendorProducts();
   const productName = (await searchParams)["product_type"];

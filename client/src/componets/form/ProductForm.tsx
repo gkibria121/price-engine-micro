@@ -1,5 +1,5 @@
 "use client";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import Button from "../Button";
 import TextField from "./TextField";
 import { toast } from "react-toastify";
@@ -8,15 +8,15 @@ import { setValidationErrors, wait } from "@/util/funcitons";
 import { Product } from "@/types";
 import UploadCSV from "../UploadCSV";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { productSchema } from "@daynightprint/shared";
-
-type ProductFormType = Omit<Product, "id">;
+type ProductFormType = Omit<z.infer<typeof productSchema>, "id">;
 type props = {
   isEdit?: boolean;
   product?: Product;
 };
 export default function ProductForm({ isEdit = false, product }: props) {
-  const defaultValues: Omit<Product, "id"> = product || {
+  const defaultValues: ProductFormType = product || {
     name: "",
   };
   const {
@@ -26,7 +26,11 @@ export default function ProductForm({ isEdit = false, product }: props) {
     formState: { errors, isLoading },
   } = useForm<ProductFormType>({
     defaultValues,
-    resolver: zodResolver(productSchema.omit({ id: true })),
+    resolver: zodResolver(productSchema.omit({ id: true })) as Resolver<
+      ProductFormType,
+      unknown,
+      ProductFormType
+    >,
   });
   const router = useRouter();
 
