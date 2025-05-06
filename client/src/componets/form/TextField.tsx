@@ -4,7 +4,7 @@ import { toInitialCap } from "@/util/funcitons";
 
 function TextField({
   error,
-  label,
+  label = undefined,
   step,
   variant = "floating",
   type = "text",
@@ -15,7 +15,7 @@ function TextField({
   ...others
 }: {
   error?: string | string[];
-  label: string;
+  label?: string;
   step?: string;
   variant?: "floating" | "stacked";
   defaultValue?: string;
@@ -26,8 +26,9 @@ function TextField({
 }) {
   const style: Record<typeof variant, string> = {
     stacked: "w-full p-2 border rounded border-slate-200 outline-slate-200",
-    floating:
-      "block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none   focus:outline-none focus:ring-0 focus:border-blue-600 peer",
+    floating: `block px-2.5 pb-2.5 ${
+      label ? " pt-4 " : " pt-2 "
+    } w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none   focus:outline-none focus:ring-0 focus:border-blue-600 peer`,
   };
   const labels: Record<typeof variant, React.JSX.Element> = {
     floating: (
@@ -35,12 +36,14 @@ function TextField({
         {toInitialCap(label)}
       </label>
     ),
-    stacked: <label className="block font-medium mb-2 ">Quantity</label>,
+    stacked: (
+      <label className="block font-medium mb-2 ">{toInitialCap(label)}</label>
+    ),
   };
 
   return (
     <div className="relative mb-6">
-      {variant === "stacked" && labels["stacked"]}
+      {variant === "stacked" && label && labels["stacked"]}
       <input
         type={type}
         {...others}
@@ -48,7 +51,7 @@ function TextField({
         readOnly={readonly}
         step={step ? step : undefined}
         className={style[variant]}
-        placeholder={variant == "floating" ? " " : placeholder}
+        placeholder={placeholder ?? " "}
       />
       {variant === "floating" && labels["floating"]}
 

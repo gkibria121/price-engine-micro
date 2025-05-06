@@ -15,6 +15,7 @@ export async function wait(s: number) {
 }
 
 export function toInitialCap(s: string) {
+  if (!s) return "";
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
@@ -102,7 +103,7 @@ export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
             values: [curr.value],
             default: 0,
             description: "",
-            hasOther: false,
+            hasOther: true,
             inputType: "radio",
             required: false,
           } as PricingRuleSelectionType,

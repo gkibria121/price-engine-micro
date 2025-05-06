@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
@@ -15,9 +15,14 @@ function ProductSelectionForm({}) {
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
-  const pricingRuleOptions = getPricingRuleOptions(
-    vendorProducts.find((vp) => vp.product.id === productId)
+  const pricingRuleOptions = useMemo(
+    () =>
+      getPricingRuleOptions(
+        vendorProducts.find((vp) => vp.product.id === productId)
+      ),
+    [productId, vendorProducts]
   );
+
   useEffect(() => {
     setValue("pricingRules", [
       ...pricingRuleOptions.map((pro) => ({
@@ -59,35 +64,46 @@ function ProductSelectionForm({}) {
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {pricingRuleOptions.map((rule, index) => (
-          <RadioBox
-            title={rule.attribute}
-            required={rule.required}
-            key={rule.attribute}
-            description={rule.description}
-          >
-            <input
-              type="hidden"
-              {...register(`pricingRules.${index}.attribute`)}
-              value={rule.attribute}
-            />
-            {rule.values.map((option) => (
-              <RadioBox.RadioInput
-                label={option}
-                key={option}
-                value={option}
-                {...register(`pricingRules.${index}.value`)}
+        {pricingRuleOptions.map((rule, index) => {
+          return (
+            <RadioBox
+              title={rule.attribute}
+              required={rule.required}
+              key={rule.attribute}
+              description={rule.description}
+            >
+              <input
+                type="hidden"
+                {...register(`pricingRules.${index}.attribute`)}
+                value={rule.attribute}
               />
-            ))}
-            {rule.hasOther && (
-              <RadioBox.RadioInput
-                value={"others"}
-                label={"Other"}
-                key={"other"}
-              />
-            )}
-          </RadioBox>
-        ))}
+              {rule.values.map((option) => (
+                <RadioBox.RadioInput
+                  label={option}
+                  key={option}
+                  value={option}
+                  {...register(`pricingRules.${index}.value`)}
+                />
+              ))}
+
+              {rule.hasOther && (
+                <>
+                  <RadioBox.RadioInput
+                    label="Other"
+                    value="other"
+                    {...register(`pricingRules.${index}.value`)}
+                  />
+                  {watch(`pricingRules.${index}.value`) === "other" && (
+                    <TextField
+                      placeholder={rule.values[0].replace(/\(.*?\)/g, "")}
+                      {...register(`pricingRules.${index}.value`)}
+                    />
+                  )}
+                </>
+              )}
+            </RadioBox>
+          );
+        })}
       </div>
     </>
   );
