@@ -36,13 +36,19 @@ function RadioBox({
 type RadioInputProps = {
   optinos?: HTMLAttributes<HTMLInputElement>;
   label: string;
-  value: string;
+  value?: string;
+  className?: string;
 };
-function RadioInput({ label, value, ...optinos }: RadioInputProps) {
+function RadioInput({
+  label,
+  className = "text-slate-700",
+  value = undefined,
+  ...optinos
+}: RadioInputProps) {
   return (
     <label className="flex items-center">
       <input type="radio" value={value} className="mr-2" {...optinos} />
-      <span className="text-slate-700">{label}</span>
+      <span className={` ${className}`}>{label}</span>
     </label>
   );
 }

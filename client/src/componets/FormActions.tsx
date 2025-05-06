@@ -8,9 +8,11 @@ function FormActions() {
     finalStep,
     firstStep,
     currentStep,
+    handleCalculatePriceClick,
     priceCalculationStep,
     setCurrentStep,
   } = useProductOrderFlow();
+
   return (
     <div
       className={`flex mt-8 justify-${
@@ -29,7 +31,12 @@ function FormActions() {
         </Button>
       )}
       {currentStep === priceCalculationStep && (
-        <Button type="btnSecondary" className="ml-auto" buttonType="button">
+        <Button
+          type="btnSecondary"
+          className="ml-auto"
+          buttonType="button"
+          onClick={handleCalculatePriceClick}
+        >
           Calculate Price
         </Button>
       )}

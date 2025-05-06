@@ -50,3 +50,24 @@ export type PricingRuleSelectionType = {
 export type ProductOrderFlowFormType = z.infer<
   typeof ProductOrderFlowFormSchema
 >;
+
+export type PriceCalculationResultType = {
+  productName: string;
+  quantity: number;
+  totalPrice?: number;
+  breakdown?: {
+    basePrice: number;
+    attributeCost: number;
+    deliveryCharge: number;
+  };
+};
+
+export type PriceCalculationRequest = {
+  productId: string;
+  vendorId: string;
+  quantity: number;
+  attributes: { name: string; value: string }[];
+  deliveryMethod: {
+    label: string;
+  };
+};

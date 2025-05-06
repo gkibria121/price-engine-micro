@@ -1,5 +1,6 @@
 import ProductOrderFLow from "@/componets/ProductOrderFLow";
 import { ProductOrderFlowProvider } from "@/contexts/prodouctOrderFlowContext";
+import { getDeliverySlots } from "@/services/deliverySlots";
 import { getVendorProducts } from "@/services/vendorProductService";
 import React from "react";
 
@@ -13,10 +14,12 @@ async function page({
   const defaultVendorProduct = vendorProducts.find(
     (vp) => vp.product.name === productName
   );
+  const deliveryMethods = await getDeliverySlots();
   return (
     <ProductOrderFlowProvider
       vendorProducts={vendorProducts}
       defaultVendorProduct={defaultVendorProduct}
+      deliverySlots={deliveryMethods}
     >
       <ProductOrderFLow />
     </ProductOrderFlowProvider>

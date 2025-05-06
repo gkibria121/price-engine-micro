@@ -7,7 +7,13 @@ import PriceCalculationResult from "./PriceCalculationResult";
 import { useFormContext } from "react-hook-form";
 
 const ProductOrderFlow = () => {
-  const { formBodies, currentStep, setCurrentStep } = useProductOrderFlow();
+  const {
+    formBodies,
+    currentStep,
+    setCurrentStep,
+    priceCalculationResult,
+    isPriceCalculating,
+  } = useProductOrderFlow();
   const { handleSubmit } = useFormContext();
   return (
     <form
@@ -23,14 +29,19 @@ const ProductOrderFlow = () => {
       {/* Progress Steps */}
       <ProgressBar options={formBodies} currentStep={currentStep} />
 
-      <div className="min-h-[65vh]">
+      <div className="min-h-[60vh]">
         {/* Form body*/}
         {formBodies.map(
           (option) =>
             option.step === currentStep && option.render?.(option.step)
         )}
       </div>
-      {currentStep == 2 && <PriceCalculationResult />}
+      {currentStep == 2 && (
+        <PriceCalculationResult
+          {...priceCalculationResult}
+          isPriceCalculating={isPriceCalculating}
+        />
+      )}
 
       {/* Next Button */}
       <FormActions />

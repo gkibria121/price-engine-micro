@@ -2,11 +2,18 @@
 import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
-import { ProductOrderFlowFormType, VendorProduct } from "@/types";
+import { calculatePrice } from "@/services/priceCalculationService";
+import {
+  DeliverySlot,
+  PriceCalculationResultType,
+  ProductOrderFlowFormType,
+  VendorProduct,
+} from "@/types";
 import { getPricingRuleOptions } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 type FormBodyType = {
   step: number;
   label: string;
@@ -19,8 +26,15 @@ interface ProductOrderFlowContextType {
   formBodies: FormBodyType[];
   finalStep: number;
   firstStep: number;
+  deliverySlots: DeliverySlot[];
   priceCalculationStep: number;
   vendorProducts: VendorProduct[];
+  priceCalculationResult: PriceCalculationResultType;
+  setPriceCalculationResult: React.Dispatch<
+    React.SetStateAction<PriceCalculationResultType>
+  >;
+  handleCalculatePriceClick: () => Promise<void>;
+  isPriceCalculating: boolean;
 }
 
 const formBodies = [
@@ -56,19 +70,23 @@ export const ProductOrderFlowProvider = ({
   children,
   vendorProducts,
   defaultVendorProduct,
+  deliverySlots,
 }: {
   children: ReactNode;
+  deliverySlots: DeliverySlot[];
   vendorProducts: VendorProduct[];
   defaultVendorProduct?: VendorProduct;
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const priceCalculationStep = 2;
+  const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
   const pricingRuleOptions = getPricingRuleOptions(defaultVendorProduct);
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
-    product: defaultVendorProduct?.product?.id ?? "",
-    quantity: 10,
+    deliveryMethod: { label: deliverySlots[0].label ?? "" },
+    product: defaultVendorProduct?.product.id ?? "",
+    quantity: 0,
     pricingRules: [
       ...pricingRuleOptions.map((pro) => ({
         attribute: pro.attribute,
@@ -80,6 +98,54 @@ export const ProductOrderFlowProvider = ({
     resolver: zodResolver(ProductOrderFlowFormSchema),
     defaultValues: productOrderFlowDefaultValues,
   });
+  const [priceCalculationResult, setPriceCalculationResult] =
+    useState<PriceCalculationResultType>({
+      productName: defaultVendorProduct?.product?.name ?? "",
+      quantity: 0,
+    });
+  const { getValues } = medhods;
+
+  const handleCalculatePriceClick = async () => {
+    setIsPriceCalculating(true);
+    const productId = getValues("product");
+    const deliveryMethod = getValues("deliveryMethod") as { label: string };
+    const quantity = getValues("quantity");
+    const vendorId = vendorProducts.find((vp) => vp.product.id === productId)
+      .vendor.id;
+    const attributes = getValues("pricingRules").map((pr) => ({
+      name: pr.attribute,
+      value: pr.value,
+    }));
+
+    try {
+      const resultRsp = await calculatePrice({
+        productId,
+        vendorId,
+        attributes,
+        deliveryMethod,
+        quantity,
+      });
+      if (!resultRsp.ok) {
+        throw new Error(
+          (await resultRsp.json()).message ?? "something went wrong!"
+        );
+      }
+
+      setPriceCalculationResult(
+        (await resultRsp.json()) as PriceCalculationResultType
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        toast(error.message, {
+          type: "error",
+        });
+      }
+    } finally {
+      setTimeout(() => {
+        setIsPriceCalculating(false);
+      }, 500);
+    }
+  };
 
   return (
     <ProductOrderFlowContext.Provider
@@ -91,6 +157,11 @@ export const ProductOrderFlowProvider = ({
         firstStep,
         priceCalculationStep,
         vendorProducts,
+        deliverySlots,
+        priceCalculationResult,
+        setPriceCalculationResult,
+        handleCalculatePriceClick,
+        isPriceCalculating,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>
