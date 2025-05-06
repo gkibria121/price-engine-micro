@@ -34,7 +34,7 @@ function ProgressBar({ currentStep, options }: ProgressBarProps) {
           style={{
             width: `${(currentStep / options.length) * 100}%`,
           }}
-          className={`h-full bg-blue-500    absolute top-0 left-0 z-10 `}
+          className={`h-full bg-blue-500    absolute top-0 left-0 z-10  transition-all duration-300`}
         ></div>
         <div
           style={{

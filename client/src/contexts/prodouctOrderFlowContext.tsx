@@ -168,8 +168,12 @@ export const ProductOrderFlowProvider = ({
         productName: product.name,
         quantity: quantity,
       });
-      setCurrentStep((prev) => prev + 1);
     }
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    setCurrentStep((prev) => prev + 1);
   };
   const handleBackButtonClick = () => {
     setLoading(true);
