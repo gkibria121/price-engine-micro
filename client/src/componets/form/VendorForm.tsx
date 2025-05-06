@@ -123,9 +123,17 @@ export default function VendorForm({
 
     setValue("vendors", [...vendors]);
   }
-
+  console.log(errors);
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10 max-w-4xl">
+    <form
+      onSubmit={handleSubmit(onSubmit, () => {
+        if (errors?.vendors?.root?.message)
+          toast(errors?.vendors?.root?.message.toString(), {
+            type: "error",
+          });
+      })}
+      className="space-y-10 max-w-4xl"
+    >
       {!isEdit && (
         <div className="flex justify-end">
           <UploadCSV handleFileUpload={importVendors} name="vendors" />
