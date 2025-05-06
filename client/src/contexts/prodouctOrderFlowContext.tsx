@@ -2,7 +2,6 @@
 import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
-import { calculatePrice } from "@/services/priceCalculationService";
 import {
   DeliverySlot,
   PriceCalculationResultType,
@@ -13,7 +12,6 @@ import { getPricingRuleOptions } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 type FormBodyType = {
   step: number;
   label: string;
@@ -61,12 +59,10 @@ interface ProductOrderFlowContextType {
   setPriceCalculationResult: React.Dispatch<
     React.SetStateAction<PriceCalculationResultType>
   >;
-  handleCalculatePriceClick: () => Promise<void>;
   isPriceCalculating: boolean;
   isLoading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  handleNextButtonClick: () => void;
-  handleBackButtonClick: () => void;
+  setIsPriceCalculating: React.Dispatch<React.SetStateAction<boolean>>;
 }
 // Provider component
 export const ProductOrderFlowProvider = ({
@@ -87,6 +83,12 @@ export const ProductOrderFlowProvider = ({
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
   const pricingRuleOptions = getPricingRuleOptions(defaultVendorProduct);
+  const [priceCalculationResult, setPriceCalculationResult] =
+    useState<PriceCalculationResultType>({
+      productName: "",
+      quantity: 0,
+    });
+
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     deliveryMethod: { label: deliverySlots[0].label ?? "" },
     product: defaultVendorProduct?.product.id ?? "",
@@ -102,86 +104,7 @@ export const ProductOrderFlowProvider = ({
     resolver: zodResolver(ProductOrderFlowFormSchema),
     defaultValues: productOrderFlowDefaultValues,
   });
-  const [priceCalculationResult, setPriceCalculationResult] =
-    useState<PriceCalculationResultType>({
-      productName: "",
-      quantity: 0,
-    });
-  const { getValues, trigger } = medhods;
 
-  const handleCalculatePriceClick = async () => {
-    setIsPriceCalculating(true);
-    const productId = getValues("product");
-    const deliveryMethod = getValues("deliveryMethod") as { label: string };
-    const quantity = getValues("quantity");
-    const vendorId = vendorProducts.find((vp) => vp.product.id === productId)
-      .vendor.id;
-    const attributes = getValues("pricingRules").map((pr) => ({
-      name: pr.attribute,
-      value: pr.value,
-    }));
-
-    try {
-      const resultRsp = await calculatePrice({
-        productId,
-        vendorId,
-        attributes,
-        deliveryMethod,
-        quantity,
-      });
-      if (!resultRsp.ok) {
-        throw new Error(
-          (await resultRsp.json()).message ?? "something went wrong!"
-        );
-      }
-
-      setPriceCalculationResult(
-        (await resultRsp.json()) as PriceCalculationResultType
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        setPriceCalculationResult((prev) => ({
-          productName: prev.productName,
-          quantity: prev.quantity,
-        }));
-        toast(error.message, {
-          type: "error",
-        });
-      }
-    } finally {
-      setTimeout(() => {
-        setIsPriceCalculating(false);
-      }, 500);
-    }
-  };
-
-  const handleNextButtonClick = async () => {
-    if (currentStep === firstStep) {
-      const validate = await trigger();
-      if (!validate) return;
-      const productId = getValues("product");
-      const product = vendorProducts.find(
-        (vp) => vp.product.id === productId
-      )?.product;
-      const quantity = getValues("quantity");
-      setPriceCalculationResult({
-        productName: product.name,
-        quantity: quantity,
-      });
-    }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    setCurrentStep((prev) => prev + 1);
-  };
-  const handleBackButtonClick = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    setCurrentStep((prev) => prev - 1);
-  };
   return (
     <ProductOrderFlowContext.Provider
       value={{
@@ -195,12 +118,10 @@ export const ProductOrderFlowProvider = ({
         deliverySlots,
         priceCalculationResult,
         setPriceCalculationResult,
-        handleCalculatePriceClick,
         isPriceCalculating,
+        setIsPriceCalculating,
         isLoading,
         setLoading,
-        handleBackButtonClick,
-        handleNextButtonClick,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>

@@ -1,22 +1,19 @@
-import { PriceCalculationResultType } from "@/types";
 import React from "react";
 import Loading from "./Loading";
+import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 
-type PriceCalculationResultProps = PriceCalculationResultType & {
-  isPriceCalculating: boolean;
-};
-
-const PriceCalculationResult: React.FC<PriceCalculationResultProps> = ({
-  productName = "",
-  quantity = 5,
-  totalPrice = 0,
-  breakdown = {
-    deliveryCharge: 0,
-    attributeCost: 0,
-    basePrice: 0,
-  },
-  isPriceCalculating,
-}) => {
+const PriceCalculationResult = () => {
+  const {
+    priceCalculationResult: {
+      productName,
+      quantity,
+      breakdown = {
+        deliveryCharge: 0,
+      },
+      totalPrice = 0,
+    },
+    isPriceCalculating,
+  } = useProductOrderFlow();
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 h-[30vh]">
       {isPriceCalculating ? (
