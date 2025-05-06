@@ -511,7 +511,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
     expect(response.status).toBe(422);
   });
 
-  it("Should return 422 for invalid pricingRules deliverySlots, quantityPricings", async () => {
+  it("Should return 422 for invalid pricingRules deliverySlots, quantityPricings, pricingRuleOptions", async () => {
     const vendor = await createVendor();
     const product = await createProduct();
     const response = await request(app)
@@ -524,6 +524,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
             pricingRules: [{}],
             deliverySlots: [{}],
             quantityPricings: [{}],
+            pricingRuleOptions: [{}],
           },
         ],
       });
@@ -555,6 +556,17 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           "Quantity is required",
         ],
         "vendorProducts.0.quantityPricings.0.price": ["Price is required"],
+
+        "vendorProducts.0.pricingRuleOptions.0.attribute": [
+          "Attribute name is required",
+        ],
+        "vendorProducts.0.pricingRuleOptions.0.default": [
+          "Default value is required.",
+        ],
+        "vendorProducts.0.pricingRuleOptions.0.inputType": [
+          "Input type is required.",
+        ],
+        "vendorProducts.0.pricingRuleOptions.0.values": ["Required"],
       },
     });
     expect(response.status).toBe(422);

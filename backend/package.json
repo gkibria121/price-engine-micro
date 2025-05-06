@@ -11,7 +11,7 @@
     "dev": "nodemon"
   },
   "dependencies": {
-    "@daynightprint/shared": "^1.0.6",
+    "@daynightprint/shared": "^1.0.21",
     "@faker-js/faker": "^9.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
