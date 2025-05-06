@@ -6,20 +6,25 @@ function SelectionField({
   options,
   label,
   className,
+  showLabel = true,
   error,
   ...others
 }: {
-  label: string;
+  label?: string;
   className?: string;
   error?: string | string[];
-  options: { name: string; value: string }[];
+  options: { name: string; value: string | number }[];
+  showLabel?: boolean;
   others?: React.HTMLAttributes<HTMLSelectElement>;
 }) {
   return (
     <div>
-      <label form={label} className="block font-medium mb-2">
-        {toInitialCap(label)}
-      </label>
+      {showLabel && (
+        <label form={label} className="block font-medium mb-2">
+          {toInitialCap(label)}
+        </label>
+      )}
+
       <div className="relative">
         <select
           className={`w-full p-2 border border-slate-200 outline-slate-200 rounded appearance-none ${className}`}

@@ -30,6 +30,7 @@ import {
   VendorProductFormSchema,
 } from "@daynightprint/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import PricingRuleOptionsForm from "./PricingRuleOptionsForm";
 
 interface ProductFormProps {
   isEdit?: boolean;
@@ -59,6 +60,7 @@ export default function VendorProductForm({
             deliverySlots: vendorProduct.deliverySlots,
             pricingRules: vendorProduct.pricingRules,
             quantityPricings: vendorProduct.quantityPricings,
+            pricingRuleOptions: vendorProduct.pricingRuleOptions ?? [],
           },
         ],
       };
@@ -158,13 +160,13 @@ export default function VendorProductForm({
               >
                 Remove
               </button>
-            )}
-
+            )}{" "}
             {/* Pricing Rules */}
             <PricingRulesForm readonly={readonly} formIndex={index} />
+            {/* Pricing Rule options */}
+            <PricingRuleOptionsForm readonly={readonly} formIndex={index} />
             {/* Delivery Rules */}
             <DeliveryRulesForm readonly={readonly} formIndex={index} />
-
             {/* Quantity Pricing */}
             <QuantityPricingsForm readonly={readonly} formIndex={index} />
           </div>

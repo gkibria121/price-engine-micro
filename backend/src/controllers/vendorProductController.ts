@@ -34,6 +34,7 @@ export async function getVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
+    "pricingRuleOptions",
   ]);
   if (!vendorProduct) {
     throw new NotFoundException("Product not found!");

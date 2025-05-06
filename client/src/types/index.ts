@@ -1,5 +1,5 @@
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
-import { productSchema } from "@daynightprint/shared";
+import { pricingRuleOptionSchema, productSchema } from "@daynightprint/shared";
 import { vendorFormSchema, vendorSchema } from "@daynightprint/shared";
 import {
   deliverySlotSchem,
@@ -15,6 +15,7 @@ export type PricingRule = z.infer<typeof pricingRuleSchema>;
 export type DeliveryRule = z.infer<typeof deliverySlotSchem>;
 
 export type QuantityPricing = z.infer<typeof quantityPricingSchema>;
+export type PricingRuleOption = z.infer<typeof pricingRuleOptionSchema>;
 
 export type Product = z.infer<typeof productSchema>;
 export interface VendorProduct {
@@ -23,6 +24,7 @@ export interface VendorProduct {
   pricingRules: PricingRule[];
   deliverySlots: DeliverySlot[];
   quantityPricings: QuantityPricing[];
+  pricingRuleOptions: PricingRuleOption[];
   vendor: Vendor;
 }
 
@@ -38,13 +40,13 @@ export type PageProps = {
 export type VendorFormType = z.infer<typeof vendorFormSchema>;
 
 export type PricingRuleSelectionType = {
+  values: [string, ...string[]];
   attribute: string;
   default: number;
-  values: string[];
-  inputType: HTMLInputElement["type"];
-  required: boolean;
-  description: string;
-  hasOther: boolean;
+  inputType: string;
+  required?: boolean;
+  description?: string;
+  hasOther?: boolean;
 };
 
 export type ProductOrderFlowFormType = z.infer<

@@ -19,7 +19,7 @@ function ProductSelectionForm({}) {
   const pricingRuleOptions = useMemo(
     () =>
       getPricingRuleOptions(
-        vendorProducts.find((vp) => vp.product.id === productId)
+        vendorProducts.find((vp) => vp.product.id === productId)?.pricingRules
       ),
     [productId, vendorProducts]
   );

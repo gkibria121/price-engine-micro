@@ -82,7 +82,9 @@ export const ProductOrderFlowProvider = ({
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
-  const pricingRuleOptions = getPricingRuleOptions(defaultVendorProduct);
+  const pricingRuleOptions = getPricingRuleOptions(
+    defaultVendorProduct.pricingRules
+  );
   const [priceCalculationResult, setPriceCalculationResult] =
     useState<PriceCalculationResultType>({
       productName: "",

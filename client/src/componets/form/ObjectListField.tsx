@@ -7,18 +7,18 @@ function ObjectListField<T extends Record<string, unknown>>({
   label,
   defaultItem,
   readonly,
-  append,
+  append = undefined,
 }: PropsWithChildren & {
   label: string;
   defaultItem: FieldArray<T, ArrayPath<T>>;
-  append: UseFieldArrayReturn<T>["append"];
+  append?: UseFieldArrayReturn<T>["append"];
   readonly: boolean;
 }) {
   return (
     <div className="space-y-4  border-b mt-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl space-y-1 font-semibold">{label}</h2>
-        {!readonly && (
+        {!readonly && append && (
           <Button
             type="btnPrimary"
             buttonType="button"
@@ -37,8 +37,13 @@ function ObjectListField<T extends Record<string, unknown>>({
 function Table({ children }: PropsWithChildren) {
   return <div className="flex flex-col gap-4  pb-4">{children}</div>;
 }
-function Row({ children }: PropsWithChildren) {
-  return <div className="flex gap-4 items-start pb-4">{children}</div>;
+function Row({
+  children,
+  className = "pb-4",
+}: { className?: string } & PropsWithChildren) {
+  return (
+    <div className={`flex gap-4 items-start ${className}`}>{children}</div>
+  );
 }
 function Col({ children }: PropsWithChildren & {}) {
   return <div className="flex-1">{children}</div>;

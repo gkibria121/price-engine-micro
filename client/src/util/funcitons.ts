@@ -86,10 +86,10 @@ export function snakeToTitle(snake) {
     .join(" ");
 }
 
-export function getPricingRuleOptions(vendorProduct?: VendorProduct) {
-  if (!vendorProduct) return [] as PricingRuleSelectionType[];
-
-  const pricingRules = vendorProduct.pricingRules;
+export function getPricingRuleOptions(
+  pricingRules: VendorProduct["pricingRules"]
+) {
+  if (!pricingRules) return [] as PricingRuleSelectionType[];
 
   const pricingRuleOptions = pricingRules.reduce<PricingRuleSelectionType[]>(
     (rules, curr) => {
