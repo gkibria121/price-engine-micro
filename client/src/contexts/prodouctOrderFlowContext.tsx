@@ -20,22 +20,6 @@ type FormBodyType = {
   render: (key: number) => React.JSX.Element;
 };
 // Define the shape of your context
-interface ProductOrderFlowContextType {
-  currentStep: number;
-  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  formBodies: FormBodyType[];
-  finalStep: number;
-  firstStep: number;
-  deliverySlots: DeliverySlot[];
-  priceCalculationStep: number;
-  vendorProducts: VendorProduct[];
-  priceCalculationResult: PriceCalculationResultType;
-  setPriceCalculationResult: React.Dispatch<
-    React.SetStateAction<PriceCalculationResultType>
-  >;
-  handleCalculatePriceClick: () => Promise<void>;
-  isPriceCalculating: boolean;
-}
 
 const formBodies = [
   {
@@ -64,7 +48,26 @@ const formBodies = [
 const ProductOrderFlowContext = createContext<
   ProductOrderFlowContextType | undefined
 >(undefined);
-
+interface ProductOrderFlowContextType {
+  currentStep: number;
+  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
+  formBodies: FormBodyType[];
+  finalStep: number;
+  firstStep: number;
+  deliverySlots: DeliverySlot[];
+  priceCalculationStep: number;
+  vendorProducts: VendorProduct[];
+  priceCalculationResult: PriceCalculationResultType;
+  setPriceCalculationResult: React.Dispatch<
+    React.SetStateAction<PriceCalculationResultType>
+  >;
+  handleCalculatePriceClick: () => Promise<void>;
+  isPriceCalculating: boolean;
+  isLoading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  handleNextButtonClick: () => void;
+  handleBackButtonClick: () => void;
+}
 // Provider component
 export const ProductOrderFlowProvider = ({
   children,
@@ -79,6 +82,7 @@ export const ProductOrderFlowProvider = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const priceCalculationStep = 2;
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
@@ -100,10 +104,10 @@ export const ProductOrderFlowProvider = ({
   });
   const [priceCalculationResult, setPriceCalculationResult] =
     useState<PriceCalculationResultType>({
-      productName: defaultVendorProduct?.product?.name ?? "",
+      productName: "",
       quantity: 0,
     });
-  const { getValues } = medhods;
+  const { getValues, trigger } = medhods;
 
   const handleCalculatePriceClick = async () => {
     setIsPriceCalculating(true);
@@ -136,6 +140,10 @@ export const ProductOrderFlowProvider = ({
       );
     } catch (error) {
       if (error instanceof Error) {
+        setPriceCalculationResult((prev) => ({
+          productName: prev.productName,
+          quantity: prev.quantity,
+        }));
         toast(error.message, {
           type: "error",
         });
@@ -147,6 +155,29 @@ export const ProductOrderFlowProvider = ({
     }
   };
 
+  const handleNextButtonClick = async () => {
+    if (currentStep === firstStep) {
+      const validate = await trigger();
+      if (!validate) return;
+      const productId = getValues("product");
+      const product = vendorProducts.find(
+        (vp) => vp.product.id === productId
+      )?.product;
+      const quantity = getValues("quantity");
+      setPriceCalculationResult({
+        productName: product.name,
+        quantity: quantity,
+      });
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+  const handleBackButtonClick = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    setCurrentStep((prev) => prev - 1);
+  };
   return (
     <ProductOrderFlowContext.Provider
       value={{
@@ -162,6 +193,10 @@ export const ProductOrderFlowProvider = ({
         setPriceCalculationResult,
         handleCalculatePriceClick,
         isPriceCalculating,
+        isLoading,
+        setLoading,
+        handleBackButtonClick,
+        handleNextButtonClick,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>

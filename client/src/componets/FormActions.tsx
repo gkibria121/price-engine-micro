@@ -10,12 +10,13 @@ function FormActions() {
     currentStep,
     handleCalculatePriceClick,
     priceCalculationStep,
-    setCurrentStep,
+    handleBackButtonClick,
+    handleNextButtonClick,
   } = useProductOrderFlow();
 
   return (
     <div
-      className={`flex mt-8 justify-${
+      className={`flex mt-2 justify-${
         currentStep !== firstStep ? "between" : "end"
       }`}
     >
@@ -24,7 +25,7 @@ function FormActions() {
           type="btnSecondary"
           className="flex items-center"
           buttonType="button"
-          onClick={() => setCurrentStep((prev) => prev - 1)}
+          onClick={handleBackButtonClick}
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -41,7 +42,12 @@ function FormActions() {
         </Button>
       )}
       {currentStep !== finalStep && (
-        <Button type="btnPrimary" className="flex items-center">
+        <Button
+          type="btnPrimary"
+          className="flex items-center"
+          buttonType="button"
+          onClick={handleNextButtonClick}
+        >
           Next
           <ArrowRight className="ml-2 w-4 h-4" />
         </Button>

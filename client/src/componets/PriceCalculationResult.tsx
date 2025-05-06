@@ -21,7 +21,7 @@ const PriceCalculationResult: React.FC<PriceCalculationResultProps> = ({
     <div className="bg-white rounded-lg border border-gray-200 p-4 h-[30vh]">
       {isPriceCalculating ? (
         <div className="flex justify-center items-center h-full">
-          <Loading isFullScreen={false} radius={5} />
+          <Loading isFullScreen={false} radius={20} />
         </div>
       ) : (
         <div className="space-y-2">

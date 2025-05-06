@@ -17,9 +17,11 @@ function Loading({
         }`}
       >
         <div
-          className={`w-${radius * 2} h-${
-            radius * 2
-          } border-4 border-blue-500 border-t-transparent rounded-full animate-spin`}
+          style={{
+            width: `${radius * 2}px`,
+            height: `${radius * 2}px`,
+          }}
+          className={`border-4 border-blue-500 border-t-transparent rounded-full animate-spin`}
         ></div>
       </div>
     </div>
