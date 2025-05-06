@@ -12,22 +12,31 @@ function PricingRulesForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const { register } = useFormContext<VendorProductFormType>();
+  const { register, control, watch } = useFormContext<VendorProductFormType>();
   const {
     fields: pricingFields,
     append: appendPricing,
     remove: removePricing,
   } = useFieldArray({
-    name: `vendorProducts.${formIndex}.pricingRules`,
+    control: control,
+    name: `vendorProducts.${formIndex}.pricingRules` as const,
   });
   const { errors } = useFormState<VendorProductFormType>({
     name: `vendorProducts.${formIndex}.pricingRules`,
   });
-
+  const lastRuleAttribute = watch(
+    `vendorProducts.${formIndex}.pricingRules.${
+      pricingFields.length - 1
+    }.attribute`
+  );
   return (
     <ObjectListField
       readonly={readonly}
-      defaultItem={{ attribute: "", value: "", price: 0 }}
+      defaultItem={{
+        attribute: lastRuleAttribute,
+        value: "",
+        price: 0,
+      }}
       label="Pricing Rules"
       append={appendPricing}
     >
