@@ -75,6 +75,17 @@ describe("Vendor Product Controller", () => {
             },
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
+          pricingRuleOptions: [
+            {
+              attribute: "Paper",
+              default: 0,
+              values: ["Glossy"],
+              inputType: "radio",
+              required: false,
+              description: "",
+              hasOther: false,
+            },
+          ],
         });
       const newVendorProduct = await VendorProductModel.findOne();
       expect(res.status).toBe(201);
@@ -92,6 +103,9 @@ describe("Vendor Product Controller", () => {
       );
       expect(res.body.association.quantityPricings[0]._id).toBe(
         newVendorProduct.quantityPricings[0]._id.toHexString()
+      );
+      expect(res.body.association.pricingRuleOptions[0].id).toBe(
+        newVendorProduct.pricingRuleOptions[0]._id.toHexString()
       );
     });
 
@@ -159,12 +173,23 @@ describe("Vendor Product Controller", () => {
             },
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
+          pricingRuleOptions: [
+            {
+              attribute: "Paper",
+              default: 0,
+              values: ["Glossy"],
+              inputType: "radio",
+              required: false,
+              description: "",
+              hasOther: false,
+            },
+          ],
         });
       const updatedVendorProduct = await VendorProductModel.findOne()
         .populate("pricingRules")
         .populate("deliverySlots")
-        .populate("quantityPricings");
-
+        .populate("quantityPricings")
+        .populate("pricingRuleOptions");
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Product updated successfully");
       expect(res.body.vendorProduct.id).toBe(
@@ -179,6 +204,9 @@ describe("Vendor Product Controller", () => {
       );
       expect(res.body.vendorProduct.quantityPricings[0]._id).toBe(
         updatedVendorProduct.quantityPricings[0]._id.toHexString()
+      );
+      expect(res.body.vendorProduct.pricingRuleOptions[0].id).toBe(
+        updatedVendorProduct.pricingRuleOptions[0]._id.toHexString()
       );
     });
 
@@ -428,12 +456,26 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
               },
             ],
             quantityPricings: [{ quantity: 10, price: 100 }],
+            pricingRuleOptions: [
+              {
+                attribute: "Paper",
+                default: 0,
+                values: ["Glossy"],
+                inputType: "radio",
+                required: false,
+                description: "",
+                hasOther: false,
+              },
+            ],
           },
         ],
       });
     expect(response.body.vendorProducts[0].product).toBe(
       product._id.toHexString()
     );
+    expect(response.body.vendorProducts[0].pricingRules[0]).toBeDefined();
+    expect(response.body.vendorProducts[0].deliverySlots[0]).toBeDefined();
+    expect(response.body.vendorProducts[0].pricingRuleOptions[0]).toBeDefined();
     expect(response.status).toBe(201);
   });
   it("Should return 422 for empty pricingRules deliverySlots, quantityPricings", async () => {
@@ -452,7 +494,6 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           },
         ],
       });
-    console.log(response.body);
     expect(response.body).toEqual({
       message: "The given data was invalid.",
       errors: {

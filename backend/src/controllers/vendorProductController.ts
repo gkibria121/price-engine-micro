@@ -12,6 +12,7 @@ import {
   createVendorProduct,
   validateBulkStoreRequest,
 } from "../services/bulkInsertOrUpdateService";
+import PricingRuleOptionModel from "../models/PricingRuleOptionModel";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -43,8 +44,14 @@ export async function getVendorProduct(req: Request, res: Response) {
 }
 
 export async function storeVendorProduct(req: Request, res: Response) {
-  const { vendorId, productId, pricingRules, deliverySlots, quantityPricings } =
-    req.body;
+  const {
+    vendorId,
+    productId,
+    pricingRules,
+    deliverySlots,
+    quantityPricings,
+    pricingRuleOptions = [],
+  } = req.body;
   const existingVendorProduct = await VendorProductModel.findOne({
     product: productId,
     vendor: vendorId,
@@ -65,12 +72,16 @@ export async function storeVendorProduct(req: Request, res: Response) {
   const newQuantityPricing = await QuantityPricingModel.insertMany(
     quantityPricings
   );
+  const newPricingRuleOptions = await PricingRuleOptionModel.insertMany(
+    pricingRuleOptions
+  );
   const newAssociation = new VendorProductModel({
     vendor,
     product,
     pricingRules: newPricingRules,
     deliverySlots: newDeliverySlots,
     quantityPricings: newQuantityPricing,
+    pricingRuleOptions: newPricingRuleOptions,
   });
   await newAssociation.save();
   // Now populate everything properly
@@ -82,6 +93,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
+    "pricingRuleOptions",
   ]);
   res
     .status(201)
@@ -101,6 +113,7 @@ export async function deleteVendorProduct(req: Request, res: Response) {
   const pricingRuleIds = vendorProduct.pricingRules;
   const deliverySlotIds = vendorProduct.deliverySlots;
   const quantityPricingIds = vendorProduct.quantityPricings;
+  const pricingRuleOptionIds = vendorProduct.pricingRuleOptions;
   // Delete associated records
   if (pricingRuleIds.length)
     await PricingRuleModel.deleteMany({ _id: { $in: pricingRuleIds } });
@@ -110,6 +123,10 @@ export async function deleteVendorProduct(req: Request, res: Response) {
     await QuantityPricingModel.deleteMany({
       _id: { $in: quantityPricingIds },
     });
+  if (pricingRuleOptionIds.length)
+    await PricingRuleOptionModel.deleteMany({
+      _id: { $in: pricingRuleOptionIds },
+    });
   // Delete vendor and related products
   await VendorProductModel.deleteMany({ _id: id });
 
@@ -118,7 +135,12 @@ export async function deleteVendorProduct(req: Request, res: Response) {
 export async function updateVendorProduct(req: Request, res: Response) {
   const { id: vendorProductId } = req.params as { id: string };
 
-  const { pricingRules, deliverySlots, quantityPricings } = req.body;
+  const {
+    pricingRules,
+    deliverySlots,
+    quantityPricings,
+    pricingRuleOptions = [],
+  } = req.body;
   // Validate product exists
   const vendorProduct = await VendorProductModel.findById(vendorProductId);
   if (!vendorProduct) {
@@ -135,7 +157,9 @@ export async function updateVendorProduct(req: Request, res: Response) {
   await QuantityPricingModel.deleteMany({
     _id: { $in: vendorProduct.quantityPricings },
   });
-
+  await PricingRuleOptionModel.deleteMany({
+    _id: { $in: vendorProduct.pricingRuleOptions },
+  });
   // Insert new values
   const updatedPricingRules = await PricingRuleModel.insertMany(pricingRules);
   const updatedDeliverySlots = await DeliverySlotModel.insertMany(
@@ -143,6 +167,9 @@ export async function updateVendorProduct(req: Request, res: Response) {
   );
   const updatedQuantityPricing = await QuantityPricingModel.insertMany(
     quantityPricings
+  );
+  const updatedPricingRuleOptions = await PricingRuleOptionModel.insertMany(
+    pricingRuleOptions
   );
 
   // Update vendorProduct with new associations
@@ -152,6 +179,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
       pricingRules: updatedPricingRules.map((rule) => rule._id),
       deliverySlots: updatedDeliverySlots.map((slot) => slot._id),
       quantityPricings: updatedQuantityPricing.map((price) => price._id),
+      pricingRuleOptions: updatedPricingRuleOptions.map((price) => price._id),
     },
     { new: true }
   ).populate([
@@ -160,6 +188,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
+    "pricingRuleOptions",
   ]);
   res.status(200).send({
     message: "Product updated successfully",
@@ -180,6 +209,7 @@ export async function bulkStore(req: Request, res: Response) {
       pricingRules: productPricingRules,
       deliverySlots: productDeliverySlots,
       quantityPricings: productQuantityPricings,
+      pricingRuleOptions = [],
     } = vendorProduct;
     const product = await ProductModel.findById(productId);
     const vendor = await VendorModel.findById(vendorId);
@@ -199,7 +229,8 @@ export async function bulkStore(req: Request, res: Response) {
       vendor,
       productPricingRules,
       productDeliverySlots,
-      productQuantityPricings
+      productQuantityPricings,
+      pricingRuleOptions
     );
 
     results.push(newVendorProduct);
