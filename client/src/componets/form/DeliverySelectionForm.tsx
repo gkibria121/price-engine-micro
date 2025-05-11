@@ -41,8 +41,9 @@ const DeliverySelection = () => {
             {...register("deliveryMethod.label")}
           />{" "}
           {deliveryMethod.label === "other" && (
-            <div className="w-36">
+            <div className="w-fit">
               <DatePicker
+                isTime={true}
                 error={errors?.deliveryMethod?.otherValue?.message?.toString()}
                 {...register("deliveryMethod.otherValue", {
                   valueAsDate: false,
