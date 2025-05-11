@@ -2,72 +2,82 @@ import React from "react";
 import FieldError from "./FieldError";
 import { toInitialCap } from "@/util/funcitons";
 
-function TextField({
+type TextFieldProps = {
+  error?: string | string[];
+  label?: string;
+  step?: string;
+  variant?: "floating" | "stacked";
+  type?: React.HTMLInputTypeAttribute;
+  placeholder?: string;
+  isTextArea?: boolean;
+  defaultValue?: string;
+  readonly?: boolean;
+} & React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement>;
+
+const TextField: React.FC<TextFieldProps> = ({
   error,
-  label = undefined,
+  label,
   step,
   variant = "floating",
   type = "text",
   placeholder,
   isTextArea = false,
-
   defaultValue,
   readonly = false,
   ...others
-}: {
-  error?: string | string[];
-  label?: string;
-  step?: string;
-  variant?: "floating" | "stacked";
-  defaultValue?: string;
-  readonly?: boolean;
-  type?: HTMLInputElement["type"];
-  others?: React.HTMLAttributes<HTMLInputElement>;
-  placeholder?: string;
-  isTextArea?: boolean;
-}) {
-  const style: Record<typeof variant, string> = {
+}) => {
+  const inputClass: Record<"floating" | "stacked", string> = {
     stacked: "w-full p-2 border rounded border-slate-200 outline-slate-200",
-    floating: `block px-2.5 pb-2.5 ${
-      label ? " pt-4 " : " pt-2 "
-    } w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none   focus:outline-none focus:ring-0 focus:border-blue-600 peer`,
+    floating: [
+      "block w-full px-2.5 pb-2.5",
+      label ? "pt-4" : "pt-2",
+      "text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300",
+      "appearance-none focus:outline-none focus:ring-0 focus:border-blue-600",
+      "peer",
+    ].join(" "),
   };
-  const labels: Record<typeof variant, React.JSX.Element> = {
-    floating: (
-      <label className="absolute text-sm text-gray-500   duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white   px-2 peer-focus:px-2 peer-focus:text-blue-600   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-[80%] peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
-        {toInitialCap(label)}
-      </label>
-    ),
-    stacked: (
-      <label className="block font-medium mb-2 ">{toInitialCap(label)}</label>
-    ),
+
+  const renderLabel = () => {
+    if (!label) return null;
+
+    if (variant === "floating") {
+      return (
+        <label className="absolute text-sm text-gray-500 bg-white px-2 z-10 origin-[0] duration-300 transform -translate-y-4 scale-75 top-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-[80%] peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1 peer-focus:text-blue-600">
+          {toInitialCap(label)}
+        </label>
+      );
+    }
+
+    return (
+      <label className="block font-medium mb-2">{toInitialCap(label)}</label>
+    );
   };
 
   return (
     <div className="relative mb-6">
-      {variant === "stacked" && label && labels["stacked"]}
+      {variant === "stacked" && renderLabel()}
 
       {isTextArea ? (
         <textarea
-          {...others}
+          {...(others as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
           readOnly={readonly}
           defaultValue={defaultValue}
-          className={style[variant]}
+          className={inputClass[variant]}
           placeholder={placeholder ?? " "}
-        ></textarea>
+        />
       ) : (
         <input
+          {...(others as React.InputHTMLAttributes<HTMLInputElement>)}
           type={type}
-          {...others}
-          defaultValue={defaultValue}
           readOnly={readonly}
-          step={step ? step : undefined}
-          className={style[variant]}
+          defaultValue={defaultValue}
+          step={step}
+          className={inputClass[variant]}
           placeholder={placeholder ?? " "}
         />
       )}
 
-      {variant === "floating" && labels["floating"]}
+      {variant === "floating" && renderLabel()}
 
       {typeof error === "string" ? (
         <FieldError>{error}</FieldError>
@@ -76,6 +86,6 @@ function TextField({
       )}
     </div>
   );
-}
+};
 
 export default TextField;
