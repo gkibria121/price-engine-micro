@@ -71,6 +71,8 @@ interface ProductOrderFlowContextType {
   isLoading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsPriceCalculating: React.Dispatch<React.SetStateAction<boolean>>;
+  isProductLoading: boolean;
+  setProductLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pricingRuleMetas: VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"];
 }
 // Provider component
@@ -88,6 +90,7 @@ export const ProductOrderFlowProvider = ({
   const [currentStep, setCurrentStep] = useState(1);
   const priceCalculationStep = 2;
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isProductLoading, setProductLoading] = useState<boolean>(false);
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
@@ -126,6 +129,13 @@ export const ProductOrderFlowProvider = ({
         ?.pricingRuleMetas ?? [],
     [productId, vendorProducts]
   );
+  useEffect(() => {
+    setProductLoading(true);
+    const loadingTimeout = setTimeout(() => {
+      setProductLoading(false);
+    }, 500);
+    return () => clearTimeout(loadingTimeout);
+  }, [productId]);
 
   useEffect(() => {
     setValue("pricingRules", [
@@ -153,6 +163,8 @@ export const ProductOrderFlowProvider = ({
         isLoading,
         setLoading,
         pricingRuleMetas,
+        isProductLoading,
+        setProductLoading,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>
