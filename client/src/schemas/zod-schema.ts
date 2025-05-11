@@ -5,11 +5,21 @@ export const ProductSelectionSchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1."),
   pricingRules: z
     .array(
-      z.object({
-        attribute: z.string(),
-        value: z.string(),
-        otherValue: z.string().optional(),
-      })
+      z
+        .object({
+          attribute: z.string(),
+          value: z.string(),
+          otherValue: z.string().optional(),
+        })
+        .superRefine((data, ctx) => {
+          if (data.value === "other" && !data.otherValue) {
+            ctx.addIssue({
+              path: ["otherValue"],
+              code: z.ZodIssueCode.custom,
+              message: `This field is required when value is "other"`,
+            });
+          }
+        })
     )
     .min(1, "Please select one attribute"),
 });

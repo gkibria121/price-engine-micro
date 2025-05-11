@@ -82,7 +82,7 @@ const TextField: React.FC<TextFieldProps> = ({
       {typeof error === "string" ? (
         <FieldError>{error}</FieldError>
       ) : (
-        error?.map((e) => <FieldError key={e}>{e}</FieldError>)
+        error?.map?.((e) => <FieldError key={e}>{e}</FieldError>)
       )}
     </div>
   );

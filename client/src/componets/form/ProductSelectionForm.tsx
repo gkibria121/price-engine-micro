@@ -15,7 +15,7 @@ function ProductSelectionForm({}) {
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
-
+  console.log(errors);
   const quantityPricings =
     vendorProducts.find((vp) => vp.product.id === productId)
       ?.quantityPricings ?? [];
@@ -92,7 +92,7 @@ function ProductSelectionForm({}) {
                       {...register(`pricingRules.${index}.otherValue`, {
                         required: "This field cannot be empty",
                       })}
-                      error={errors.pricingRules?.[index]?.otherValue}
+                      error={errors.pricingRules?.[index]?.otherValue?.message}
                     />
                   )}
                 </>
