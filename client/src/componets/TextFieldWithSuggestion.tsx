@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import TextField from "./form/TextField";
 import { RefCallBack } from "react-hook-form";
+
+type Option = {
+  label: string | number;
+  value: string | number;
+};
+
 type TextFieldProps = {
   error?: string | string[];
   label?: string;
@@ -11,11 +17,12 @@ type TextFieldProps = {
   isTextArea?: boolean;
   defaultValue?: string;
   readonly?: boolean;
-  options: { label: string | number; value: string | number }[];
+  options: Option[];
   onSuggestionClick: (value: string) => void;
 } & (React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement> & {
   ref?: RefCallBack;
 });
+
 const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
   error,
   label,
@@ -26,28 +33,40 @@ const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
   defaultValue,
   readonly = false,
   options = [],
-
   onSuggestionClick,
   ...others
 }) => {
   const [showSug, setSug] = useState<boolean>(false);
-  const handleFocus = () => {
-    setSug(true);
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleBlur = () => {
-    setSug(true);
-  };
-
-  const handleSugSelect = (value) => {
-    onSuggestionClick(value);
+  const handleSugSelect = (value: string | number) => {
+    onSuggestionClick(value.toString());
     setSug(false);
   };
+
+  const handleFocus = () => setSug(true);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setSug(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative" onMouseLeave={handleBlur}>
+    <div className="relative" ref={containerRef}>
       <TextField
         label={label}
-        variant={"stacked"}
+        variant="stacked"
         placeholder={placeholder}
         step={step}
         type={type}
@@ -58,7 +77,6 @@ const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
         error={error}
         {...others}
         onFocus={handleFocus}
-        onBlur={handleBlur}
       />
 
       {showSug && (
@@ -69,7 +87,7 @@ const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
               className="py-2 px-3 hover:bg-blue-600 cursor-pointer text-gray-800 hover:text-white text-sm border-b border-gray-100"
               onClick={() => handleSugSelect(op.value)}
             >
-              {op.value}
+              {op.label}
             </div>
           ))}
         </div>
