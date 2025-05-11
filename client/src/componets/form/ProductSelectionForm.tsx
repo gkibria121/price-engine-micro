@@ -3,7 +3,7 @@ import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
-import { useFormContext, useFormState } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
 import TextFieldWithSuggestion from "../TextFieldWithSuggestion";
 import Loading from "../Loading";
@@ -15,12 +15,12 @@ function ProductSelectionForm({}) {
     isProductLoading,
     setProductLoading,
   } = useProductOrderFlow();
-  const { register, setValue, watch } =
+  const { register, setValue, control } =
     useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
   });
-  const productId = watch("product");
+  const productId = useWatch({ control: control, name: "product" });
   const quantityPricings =
     vendorProducts.find((vp) => vp.product.id === productId)
       ?.quantityPricings ?? [];
@@ -30,7 +30,10 @@ function ProductSelectionForm({}) {
     setProductLoading(true);
     onChange(e);
   };
-
+  const pricingRulesValues = useWatch({
+    control,
+    name: "pricingRules",
+  });
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -75,58 +78,56 @@ function ProductSelectionForm({}) {
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {!isProductLoading &&
-          pricingRuleMetas.map((rule, index) => {
-            const showOther = watch(`pricingRules.${index}.value`) === "other";
-            return (
-              <RadioBox
-                title={rule.attribute}
-                required={rule.required}
-                key={rule.attribute}
-                description={rule.description}
-              >
-                <input
-                  type="hidden"
-                  {...register(`pricingRules.${index}.attribute`)}
-                  value={rule.attribute}
+        {pricingRuleMetas.map((rule, index) => {
+          const value = pricingRulesValues?.[index]?.value;
+          const showOther = value === "other";
+          return (
+            <RadioBox
+              title={rule.attribute}
+              required={rule.required}
+              key={rule.attribute}
+              description={rule.description}
+            >
+              <input
+                type="hidden"
+                {...register(`pricingRules.${index}.attribute`)}
+                value={rule.attribute}
+              />
+              {rule.values.map((option) => (
+                <RadioBox.RadioInput
+                  label={option}
+                  key={option}
+                  value={option}
+                  {...register(`pricingRules.${index}.value`)}
                 />
-                {rule.values.map((option) => (
+              ))}
+
+              {rule.hasOther && (
+                <>
                   <RadioBox.RadioInput
-                    label={option}
-                    key={option}
-                    value={option}
+                    label="Other"
+                    value="other"
                     {...register(`pricingRules.${index}.value`)}
                   />
-                ))}
 
-                {rule.hasOther && (
-                  <>
-                    <RadioBox.RadioInput
-                      label="Other"
-                      value="other"
-                      {...register(`pricingRules.${index}.value`)}
+                  <div
+                    className={`  w-full overflow-hidden transition-all duration-500 ease-in-out ${
+                      showOther ? "max-h-[100px] py-2" : "max-h-0 py-0"
+                    }`}
+                  >
+                    <TextField
+                      placeholder={rule.values[0].replace(/\(.*?\)/g, "")}
+                      {...register(`pricingRules.${index}.otherValue`, {
+                        required: "This field cannot be empty",
+                      })}
+                      error={errors.pricingRules?.[index]?.otherValue?.message}
                     />
-
-                    <div
-                      className={`  w-full overflow-hidden transition-all duration-500 ease-in-out ${
-                        showOther ? "max-h-[100px] py-2" : "max-h-0 py-0"
-                      }`}
-                    >
-                      <TextField
-                        placeholder={rule.values[0].replace(/\(.*?\)/g, "")}
-                        {...register(`pricingRules.${index}.otherValue`, {
-                          required: "This field cannot be empty",
-                        })}
-                        error={
-                          errors.pricingRules?.[index]?.otherValue?.message
-                        }
-                      />
-                    </div>
-                  </>
-                )}
-              </RadioBox>
-            );
-          })}
+                  </div>
+                </>
+              )}
+            </RadioBox>
+          );
+        })}
       </div>
     </>
   );
