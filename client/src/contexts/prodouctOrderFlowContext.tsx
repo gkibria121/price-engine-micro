@@ -83,7 +83,7 @@ export const ProductOrderFlowProvider = ({
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
   const pricingRuleMetas = getPricingRuleMetas(
-    defaultVendorProduct.pricingRules
+    defaultVendorProduct?.pricingRules
   );
   const [priceCalculationResult, setPriceCalculationResult] =
     useState<PriceCalculationResultType>({

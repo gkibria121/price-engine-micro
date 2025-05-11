@@ -44,7 +44,7 @@ function PricingRuleMetasForm({
         description: "something",
         hasOther: false,
       }}
-      label="Pricing Rule Options"
+      label="Pricing Rule Metas"
     >
       {" "}
       <div className="flex justify-end">

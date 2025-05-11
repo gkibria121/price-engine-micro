@@ -14,6 +14,7 @@ async function page({
   const defaultVendorProduct = vendorProducts.find(
     (vp) => vp.product.name === productName
   );
+
   const deliveryMethods = await getDeliverySlots();
   return (
     <ProductOrderFlowProvider
