@@ -12,7 +12,7 @@ import {
   createVendorProduct,
   validateBulkStoreRequest,
 } from "../services/bulkInsertOrUpdateService";
-import PricingRuleOptionModel from "../models/PricingRuleOptionModel";
+import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -34,7 +34,7 @@ export async function getVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
-    "pricingRuleOptions",
+    "pricingRuleMetas",
   ]);
   if (!vendorProduct) {
     throw new NotFoundException("Product not found!");
@@ -51,7 +51,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     pricingRules,
     deliverySlots,
     quantityPricings,
-    pricingRuleOptions = [],
+    pricingRuleMetas = [],
   } = req.body;
   const existingVendorProduct = await VendorProductModel.findOne({
     product: productId,
@@ -73,8 +73,8 @@ export async function storeVendorProduct(req: Request, res: Response) {
   const newQuantityPricing = await QuantityPricingModel.insertMany(
     quantityPricings
   );
-  const newPricingRuleOptions = await PricingRuleOptionModel.insertMany(
-    pricingRuleOptions
+  const newPricingRuleMetas = await PricingRuleMetaModel.insertMany(
+    pricingRuleMetas
   );
   const newAssociation = new VendorProductModel({
     vendor,
@@ -82,7 +82,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     pricingRules: newPricingRules,
     deliverySlots: newDeliverySlots,
     quantityPricings: newQuantityPricing,
-    pricingRuleOptions: newPricingRuleOptions,
+    pricingRuleMetas: newPricingRuleMetas,
   });
   await newAssociation.save();
   // Now populate everything properly
@@ -94,7 +94,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
-    "pricingRuleOptions",
+    "pricingRuleMetas",
   ]);
   res
     .status(201)
@@ -114,7 +114,7 @@ export async function deleteVendorProduct(req: Request, res: Response) {
   const pricingRuleIds = vendorProduct.pricingRules;
   const deliverySlotIds = vendorProduct.deliverySlots;
   const quantityPricingIds = vendorProduct.quantityPricings;
-  const pricingRuleOptionIds = vendorProduct.pricingRuleOptions;
+  const pricingRuleOptionIds = vendorProduct.pricingRuleMetas;
   // Delete associated records
   if (pricingRuleIds.length)
     await PricingRuleModel.deleteMany({ _id: { $in: pricingRuleIds } });
@@ -125,7 +125,7 @@ export async function deleteVendorProduct(req: Request, res: Response) {
       _id: { $in: quantityPricingIds },
     });
   if (pricingRuleOptionIds.length)
-    await PricingRuleOptionModel.deleteMany({
+    await PricingRuleMetaModel.deleteMany({
       _id: { $in: pricingRuleOptionIds },
     });
   // Delete vendor and related products
@@ -140,7 +140,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
     pricingRules,
     deliverySlots,
     quantityPricings,
-    pricingRuleOptions = [],
+    pricingRuleMetas = [],
   } = req.body;
   // Validate product exists
   const vendorProduct = await VendorProductModel.findById(vendorProductId);
@@ -158,8 +158,8 @@ export async function updateVendorProduct(req: Request, res: Response) {
   await QuantityPricingModel.deleteMany({
     _id: { $in: vendorProduct.quantityPricings },
   });
-  await PricingRuleOptionModel.deleteMany({
-    _id: { $in: vendorProduct.pricingRuleOptions },
+  await PricingRuleMetaModel.deleteMany({
+    _id: { $in: vendorProduct.pricingRuleMetas },
   });
   // Insert new values
   const updatedPricingRules = await PricingRuleModel.insertMany(pricingRules);
@@ -169,8 +169,8 @@ export async function updateVendorProduct(req: Request, res: Response) {
   const updatedQuantityPricing = await QuantityPricingModel.insertMany(
     quantityPricings
   );
-  const updatedPricingRuleOptions = await PricingRuleOptionModel.insertMany(
-    pricingRuleOptions
+  const updatedPricingRuleMetas = await PricingRuleMetaModel.insertMany(
+    pricingRuleMetas
   );
 
   // Update vendorProduct with new associations
@@ -180,7 +180,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
       pricingRules: updatedPricingRules.map((rule) => rule._id),
       deliverySlots: updatedDeliverySlots.map((slot) => slot._id),
       quantityPricings: updatedQuantityPricing.map((price) => price._id),
-      pricingRuleOptions: updatedPricingRuleOptions.map((price) => price._id),
+      pricingRuleMetas: updatedPricingRuleMetas.map((price) => price._id),
     },
     { new: true }
   ).populate([
@@ -189,7 +189,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
-    "pricingRuleOptions",
+    "pricingRuleMetas",
   ]);
   res.status(200).send({
     message: "Product updated successfully",
@@ -210,7 +210,7 @@ export async function bulkStore(req: Request, res: Response) {
       pricingRules: productPricingRules,
       deliverySlots: productDeliverySlots,
       quantityPricings: productQuantityPricings,
-      pricingRuleOptions = [],
+      pricingRuleMetas = [],
     } = vendorProduct;
     const product = await ProductModel.findById(productId);
     const vendor = await VendorModel.findById(vendorId);
@@ -231,7 +231,7 @@ export async function bulkStore(req: Request, res: Response) {
       productPricingRules,
       productDeliverySlots,
       productQuantityPricings,
-      pricingRuleOptions
+      pricingRuleMetas
     );
 
     results.push(newVendorProduct);

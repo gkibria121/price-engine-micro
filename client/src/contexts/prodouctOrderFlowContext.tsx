@@ -8,7 +8,7 @@ import {
   ProductOrderFlowFormType,
   VendorProduct,
 } from "@/types";
-import { getPricingRuleOptions } from "@/util/funcitons";
+import { getPricingRuleMetas } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -82,7 +82,7 @@ export const ProductOrderFlowProvider = ({
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
-  const pricingRuleOptions = getPricingRuleOptions(
+  const pricingRuleMetas = getPricingRuleMetas(
     defaultVendorProduct.pricingRules
   );
   const [priceCalculationResult, setPriceCalculationResult] =
@@ -96,7 +96,7 @@ export const ProductOrderFlowProvider = ({
     product: defaultVendorProduct?.product.id ?? "",
     quantity: 0,
     pricingRules: [
-      ...pricingRuleOptions.map((pro) => ({
+      ...pricingRuleMetas.map((pro) => ({
         attribute: pro.attribute,
         value: pro.values[pro.default],
       })),

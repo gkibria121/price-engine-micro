@@ -5,7 +5,7 @@ import TextField from "./TextField";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 import { useFormContext, useFormState } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
-import { getPricingRuleOptions } from "@/util/funcitons";
+import { getPricingRuleMetas } from "@/util/funcitons";
 
 function ProductSelectionForm({}) {
   const { vendorProducts } = useProductOrderFlow();
@@ -16,9 +16,9 @@ function ProductSelectionForm({}) {
   });
   const productId = watch("product");
   const pricingRules = watch("pricingRules");
-  const pricingRuleOptions = useMemo(
+  const pricingRuleMetas = useMemo(
     () =>
-      getPricingRuleOptions(
+      getPricingRuleMetas(
         vendorProducts.find((vp) => vp.product.id === productId)?.pricingRules
       ),
     [productId, vendorProducts]
@@ -26,12 +26,12 @@ function ProductSelectionForm({}) {
 
   useEffect(() => {
     setValue("pricingRules", [
-      ...pricingRuleOptions.map((pro) => ({
+      ...pricingRuleMetas.map((pro) => ({
         attribute: pro.attribute,
         value: pro.values[pro.default],
       })),
     ]);
-  }, [productId, pricingRuleOptions, setValue]);
+  }, [productId, pricingRuleMetas, setValue]);
 
   console.log(pricingRules);
   return (
@@ -66,7 +66,7 @@ function ProductSelectionForm({}) {
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {pricingRuleOptions.map((rule, index) => {
+        {pricingRuleMetas.map((rule, index) => {
           return (
             <RadioBox
               title={rule.attribute}

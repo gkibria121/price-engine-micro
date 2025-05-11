@@ -75,7 +75,7 @@ describe("Vendor Product Controller", () => {
             },
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
-          pricingRuleOptions: [
+          pricingRuleMetas: [
             {
               attribute: "Paper",
               default: 0,
@@ -104,8 +104,8 @@ describe("Vendor Product Controller", () => {
       expect(res.body.association.quantityPricings[0]._id).toBe(
         newVendorProduct.quantityPricings[0]._id.toHexString()
       );
-      expect(res.body.association.pricingRuleOptions[0].id).toBe(
-        newVendorProduct.pricingRuleOptions[0]._id.toHexString()
+      expect(res.body.association.pricingRuleMetas[0].id).toBe(
+        newVendorProduct.pricingRuleMetas[0]._id.toHexString()
       );
     });
 
@@ -173,7 +173,7 @@ describe("Vendor Product Controller", () => {
             },
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
-          pricingRuleOptions: [
+          pricingRuleMetas: [
             {
               attribute: "Paper",
               default: 0,
@@ -189,7 +189,7 @@ describe("Vendor Product Controller", () => {
         .populate("pricingRules")
         .populate("deliverySlots")
         .populate("quantityPricings")
-        .populate("pricingRuleOptions");
+        .populate("pricingRuleMetas");
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Product updated successfully");
       expect(res.body.vendorProduct.id).toBe(
@@ -205,8 +205,8 @@ describe("Vendor Product Controller", () => {
       expect(res.body.vendorProduct.quantityPricings[0]._id).toBe(
         updatedVendorProduct.quantityPricings[0]._id.toHexString()
       );
-      expect(res.body.vendorProduct.pricingRuleOptions[0].id).toBe(
-        updatedVendorProduct.pricingRuleOptions[0]._id.toHexString()
+      expect(res.body.vendorProduct.pricingRuleMetas[0].id).toBe(
+        updatedVendorProduct.pricingRuleMetas[0]._id.toHexString()
       );
     });
 
@@ -456,7 +456,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
               },
             ],
             quantityPricings: [{ quantity: 10, price: 100 }],
-            pricingRuleOptions: [
+            pricingRuleMetas: [
               {
                 attribute: "Paper",
                 default: 0,
@@ -475,7 +475,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
     );
     expect(response.body.vendorProducts[0].pricingRules[0]).toBeDefined();
     expect(response.body.vendorProducts[0].deliverySlots[0]).toBeDefined();
-    expect(response.body.vendorProducts[0].pricingRuleOptions[0]).toBeDefined();
+    expect(response.body.vendorProducts[0].pricingRuleMetas[0]).toBeDefined();
     expect(response.status).toBe(201);
   });
   it("Should return 422 for empty pricingRules deliverySlots, quantityPricings", async () => {
@@ -511,7 +511,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
     expect(response.status).toBe(422);
   });
 
-  it("Should return 422 for invalid pricingRules deliverySlots, quantityPricings, pricingRuleOptions", async () => {
+  it("Should return 422 for invalid pricingRules deliverySlots, quantityPricings, pricingRuleMetas", async () => {
     const vendor = await createVendor();
     const product = await createProduct();
     const response = await request(app)
@@ -524,7 +524,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
             pricingRules: [{}],
             deliverySlots: [{}],
             quantityPricings: [{}],
-            pricingRuleOptions: [{}],
+            pricingRuleMetas: [{}],
           },
         ],
       });
@@ -557,16 +557,16 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         ],
         "vendorProducts.0.quantityPricings.0.price": ["Price is required"],
 
-        "vendorProducts.0.pricingRuleOptions.0.attribute": [
+        "vendorProducts.0.pricingRuleMetas.0.attribute": [
           "Attribute name is required",
         ],
-        "vendorProducts.0.pricingRuleOptions.0.default": [
+        "vendorProducts.0.pricingRuleMetas.0.default": [
           "Default value is required.",
         ],
-        "vendorProducts.0.pricingRuleOptions.0.inputType": [
+        "vendorProducts.0.pricingRuleMetas.0.inputType": [
           "Input type is required.",
         ],
-        "vendorProducts.0.pricingRuleOptions.0.values": ["Required"],
+        "vendorProducts.0.pricingRuleMetas.0.values": ["Required"],
       },
     });
     expect(response.status).toBe(422);

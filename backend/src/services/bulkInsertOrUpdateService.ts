@@ -6,14 +6,14 @@ import DeliverySlotModel from "../models/DeliverySlotModel";
 import QuantityPricingModel from "../models/QuantityPricingModel";
 import PricingRuleModel from "../models/PricingRuleModel";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
-import PricingRuleOptionModel from "../models/PricingRuleOptionModel";
+import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 export async function createVendorProduct(
   product: any,
   vendor: any,
   pricingRules: any[],
   deliverySlots: any[],
   quantityPricings: any[],
-  pricingRuleOptions: any[] = []
+  pricingRuleMetas: any[] = []
 ) {
   const pricingRuleIds = await Promise.all(
     pricingRules.map((rule) => PricingRuleModel.create(rule))
@@ -28,7 +28,7 @@ export async function createVendorProduct(
   );
 
   const pricingRuleOptionIds = await Promise.all(
-    pricingRuleOptions.map((rule) => PricingRuleOptionModel.create(rule))
+    pricingRuleMetas.map((rule) => PricingRuleMetaModel.create(rule))
   );
 
   return VendorProductModel.create({
@@ -37,7 +37,7 @@ export async function createVendorProduct(
     pricingRules: pricingRuleIds.map((doc) => doc._id),
     deliverySlots: deliverySlotIds.map((doc) => doc._id),
     quantityPricings: quantityPricingIds.map((doc) => doc._id),
-    pricingRuleOptions: pricingRuleOptionIds.map((doc) => doc._id),
+    pricingRuleMetas: pricingRuleOptionIds.map((doc) => doc._id),
   });
 }
 

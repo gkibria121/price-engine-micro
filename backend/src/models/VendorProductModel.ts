@@ -12,8 +12,8 @@ const VendorProductSchema = new Schema({
   quantityPricings: [
     { type: Schema.Types.ObjectId, ref: "QuantityPricing", required: true },
   ],
-  pricingRuleOptions: [
-    { type: Schema.Types.ObjectId, ref: "PricingRuleOption", required: false },
+  pricingRuleMetas: [
+    { type: Schema.Types.ObjectId, ref: "PricingRuleMeta", required: false },
   ],
 });
 // Add toJSON transformation

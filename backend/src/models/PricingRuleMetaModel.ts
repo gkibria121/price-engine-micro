@@ -1,6 +1,6 @@
 import { Schema, model, models } from "mongoose";
 
-const PricingRuleOptionSchema = new Schema(
+const PricingRuleMetaSchema = new Schema(
   {
     attribute: { type: String, required: true },
     default: { type: Number, required: false },
@@ -20,5 +20,5 @@ const PricingRuleOptionSchema = new Schema(
   }
 );
 
-export default models.PricingRuleOption ||
-  model("PricingRuleOption", PricingRuleOptionSchema);
+export default models.PricingRuleMeta ||
+  model("PricingRuleMeta", PricingRuleMetaSchema);

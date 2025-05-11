@@ -1,5 +1,5 @@
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
-import { pricingRuleOptionSchema, productSchema } from "@daynightprint/shared";
+import { pricingRuleMetaSchema, productSchema } from "@daynightprint/shared";
 import { vendorFormSchema, vendorSchema } from "@daynightprint/shared";
 import {
   deliverySlotSchem,
@@ -15,7 +15,7 @@ export type PricingRule = z.infer<typeof pricingRuleSchema>;
 export type DeliveryRule = z.infer<typeof deliverySlotSchem>;
 
 export type QuantityPricing = z.infer<typeof quantityPricingSchema>;
-export type PricingRuleOption = z.infer<typeof pricingRuleOptionSchema>;
+export type PricingRuleMeta = z.infer<typeof pricingRuleMetaSchema>;
 
 export type Product = z.infer<typeof productSchema>;
 export interface VendorProduct {
@@ -24,7 +24,7 @@ export interface VendorProduct {
   pricingRules: PricingRule[];
   deliverySlots: DeliverySlot[];
   quantityPricings: QuantityPricing[];
-  pricingRuleOptions: PricingRuleOption[];
+  pricingRuleMetas: PricingRuleMeta[];
   vendor: Vendor;
 }
 

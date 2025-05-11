@@ -5,10 +5,10 @@ import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
 import SelectionField from "./SelectionField";
 import CheckBox from "./CheckBox";
-import { getPricingRuleOptions } from "@/util/funcitons";
+import { getPricingRuleMetas } from "@/util/funcitons";
 import TextField from "./TextField";
 import Button from "../Button";
-function PricingRuleOptionsForm({
+function PricingRuleMetasForm({
   readonly,
   formIndex,
 }: {
@@ -19,17 +19,17 @@ function PricingRuleOptionsForm({
     useFormContext<VendorProductFormType>();
   const { fields: pricingFields } = useFieldArray({
     control: control,
-    name: `vendorProducts.${formIndex}.pricingRuleOptions` as const,
+    name: `vendorProducts.${formIndex}.pricingRuleMetas` as const,
   });
   const { errors } = useFormState<VendorProductFormType>({
-    name: `vendorProducts.${formIndex}.pricingRuleOptions`,
+    name: `vendorProducts.${formIndex}.pricingRuleMetas`,
   });
 
   const refresh = () => {
     const pricingRules = watch(`vendorProducts.${formIndex}.pricingRules`);
     setValue(
-      `vendorProducts.${formIndex}.pricingRuleOptions`,
-      getPricingRuleOptions(pricingRules)
+      `vendorProducts.${formIndex}.pricingRuleMetas`,
+      getPricingRuleMetas(pricingRules)
     );
   };
   return (
@@ -69,7 +69,7 @@ function PricingRuleOptionsForm({
             <TextField
               readonly={true}
               {...register(
-                `vendorProducts.${formIndex}.pricingRuleOptions.${index}.attribute` as const
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.attribute` as const
               )}
             />
           </ObjectListField.Col>
@@ -78,7 +78,7 @@ function PricingRuleOptionsForm({
               label="Default"
               showLabel={false}
               error={
-                errors.vendorProducts?.[formIndex]?.pricingRuleOptions?.[index]
+                errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.[index]
                   ?.attribute?.message
               }
               options={field.values.map((value, idx) => ({
@@ -86,7 +86,7 @@ function PricingRuleOptionsForm({
                 name: value,
               }))}
               {...register(
-                `vendorProducts.${formIndex}.pricingRuleOptions.${index}.default` as const,
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.default` as const,
                 {
                   valueAsNumber: true,
                 }
@@ -97,13 +97,13 @@ function PricingRuleOptionsForm({
             <CheckBox
               label="Required"
               {...register(
-                `vendorProducts.${formIndex}.pricingRuleOptions.${index}.required` as const
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.required` as const
               )}
             />
             <CheckBox
               label="Has Other"
               {...register(
-                `vendorProducts.${formIndex}.pricingRuleOptions.${index}.hasOther` as const
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.hasOther` as const
               )}
             />
           </ObjectListField.Col>
@@ -113,4 +113,4 @@ function PricingRuleOptionsForm({
   );
 }
 
-export default PricingRuleOptionsForm;
+export default PricingRuleMetasForm;
