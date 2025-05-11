@@ -18,6 +18,7 @@ function ProductSelectionForm({}) {
   const quantityPricings =
     vendorProducts.find((vp) => vp.product.id === productId)
       ?.quantityPricings ?? [];
+
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -57,6 +58,7 @@ function ProductSelectionForm({}) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {pricingRuleMetas.map((rule, index) => {
+          const showOther = watch(`pricingRules.${index}.value`) === "other";
           return (
             <RadioBox
               title={rule.attribute}
@@ -85,7 +87,12 @@ function ProductSelectionForm({}) {
                     value="other"
                     {...register(`pricingRules.${index}.value`)}
                   />
-                  {watch(`pricingRules.${index}.value`) === "other" && (
+
+                  <div
+                    className={`  w-full overflow-hidden transition-all duration-500 ease-in-out ${
+                      showOther ? "max-h-[100px] py-2" : "max-h-0 py-0"
+                    }`}
+                  >
                     <TextField
                       placeholder={rule.values[0].replace(/\(.*?\)/g, "")}
                       {...register(`pricingRules.${index}.otherValue`, {
@@ -93,7 +100,7 @@ function ProductSelectionForm({}) {
                       })}
                       error={errors.pricingRules?.[index]?.otherValue?.message}
                     />
-                  )}
+                  </div>
                 </>
               )}
             </RadioBox>

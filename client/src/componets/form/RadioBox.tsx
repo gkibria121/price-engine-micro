@@ -46,7 +46,7 @@ function RadioInput({
   ...optinos
 }: RadioInputProps) {
   return (
-    <label className="flex items-center">
+    <label className="flex items-center hover:bg-blue-50 p-1 rounded-xl">
       <input type="radio" value={value} className="mr-2" {...optinos} />
       <span className={` ${className}`}>{label}</span>
     </label>

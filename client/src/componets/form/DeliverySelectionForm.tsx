@@ -12,6 +12,7 @@ const DeliverySelection = () => {
     name: `deliveryMethod`,
   });
   const deliveryMethod = watch("deliveryMethod");
+  const showCustom = deliveryMethod.label === "other";
   return (
     <div className="max-w-4xl mx-auto">
       <h2 className="text-lg font-medium mb-4">
@@ -32,25 +33,27 @@ const DeliverySelection = () => {
             {...register("deliveryMethod.label")}
           />
         ))}
-        <div className="flex items-center space-x-4">
+        <div className="">
           <RadioBox.RadioInput
             key={"other"}
             label={"I have a custom delivery deadline"}
             value={"other"}
             className="text-black"
             {...register("deliveryMethod.label")}
-          />{" "}
-          {deliveryMethod.label === "other" && (
-            <div className="w-fit">
-              <DatePicker
-                isTime={true}
-                error={errors?.deliveryMethod?.otherValue?.message?.toString()}
-                {...register("deliveryMethod.otherValue", {
-                  valueAsDate: false,
-                })}
-              />
-            </div>
-          )}
+          />
+          <div
+            className={`w-fit overflow-hidden transition-all duration-300 ease-in-out ${
+              showCustom ? "max-h-[200px] py-2" : "max-h-0 py-0"
+            }`}
+          >
+            <DatePicker
+              isTime={true}
+              error={errors?.deliveryMethod?.otherValue?.message?.toString()}
+              {...register("deliveryMethod.otherValue", {
+                valueAsDate: false,
+              })}
+            />
+          </div>
         </div>
       </RadioBox>
     </div>

@@ -128,12 +128,6 @@ export const ProductOrderFlowProvider = ({
   );
 
   useEffect(() => {
-    console.log(
-      pricingRuleMetas.map((pro) => ({
-        attribute: pro.attribute,
-        value: pro.values[pro.default],
-      }))
-    );
     setValue("pricingRules", [
       ...pricingRuleMetas.map((pro) => ({
         attribute: pro.attribute,

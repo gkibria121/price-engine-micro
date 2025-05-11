@@ -27,6 +27,7 @@ function PricingRuleMetasForm({
 
   const refresh = () => {
     const pricingRules = watch(`vendorProducts.${formIndex}.pricingRules`);
+
     setValue(
       `vendorProducts.${formIndex}.pricingRuleMetas`,
       getPricingRuleMetas(pricingRules)
@@ -36,15 +37,7 @@ function PricingRuleMetasForm({
   return (
     <ObjectListField
       readonly={readonly}
-      defaultItem={{
-        values: ["Something"],
-        attribute: "Paper Type",
-        default: 0,
-        inputType: "radio",
-        required: true,
-        description: "something",
-        hasOther: false,
-      }}
+      defaultItem={{}}
       label="Pricing Rule Metas"
     >
       {" "}
