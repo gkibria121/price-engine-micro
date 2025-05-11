@@ -121,3 +121,9 @@ export function getPricingRuleMetas(
 
   return pricingRuleMetas;
 }
+export const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return "";
+  const d = new Date(date);
+  console.log(d.toISOString().split("T")[0]);
+  return d.toISOString().split("T")[0]; // formats as "yyyy-MM-dd"
+};

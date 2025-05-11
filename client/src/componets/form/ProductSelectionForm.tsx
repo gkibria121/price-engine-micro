@@ -15,7 +15,6 @@ function ProductSelectionForm({}) {
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
-  console.log(errors);
   const quantityPricings =
     vendorProducts.find((vp) => vp.product.id === productId)
       ?.quantityPricings ?? [];

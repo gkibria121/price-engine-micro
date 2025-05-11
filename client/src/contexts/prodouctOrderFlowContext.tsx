@@ -101,7 +101,10 @@ export const ProductOrderFlowProvider = ({
     });
 
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
-    deliveryMethod: { label: deliverySlots[0].label ?? "" },
+    deliveryMethod: {
+      label: deliverySlots[0].label ?? "",
+      otherValue: "2018-07-22",
+    },
     product: defaultVendorProduct?.product.id ?? "",
     quantity: 0,
     pricingRules: [
