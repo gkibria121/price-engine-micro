@@ -79,7 +79,7 @@ const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
         onFocus={handleFocus}
       />
 
-      {showSug && (
+      {showSug && options.length > 0 && (
         <div className="absolute w-full bg-white mt-1 border border-gray-200 rounded shadow-sm z-10 max-h-60 overflow-y-auto">
           {options.map((op) => (
             <div

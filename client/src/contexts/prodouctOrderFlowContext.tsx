@@ -7,10 +7,18 @@ import {
   PriceCalculationResultType,
   ProductOrderFlowFormType,
   VendorProduct,
+  VendorProductFormType,
 } from "@/types";
 import { getPricingRuleMetas } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useMemo,
+} from "react";
 import { FormProvider, useForm } from "react-hook-form";
 type FormBodyType = {
   step: number;
@@ -63,6 +71,7 @@ interface ProductOrderFlowContextType {
   isLoading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsPriceCalculating: React.Dispatch<React.SetStateAction<boolean>>;
+  pricingRuleMetas: VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"];
 }
 // Provider component
 export const ProductOrderFlowProvider = ({
@@ -82,7 +91,7 @@ export const ProductOrderFlowProvider = ({
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
-  const pricingRuleMetas = getPricingRuleMetas(
+  const pricingRuleMetasDefault = getPricingRuleMetas(
     defaultVendorProduct?.pricingRules
   );
   const [priceCalculationResult, setPriceCalculationResult] =
@@ -96,7 +105,7 @@ export const ProductOrderFlowProvider = ({
     product: defaultVendorProduct?.product.id ?? "",
     quantity: 0,
     pricingRules: [
-      ...pricingRuleMetas.map((pro) => ({
+      ...pricingRuleMetasDefault.map((pro) => ({
         attribute: pro.attribute,
         value: pro.values[pro.default],
       })),
@@ -106,7 +115,29 @@ export const ProductOrderFlowProvider = ({
     resolver: zodResolver(ProductOrderFlowFormSchema),
     defaultValues: productOrderFlowDefaultValues,
   });
+  const { setValue, watch } = medhods;
+  const productId = watch("product");
+  const pricingRuleMetas = useMemo(
+    () =>
+      vendorProducts.find((vp) => vp.product.id === productId)
+        ?.pricingRuleMetas ?? [],
+    [productId, vendorProducts]
+  );
 
+  useEffect(() => {
+    console.log(
+      pricingRuleMetas.map((pro) => ({
+        attribute: pro.attribute,
+        value: pro.values[pro.default],
+      }))
+    );
+    setValue("pricingRules", [
+      ...pricingRuleMetas.map((pro) => ({
+        attribute: pro.attribute,
+        value: pro.values[pro.default],
+      })),
+    ]);
+  }, [productId, pricingRuleMetas, setValue]);
   return (
     <ProductOrderFlowContext.Provider
       value={{
@@ -124,6 +155,7 @@ export const ProductOrderFlowProvider = ({
         setIsPriceCalculating,
         isLoading,
         setLoading,
+        pricingRuleMetas,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>

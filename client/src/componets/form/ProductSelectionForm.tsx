@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import RadioBox from "./RadioBox";
 import SelectionField from "./SelectionField";
 import TextField from "./TextField";
@@ -8,32 +8,17 @@ import { ProductOrderFlowFormType } from "@/types";
 import TextFieldWithSuggestion from "../TextFieldWithSuggestion";
 
 function ProductSelectionForm({}) {
-  const { vendorProducts } = useProductOrderFlow();
+  const { vendorProducts, pricingRuleMetas } = useProductOrderFlow();
   const { register, setValue, watch } =
     useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
-  const pricingRuleMetas = useMemo(
-    () =>
-      vendorProducts.find((vp) => vp.product.id === productId)
-        ?.pricingRuleMetas ?? [],
-    [productId, vendorProducts]
-  );
 
-  useEffect(() => {
-    setValue("pricingRules", [
-      ...pricingRuleMetas.map((pro) => ({
-        attribute: pro.attribute,
-        value: pro.values[pro.default],
-      })),
-    ]);
-  }, [productId, pricingRuleMetas, setValue]);
   const quantityPricings =
     vendorProducts.find((vp) => vp.product.id === productId)
       ?.quantityPricings ?? [];
-
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
