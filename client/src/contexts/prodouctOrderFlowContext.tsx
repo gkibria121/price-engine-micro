@@ -9,7 +9,7 @@ import {
   VendorProduct,
   VendorProductFormType,
 } from "@/types";
-import { getPricingRuleMetas } from "@/util/funcitons";
+import { formatDate, getPricingRuleMetas } from "@/util/funcitons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, {
   createContext,
@@ -103,7 +103,7 @@ export const ProductOrderFlowProvider = ({
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     deliveryMethod: {
       label: deliverySlots[0].label ?? "",
-      otherValue: "2018-07-22",
+      otherValue: formatDate(new Date()),
     },
     product: defaultVendorProduct?.product.id ?? "",
     quantity: 0,
