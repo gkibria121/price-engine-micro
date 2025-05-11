@@ -145,7 +145,6 @@ export const ProductOrderFlowProvider = ({
       })),
     ]);
   }, [productId, pricingRuleMetas, setValue]);
-  console.log("hi there");
   return (
     <ProductOrderFlowContext.Provider
       value={{
