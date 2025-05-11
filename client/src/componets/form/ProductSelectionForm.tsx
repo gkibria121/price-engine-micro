@@ -5,6 +5,7 @@ import TextField from "./TextField";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 import { useFormContext, useFormState } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
+import TextFieldWithSuggestion from "../TextFieldWithSuggestion";
 
 function ProductSelectionForm({}) {
   const { vendorProducts } = useProductOrderFlow();
@@ -14,14 +15,13 @@ function ProductSelectionForm({}) {
     name: ["product", "quantity", "pricingRules"],
   });
   const productId = watch("product");
-  const pricingRules = watch("pricingRules");
   const pricingRuleMetas = useMemo(
     () =>
       vendorProducts.find((vp) => vp.product.id === productId)
         ?.pricingRuleMetas ?? [],
     [productId, vendorProducts]
   );
-  console.log(vendorProducts.find((vp) => vp.product.id === productId));
+
   useEffect(() => {
     setValue("pricingRules", [
       ...pricingRuleMetas.map((pro) => ({
@@ -30,8 +30,10 @@ function ProductSelectionForm({}) {
       })),
     ]);
   }, [productId, pricingRuleMetas, setValue]);
+  const quantityPricings =
+    vendorProducts.find((vp) => vp.product.id === productId)
+      ?.quantityPricings ?? [];
 
-  console.log(pricingRules);
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -55,11 +57,17 @@ function ProductSelectionForm({}) {
         />
 
         {/* Quantity */}
-        <TextField
+        <TextFieldWithSuggestion
           label="Quantity"
-          variant="stacked"
           placeholder="10"
+          onSuggestionClick={(value) => {
+            setValue("quantity", parseInt(value));
+          }}
           {...register("quantity", { valueAsNumber: true })}
+          options={quantityPricings.map((qp) => ({
+            label: qp.quantity,
+            value: qp.quantity,
+          }))}
           error={errors.quantity?.message?.toString()}
         />
       </div>

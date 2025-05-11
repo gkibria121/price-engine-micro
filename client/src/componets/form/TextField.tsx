@@ -26,7 +26,7 @@ const TextField: React.FC<TextFieldProps> = ({
   readonly = false,
   ...others
 }) => {
-  const inputClass: Record<"floating" | "stacked", string> = {
+  const inputClass: Record<TextFieldProps["variant"], string> = {
     stacked: "w-full p-2 border rounded border-slate-200 outline-slate-200",
     floating: [
       "block w-full px-2.5 pb-2.5",
@@ -54,7 +54,7 @@ const TextField: React.FC<TextFieldProps> = ({
   };
 
   return (
-    <div className="relative mb-6">
+    <div className="relative">
       {variant === "stacked" && renderLabel()}
 
       {isTextArea ? (
