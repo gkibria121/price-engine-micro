@@ -9,6 +9,7 @@ function TextField({
   variant = "floating",
   type = "text",
   placeholder,
+  isTextArea = false,
 
   defaultValue,
   readonly = false,
@@ -23,6 +24,7 @@ function TextField({
   type?: HTMLInputElement["type"];
   others?: React.HTMLAttributes<HTMLInputElement>;
   placeholder?: string;
+  isTextArea?: boolean;
 }) {
   const style: Record<typeof variant, string> = {
     stacked: "w-full p-2 border rounded border-slate-200 outline-slate-200",
@@ -44,15 +46,27 @@ function TextField({
   return (
     <div className="relative mb-6">
       {variant === "stacked" && label && labels["stacked"]}
-      <input
-        type={type}
-        {...others}
-        defaultValue={defaultValue}
-        readOnly={readonly}
-        step={step ? step : undefined}
-        className={style[variant]}
-        placeholder={placeholder ?? " "}
-      />
+
+      {isTextArea ? (
+        <textarea
+          {...others}
+          readOnly={readonly}
+          defaultValue={defaultValue}
+          className={style[variant]}
+          placeholder={placeholder ?? " "}
+        ></textarea>
+      ) : (
+        <input
+          type={type}
+          {...others}
+          defaultValue={defaultValue}
+          readOnly={readonly}
+          step={step ? step : undefined}
+          className={style[variant]}
+          placeholder={placeholder ?? " "}
+        />
+      )}
+
       {variant === "floating" && labels["floating"]}
 
       {typeof error === "string" ? (

@@ -15,7 +15,7 @@ export default async function page({ params }: PageProps) {
 
     return (
       <div>
-        <h1 className="text-3xl font-bold mb-6">Add New Vendor Product</h1>
+        <h1 className="text-3xl font-bold mb-6">Update Vendor Product</h1>
         <VendorProductForm
           products={products}
           vendors={vendors}

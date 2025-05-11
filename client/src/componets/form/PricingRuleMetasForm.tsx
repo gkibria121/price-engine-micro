@@ -32,6 +32,7 @@ function PricingRuleMetasForm({
       getPricingRuleMetas(pricingRules)
     );
   };
+  const inputTypes = ["radio", "text", "checkbox", "textarea"];
   return (
     <ObjectListField
       readonly={readonly}
@@ -58,6 +59,12 @@ function PricingRuleMetasForm({
         </ObjectListField.Col>
         <ObjectListField.Col>
           <label htmlFor="">Default Value</label>
+        </ObjectListField.Col>
+        <ObjectListField.Col>
+          <label htmlFor="">Description</label>
+        </ObjectListField.Col>
+        <ObjectListField.Col>
+          <label htmlFor="">Input Type</label>
         </ObjectListField.Col>
         <ObjectListField.Col>
           <label htmlFor="">Options</label>
@@ -94,13 +101,51 @@ function PricingRuleMetasForm({
             />
           </ObjectListField.Col>
           <ObjectListField.Col>
+            <TextField
+              label="Description"
+              isTextArea={true}
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.[index]
+                  ?.description?.message
+              }
+              {...register(
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.description` as const
+              )}
+            />
+          </ObjectListField.Col>
+          <ObjectListField.Col>
+            <SelectionField
+              label="Input Type"
+              showLabel={false}
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.[index]
+                  ?.inputType?.message
+              }
+              options={inputTypes.map((value) => ({
+                value: value,
+                name: value,
+              }))}
+              {...register(
+                `vendorProducts.${formIndex}.pricingRuleMetas.${index}.inputType` as const
+              )}
+            />
+          </ObjectListField.Col>
+          <ObjectListField.Col>
             <CheckBox
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.[index]
+                  ?.required?.message
+              }
               label="Required"
               {...register(
                 `vendorProducts.${formIndex}.pricingRuleMetas.${index}.required` as const
               )}
             />
             <CheckBox
+              error={
+                errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.[index]
+                  ?.hasOther?.message
+              }
               label="Has Other"
               {...register(
                 `vendorProducts.${formIndex}.pricingRuleMetas.${index}.hasOther` as const

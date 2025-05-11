@@ -199,7 +199,6 @@ export async function updateVendorProduct(req: Request, res: Response) {
 
 export async function bulkStore(req: Request, res: Response) {
   const { vendorProducts } = req.body;
-
   await validateBulkStoreRequest(vendorProducts);
   const results = [] as any[];
 

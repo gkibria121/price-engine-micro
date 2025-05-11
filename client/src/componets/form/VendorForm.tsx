@@ -123,7 +123,6 @@ export default function VendorForm({
 
     setValue("vendors", [...vendors]);
   }
-  console.log(errors);
   return (
     <form
       onSubmit={handleSubmit(onSubmit, () => {

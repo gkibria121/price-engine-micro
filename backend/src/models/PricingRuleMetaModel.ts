@@ -8,7 +8,7 @@ const PricingRuleMetaSchema = new Schema(
     inputType: { type: String, required: true },
     required: { type: Boolean, required: false },
     description: { type: String, required: false },
-    hasOther: { type: String, required: false },
+    hasOther: { type: Boolean, required: false },
   },
   {
     toJSON: {
