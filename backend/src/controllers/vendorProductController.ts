@@ -21,6 +21,7 @@ export async function index(req: Request, res: Response) {
     "pricingRules",
     "deliverySlots",
     "quantityPricings",
+    "pricingRuleMetas",
   ]);
   res.status(200).send({
     vendorProducts,

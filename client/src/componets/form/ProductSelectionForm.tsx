@@ -5,7 +5,6 @@ import TextField from "./TextField";
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 import { useFormContext, useFormState } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
-import { getPricingRuleMetas } from "@/util/funcitons";
 
 function ProductSelectionForm({}) {
   const { vendorProducts } = useProductOrderFlow();
@@ -18,12 +17,11 @@ function ProductSelectionForm({}) {
   const pricingRules = watch("pricingRules");
   const pricingRuleMetas = useMemo(
     () =>
-      getPricingRuleMetas(
-        vendorProducts.find((vp) => vp.product.id === productId)?.pricingRules
-      ),
+      vendorProducts.find((vp) => vp.product.id === productId)
+        ?.pricingRuleMetas ?? [],
     [productId, vendorProducts]
   );
-
+  console.log(vendorProducts.find((vp) => vp.product.id === productId));
   useEffect(() => {
     setValue("pricingRules", [
       ...pricingRuleMetas.map((pro) => ({
