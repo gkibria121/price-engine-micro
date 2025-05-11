@@ -15,7 +15,7 @@ function PricingRuleMetasForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const { register, control, watch, setValue } =
+  const { register, control, getValues, setValue } =
     useFormContext<VendorProductFormType>();
   const { fields: pricingFields } = useFieldArray({
     control: control,
@@ -26,7 +26,7 @@ function PricingRuleMetasForm({
   });
 
   const refresh = () => {
-    const pricingRules = watch(`vendorProducts.${formIndex}.pricingRules`);
+    const pricingRules = getValues(`vendorProducts.${formIndex}.pricingRules`);
 
     setValue(
       `vendorProducts.${formIndex}.pricingRuleMetas`,

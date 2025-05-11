@@ -1,17 +1,17 @@
 import { useProductOrderFlow } from "@/contexts/prodouctOrderFlowContext";
 import { ProductOrderFlowFormType } from "@/types";
 import React from "react";
-import { useFormContext, useFormState } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import RadioBox from "./RadioBox";
 import DatePicker from "./DatePicker";
 
 const DeliverySelection = () => {
   const { deliverySlots } = useProductOrderFlow();
-  const { register, watch } = useFormContext<ProductOrderFlowFormType>();
+  const { register } = useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState<ProductOrderFlowFormType>({
     name: `deliveryMethod`,
   });
-  const deliveryMethod = watch("deliveryMethod");
+  const deliveryMethod = useWatch({ name: "deliveryMethod" });
   const showCustom = deliveryMethod.label === "other";
   return (
     <div className="max-w-4xl mx-auto">

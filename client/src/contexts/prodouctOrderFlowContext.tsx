@@ -19,7 +19,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 type FormBodyType = {
   step: number;
   label: string;
@@ -121,8 +121,8 @@ export const ProductOrderFlowProvider = ({
     resolver: zodResolver(ProductOrderFlowFormSchema),
     defaultValues: productOrderFlowDefaultValues,
   });
-  const { setValue, watch } = medhods;
-  const productId = watch("product");
+  const { setValue, control } = medhods;
+  const productId = useWatch({ name: "product", control });
   const pricingRuleMetas = useMemo(
     () =>
       vendorProducts.find((vp) => vp.product.id === productId)
@@ -145,6 +145,7 @@ export const ProductOrderFlowProvider = ({
       })),
     ]);
   }, [productId, pricingRuleMetas, setValue]);
+  console.log("Should not render");
   return (
     <ProductOrderFlowContext.Provider
       value={{

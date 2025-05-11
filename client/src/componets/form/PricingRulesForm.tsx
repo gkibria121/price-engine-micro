@@ -2,7 +2,12 @@ import React from "react";
 import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
 
-import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
+import {
+  useFieldArray,
+  useFormContext,
+  useFormState,
+  useWatch,
+} from "react-hook-form";
 import { VendorProductFormType } from "@/types";
 function PricingRulesForm({
   readonly,
@@ -11,7 +16,7 @@ function PricingRulesForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const { register, control, watch } = useFormContext<VendorProductFormType>();
+  const { register, control } = useFormContext<VendorProductFormType>();
   const {
     fields: pricingFields,
     append: appendPricing,
@@ -23,11 +28,11 @@ function PricingRulesForm({
   const { errors } = useFormState<VendorProductFormType>({
     name: `vendorProducts.${formIndex}.pricingRules`,
   });
-  const lastRuleAttribute = watch(
-    `vendorProducts.${formIndex}.pricingRules.${
+  const lastRuleAttribute = useWatch({
+    name: `vendorProducts.${formIndex}.pricingRules.${
       pricingFields.length - 1
-    }.attribute`
-  );
+    }.attribute`,
+  });
   return (
     <ObjectListField
       readonly={readonly}
