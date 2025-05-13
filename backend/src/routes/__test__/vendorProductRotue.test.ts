@@ -3,6 +3,7 @@ import app from "../../app";
 import VendorModel from "../../models/VendorModel";
 import ProductModel from "../../models/ProductModel";
 import VendorProductModel from "../../models/VendorProductModel";
+import { createVendorProduct } from "../../helpers/test_helper_functions";
 
 // Helper Functions
 async function createVendor() {
@@ -26,7 +27,15 @@ describe("Vendor Product Controller", () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("vendorProducts");
     });
-
+    it("should return list of vendor products   given product id and delivery slot", async () => {
+      const vendorProduct = await createVendorProduct();
+      const res = await request(app).post("/api/v1/vendor-products").send({
+        productId: vendorProduct.product,
+        deliverySlot: vendorProduct.deliverySlots[0],
+      });
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("vendorProducts");
+    });
     it("should fetch a single vendor product by ID", async () => {
       const vendor = await createVendor();
       const product = await createProduct();

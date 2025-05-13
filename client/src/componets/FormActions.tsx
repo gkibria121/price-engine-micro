@@ -6,27 +6,47 @@ import { useFormContext } from "react-hook-form";
 import { PriceCalculationResultType, ProductOrderFlowFormType } from "@/types";
 import { calculatePrice } from "@/services/priceCalculationService";
 import { toast } from "react-toastify";
+import { getDeliverySlots } from "@/services/deliverySlots";
+import { getMatchedVendorProducts } from "@/services/vendorProductService";
 
 function FormActions() {
   const {
     finalStep,
     firstStep,
     currentStep,
+    deliverySlots,
     priceCalculationStep,
     vendorProducts,
     setLoading,
     setPriceCalculationResult,
     setCurrentStep,
     setIsPriceCalculating,
+    setDeliverySlots,
+    setPricingRuleMetas,
   } = useProductOrderFlow();
   const { trigger, getValues } = useFormContext<ProductOrderFlowFormType>();
   const handleNextButtonClick = async () => {
     if (currentStep === 1) {
       const validate = await trigger(["product"]);
       if (!validate) return;
+      const productId = getValues("product");
+      setLoading(true);
+      const deliverySlots = await getDeliverySlots(productId);
+      setDeliverySlots(deliverySlots);
     } else if (currentStep == 2) {
       const validate = await trigger(["deliveryMethod"]);
       if (!validate) return;
+      const productId = getValues("product");
+      const deliverySlotLabel = getValues("deliveryMethod.label");
+      const deliverySlot = deliverySlots.find(
+        (ds) => ds.label === deliverySlotLabel
+      );
+      const vendorProducts = await getMatchedVendorProducts(
+        productId,
+        deliverySlot
+      );
+      setPricingRuleMetas(vendorProducts[0].pricingRuleMetas ?? []);
+      console.log(vendorProducts);
     } else if (currentStep === 3) {
       const validate = await trigger(["pricingRules", "product", "quantity"]);
       if (!validate) return;

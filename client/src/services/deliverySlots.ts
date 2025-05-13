@@ -1,6 +1,8 @@
-export async function getDeliverySlots() {
+export async function getDeliverySlots(productId: string = undefined) {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/delivery-slots`,
+    `${process.env.NEXT_PUBLIC_API_URL}/delivery-slots${
+      productId ? "/" + productId : ""
+    }`,
     {
       cache: "no-store",
     }

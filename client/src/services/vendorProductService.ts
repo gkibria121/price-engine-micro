@@ -1,4 +1,4 @@
-import { VendorProduct } from "@/types";
+import { DeliverySlot, VendorProduct } from "@/types";
 
 export async function getVendorProduct(id: string) {
   const response = await fetch(
@@ -26,6 +26,29 @@ export async function getVendorProducts() {
     new Error("Faild to fetch!");
   }
 
+  const data = await response.json();
+  const vendorProducts = data.vendorProducts as VendorProduct[];
+  return vendorProducts;
+}
+export async function getMatchedVendorProducts(
+  productId: string,
+  deliverySlot: DeliverySlot
+) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`,
+    {
+      cache: "no-store",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId,
+        deliverySlot,
+      }),
+    }
+  );
+  if (!response.ok) throw new Error("Something went wrong!");
   const data = await response.json();
   const vendorProducts = data.vendorProducts as VendorProduct[];
   return vendorProducts;

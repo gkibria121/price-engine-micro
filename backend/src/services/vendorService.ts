@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import VendorProductModel from "../models/VendorProductModel";
 import { IDeliverySlot } from "../models/DeliverySlotModel";
+import { DeliverySlot } from "../type";
 
 export async function getVendor(
   productId: string,

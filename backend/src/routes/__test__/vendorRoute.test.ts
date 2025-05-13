@@ -4,6 +4,7 @@ import VendorModel from "../../models/VendorModel";
 import VendorProductModel from "../../models/VendorProductModel";
 import mongoose from "mongoose";
 import ProductModel from "../../models/ProductModel";
+import { createVendorProduct } from "../../helpers/test_helper_functions";
 
 beforeEach(async () => {
   await VendorModel.deleteMany({});

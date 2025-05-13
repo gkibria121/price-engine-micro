@@ -13,6 +13,7 @@ import {
   validateBulkStoreRequest,
 } from "../services/bulkInsertOrUpdateService";
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
+import { getVendorProductListByProductAndDelivery } from "../services/vendorProductService";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -246,5 +247,17 @@ export async function bulkStore(req: Request, res: Response) {
   res.status(201).json({
     message: "Bulk insert/update completed successfully.",
     vendorProducts: results,
+  });
+}
+export async function getMatchVendorsProducts(req: Request, res: Response) {
+  const { productId, deliverySlot } = req.body; // deliverySlot = string label
+  // Step 1: Find all vendor products for the product
+  const vendorProducts = await getVendorProductListByProductAndDelivery(
+    productId,
+    deliverySlot,
+    new Date()
+  );
+  res.status(200).send({
+    vendorProducts: vendorProducts,
   });
 }

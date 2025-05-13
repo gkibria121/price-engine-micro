@@ -6,6 +6,7 @@ import {
   index,
   updateVendorProduct,
   bulkStore,
+  getMatchVendorsProducts,
 } from "../controllers/vendorProductController";
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
@@ -19,6 +20,7 @@ import {
 const router = express.Router();
 
 router.get("/vendor-products", index);
+router.post("/vendor-products", getMatchVendorsProducts);
 
 router.post(
   "/vendor-products/store",

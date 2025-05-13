@@ -63,5 +63,16 @@ export async function createVendorProduct() {
     quantityPricings: quantityPricings, // Reference to created quantity pricing
     rating: 10,
   });
-  return vendorProduct;
+  await VendorProductModel.create({
+    vendor: vendor._id, // Reference to existing vendor
+    product: product._id, // Reference to existing product
+    pricingRules: [pricingRule._id], // Reference to created pricing rule
+    deliverySlots: [deliverySlot._id], // Reference to created delivery slot
+    quantityPricings: quantityPricings, // Reference to created quantity pricing
+    rating: 10,
+  });
+  const populatedVendorProduct = await VendorProductModel.findById(
+    vendorProduct._id
+  ).populate("deliverySlots"); // You can add more if needed
+  return populatedVendorProduct;
 }

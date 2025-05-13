@@ -9,11 +9,7 @@ import {
 } from "../controllers/vendorController";
 import { validateObjectId } from "../middlewares/validateObjectId";
 import { ZodRequestValidationMiddleware } from "../middlewares/ZodRequestValidationMiddleware";
-import {
-  productSchema,
-  vendorFormSchema,
-  vendorSchema,
-} from "@daynightprint/shared";
+import { vendorFormSchema, vendorSchema } from "@daynightprint/shared";
 
 const router = express.Router();
 

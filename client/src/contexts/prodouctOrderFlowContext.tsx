@@ -6,6 +6,7 @@ import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
 import {
   DeliverySlot,
   PriceCalculationResultType,
+  PricingRuleMeta,
   Product,
   ProductOrderFlowFormType,
   VendorProduct,
@@ -19,7 +20,6 @@ import React, {
   useState,
   ReactNode,
   useEffect,
-  useMemo,
 } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 type FormBodyType = {
@@ -68,7 +68,6 @@ interface ProductOrderFlowContextType {
   formBodies: FormBodyType[];
   finalStep: number;
   firstStep: number;
-  deliverySlots: DeliverySlot[];
   priceCalculationStep: number;
   vendorProducts: VendorProduct[];
   priceCalculationResult: PriceCalculationResultType;
@@ -82,18 +81,23 @@ interface ProductOrderFlowContextType {
   isProductLoading: boolean;
   setProductLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pricingRuleMetas: VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"];
+  setPricingRuleMetas: React.Dispatch<
+    React.SetStateAction<
+      VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"]
+    >
+  >;
   products: Product[];
+  deliverySlots: DeliverySlot[];
+  setDeliverySlots: React.Dispatch<React.SetStateAction<DeliverySlot[]>>;
 }
 // Provider component
 export const ProductOrderFlowProvider = ({
   children,
   vendorProducts,
   defaultVendorProduct,
-  deliverySlots,
   products,
 }: {
   children: ReactNode;
-  deliverySlots: DeliverySlot[];
   vendorProducts: VendorProduct[];
   defaultVendorProduct?: VendorProduct;
   products: Product[];
@@ -111,10 +115,10 @@ export const ProductOrderFlowProvider = ({
       productName: "",
       quantity: 0,
     });
-
+  // initialize product order flow
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     deliveryMethod: {
-      label: deliverySlots[0].label ?? "",
+      label: "",
       otherValue: formatDate(new Date()),
     },
     product: defaultVendorProduct?.product.id ?? "",
@@ -132,13 +136,11 @@ export const ProductOrderFlowProvider = ({
   });
   const { setValue, control } = medhods;
   const productId = useWatch({ name: "product", control });
-  const pricingRuleMetas = useMemo(
-    () =>
-      vendorProducts.find((vp) => vp.product.id === productId)
-        ?.pricingRuleMetas ?? [],
-    [productId, vendorProducts]
+  const [pricingRuleMetas, setPricingRuleMetas] = useState<PricingRuleMeta[]>(
+    []
   );
 
+  // show loading screen
   useEffect(() => {
     setProductLoading(true);
     const loadingTimeout = setTimeout(() => {
@@ -147,6 +149,7 @@ export const ProductOrderFlowProvider = ({
     return () => clearTimeout(loadingTimeout);
   }, [productId]);
 
+  // show set default pricing rules
   useEffect(() => {
     setValue("pricingRules", [
       ...pricingRuleMetas.map((pro) => ({
@@ -156,6 +159,9 @@ export const ProductOrderFlowProvider = ({
     ]);
   }, [productId, pricingRuleMetas, setValue]);
 
+  const [deliverySlots, setDeliverySlots] = useState<DeliverySlot[]>(
+    [] as DeliverySlot[]
+  );
   return (
     <ProductOrderFlowContext.Provider
       value={{
@@ -166,7 +172,6 @@ export const ProductOrderFlowProvider = ({
         firstStep,
         priceCalculationStep,
         vendorProducts,
-        deliverySlots,
         priceCalculationResult,
         setPriceCalculationResult,
         isPriceCalculating,
@@ -176,7 +181,10 @@ export const ProductOrderFlowProvider = ({
         pricingRuleMetas,
         isProductLoading,
         setProductLoading,
+        deliverySlots,
+        setDeliverySlots,
         products,
+        setPricingRuleMetas,
       }}
     >
       <FormProvider {...medhods}>{children}</FormProvider>
