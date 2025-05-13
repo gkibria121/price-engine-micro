@@ -61,7 +61,7 @@ export default function VendorProductForm({
             pricingRules: vendorProduct.pricingRules,
             quantityPricings: vendorProduct.quantityPricings,
             pricingRuleMetas: vendorProduct.pricingRuleMetas ?? [],
-            rating: 0,
+            rating: vendorProduct.rating ?? 0,
           },
         ],
       };
@@ -270,6 +270,12 @@ function VendorProductBasicInfo({
               label="Vendor Name"
               readonly={readonly}
               defaultValue={vendorProduct.vendor.name}
+            />
+            <TextField
+              label="Rating"
+              readonly={readonly}
+              type="number"
+              defaultValue={vendorProduct.rating}
             />
           </>
         ) : (

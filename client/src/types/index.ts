@@ -25,6 +25,7 @@ export interface VendorProduct {
   deliverySlots: DeliverySlot[];
   quantityPricings: QuantityPricing[];
   pricingRuleMetas: PricingRuleMeta[];
+  rating: number;
   vendor: Vendor;
 }
 
