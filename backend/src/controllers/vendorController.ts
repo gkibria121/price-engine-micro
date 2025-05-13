@@ -22,7 +22,7 @@ export async function getVendor(req: Request, res: Response) {
 
 // POST /vendors/store
 export async function createVendor(req: Request, res: Response) {
-  const { name, email, address, rating } = req.body;
+  const { name, email, address } = req.body;
 
   const existingVendor = await VendorModel.findOne({ email });
   if (existingVendor) {
@@ -31,14 +31,14 @@ export async function createVendor(req: Request, res: Response) {
     });
   }
 
-  const newVendor = await VendorModel.create({ name, email, address, rating });
+  const newVendor = await VendorModel.create({ name, email, address });
   res.status(201).send({ vendor: newVendor });
 }
 
 // PUT/PATCH /vendors/:id
 export async function updateVendor(req: Request, res: Response) {
   const { id } = req.params as { id: string };
-  const { name, email, address, rating } = req.body;
+  const { name, email, address } = req.body;
 
   const vendor = await VendorModel.findById(id);
   if (!vendor) {
@@ -56,7 +56,7 @@ export async function updateVendor(req: Request, res: Response) {
 
   await VendorModel.findByIdAndUpdate(
     id,
-    { name, email, address, rating },
+    { name, email, address },
     { new: true, runValidators: true }
   );
   res.status(200).send({ message: "Vendor updated!" });

@@ -61,6 +61,7 @@ export async function createVendorProduct() {
     pricingRules: [pricingRule._id], // Reference to created pricing rule
     deliverySlots: [deliverySlot._id], // Reference to created delivery slot
     quantityPricings: quantityPricings, // Reference to created quantity pricing
+    rating: 10,
   });
   return vendorProduct;
 }

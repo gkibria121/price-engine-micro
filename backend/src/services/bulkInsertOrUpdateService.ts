@@ -13,7 +13,8 @@ export async function createVendorProduct(
   pricingRules: any[],
   deliverySlots: any[],
   quantityPricings: any[],
-  pricingRuleMetas: any[] = []
+  pricingRuleMetas: any[] = [],
+  rating: number
 ) {
   const pricingRuleIds = await Promise.all(
     pricingRules.map((rule) => PricingRuleModel.create(rule))
@@ -38,6 +39,7 @@ export async function createVendorProduct(
     deliverySlots: deliverySlotIds.map((doc) => doc._id),
     quantityPricings: quantityPricingIds.map((doc) => doc._id),
     pricingRuleMetas: pricingRuleOptionIds.map((doc) => doc._id),
+    rating,
   });
 }
 

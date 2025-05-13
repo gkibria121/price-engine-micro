@@ -98,7 +98,6 @@ describe("Test delete vendor api", () => {
       name: "Del",
       email: "del@example.com",
       address: "X",
-      rating: 3,
     });
     const product = await ProductModel.create({
       name: "Del laptop",
@@ -106,6 +105,7 @@ describe("Test delete vendor api", () => {
     await VendorProductModel.create({
       vendor: vendor._id,
       product: product,
+      rating: 3,
     });
 
     const res = await request(app).delete(`/api/v1/vendors/${vendor._id}`);

@@ -10,7 +10,6 @@ async function createVendor() {
     name: "Test Vendor",
     email: "vendor@example.com",
     address: "demo address",
-    rating: 10,
   });
 }
 
@@ -34,6 +33,7 @@ describe("Vendor Product Controller", () => {
       const vendorProduct = await VendorProductModel.create({
         vendor: vendor._id,
         product: product._id,
+        rating: 10,
       });
 
       const res = await request(app).get(
@@ -116,6 +116,7 @@ describe("Vendor Product Controller", () => {
       await VendorProductModel.create({
         vendor: vendor._id,
         product: product._id,
+        rating: 10,
       });
 
       const res = await request(app)
@@ -156,6 +157,7 @@ describe("Vendor Product Controller", () => {
       const vendorProduct = await VendorProductModel.create({
         vendor: vendor._id,
         product: product._id,
+        rating: 10,
       });
 
       const res = await request(app)
@@ -246,6 +248,7 @@ describe("Vendor Product Controller", () => {
       const vendorProduct = await VendorProductModel.create({
         vendor: vendor._id,
         product: product._id,
+        rating: 10,
       });
 
       const res = await request(app).delete(

@@ -3,6 +3,7 @@ import { Schema, model, models } from "mongoose";
 const VendorProductSchema = new Schema({
   vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true },
   product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+  rating: { type: Number, required: true },
   pricingRules: [
     { type: Schema.Types.ObjectId, ref: "PricingRule", required: true },
   ],

@@ -53,6 +53,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     deliverySlots,
     quantityPricings,
     pricingRuleMetas = [],
+    rating,
   } = req.body;
   const existingVendorProduct = await VendorProductModel.findOne({
     product: productId,
@@ -84,6 +85,7 @@ export async function storeVendorProduct(req: Request, res: Response) {
     deliverySlots: newDeliverySlots,
     quantityPricings: newQuantityPricing,
     pricingRuleMetas: newPricingRuleMetas,
+    rating,
   });
   await newAssociation.save();
   // Now populate everything properly
@@ -142,6 +144,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
     deliverySlots,
     quantityPricings,
     pricingRuleMetas = [],
+    rating,
   } = req.body;
   // Validate product exists
   const vendorProduct = await VendorProductModel.findById(vendorProductId);
@@ -182,6 +185,7 @@ export async function updateVendorProduct(req: Request, res: Response) {
       deliverySlots: updatedDeliverySlots.map((slot) => slot._id),
       quantityPricings: updatedQuantityPricing.map((price) => price._id),
       pricingRuleMetas: updatedPricingRuleMetas.map((price) => price._id),
+      rating,
     },
     { new: true }
   ).populate([
@@ -211,6 +215,7 @@ export async function bulkStore(req: Request, res: Response) {
       deliverySlots: productDeliverySlots,
       quantityPricings: productQuantityPricings,
       pricingRuleMetas = [],
+      rating,
     } = vendorProduct;
     const product = await ProductModel.findById(productId);
     const vendor = await VendorModel.findById(vendorId);
@@ -231,7 +236,8 @@ export async function bulkStore(req: Request, res: Response) {
       productPricingRules,
       productDeliverySlots,
       productQuantityPricings,
-      pricingRuleMetas
+      pricingRuleMetas,
+      rating
     );
 
     results.push(newVendorProduct);
