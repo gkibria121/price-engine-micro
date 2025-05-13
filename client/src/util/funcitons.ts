@@ -124,3 +124,36 @@ export const formatDate = (date: Date | string | undefined): string => {
   const d = new Date(date);
   return d.toISOString().split("T")[0]; // formats as "yyyy-MM-dd"
 };
+
+export function combinePricingRuleMetas(
+  vendorProducts: VendorProduct[],
+  productId: string
+) {
+  const matchedVendorProducts = vendorProducts.filter(
+    (vp) => vp.product.id === productId
+  );
+  const combinedPricingRuleMetas = [] as VendorProduct["pricingRuleMetas"];
+
+  for (const VendorProduct of matchedVendorProducts) {
+    VendorProduct.pricingRuleMetas.map((meta) => {
+      const existingRuleIndex = combinedPricingRuleMetas.findIndex(
+        (rl) => rl.attribute === meta.attribute
+      );
+      if (existingRuleIndex === -1) {
+        combinedPricingRuleMetas.push(meta);
+      } else {
+        const latestDefaultValue = meta.values[meta.default];
+
+        const existingRule = combinedPricingRuleMetas[existingRuleIndex];
+        existingRule.values = [
+          ...new Set([...existingRule.values, ...meta.values]),
+        ] as [string];
+
+        existingRule.default = existingRule.values.findIndex(
+          (vl) => vl === latestDefaultValue
+        );
+      }
+    });
+  }
+  return combinedPricingRuleMetas;
+}

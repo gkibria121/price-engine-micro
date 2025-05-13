@@ -13,6 +13,7 @@ function ProductSelectionForm({}) {
     vendorProducts,
     pricingRuleMetas,
     isProductLoading,
+    products,
     setProductLoading,
   } = useProductOrderFlow();
   const { register, setValue, control } =
@@ -48,9 +49,9 @@ function ProductSelectionForm({}) {
 
         <SelectionField
           label="Product Type"
-          options={vendorProducts.map((vp) => ({
-            name: vp.product.name,
-            value: vp.product.id,
+          options={products.map((product) => ({
+            name: product.name,
+            value: product.id,
           }))}
           {...register("product")}
           {...{ onChange: onProductChange }}

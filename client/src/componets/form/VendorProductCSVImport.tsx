@@ -24,6 +24,7 @@ type VendorCSVFormType = {
     ProductNameWithVendorEmail)[];
   quantityPricings: (VendorProductFormType["vendorProducts"][number]["quantityPricings"][number] &
     ProductNameWithVendorEmail)[];
+  ratings: ({ rating: number } & ProductNameWithVendorEmail)[];
 };
 
 type CSVImportSectionProps = {
@@ -172,17 +173,41 @@ function VendorProductCSVImport({
     clearErrors("quantityPricings");
     setValue("quantityPricings", quantityPricings);
   };
+  const handleRatingImport = (ratingsData: unknown[]) => {
+    const ratings = ratingsData as VendorCSVFormType["ratings"];
 
+    const isValidFormat = ratings.every(
+      (rating) => rating.rating && rating.product_name && rating.vendor_email
+    );
+
+    if (!isValidFormat) {
+      toast("Invalid CSV format for ratings", {
+        type: "warning",
+        autoClose: 1000,
+      });
+
+      setError("ratings", {
+        type: "custom",
+        message: "Import csv with rating,product_name,vendor_email",
+      });
+      return;
+    }
+
+    clearErrors("ratings");
+    setValue("ratings", ratings);
+    console.log(ratings);
+  };
   // Form submission
   const onSubmit = () => {
     const pricingRules = getValues("pricingRules") || [];
     const deliverySlots = getValues("deliverySlots") || [];
     const quantityPricings = getValues("quantityPricings") || [];
-
+    const ratings = getValues("ratings") || [];
     if (
       !pricingRules.length ||
       !deliverySlots.length ||
-      !quantityPricings.length
+      !quantityPricings.length ||
+      !ratings.length
     ) {
       toast("Please import necessary files", {
         type: "info",
@@ -195,6 +220,7 @@ function VendorProductCSVImport({
       ...pricingRules,
       ...deliverySlots,
       ...quantityPricings,
+      ...ratings,
     ];
     const vendorProductIdentifiers =
       extractUniqueVendorProductIdentifiers(combinedData);
@@ -221,13 +247,19 @@ function VendorProductCSVImport({
           pricing.product_name === id.product_name &&
           pricing.vendor_email === id.vendor_email
       );
-
+      const rating = ratings.find(
+        (el) =>
+          el.vendor_email === id.vendor_email &&
+          el.product_name === id.product_name
+      );
       vendorProducts.push({
         productId: product?.id ?? "",
         vendorId: vendor?.id ?? "",
         pricingRules: productPricingRules,
         deliverySlots: productDeliverySlots,
         quantityPricings: productQuantityPricings,
+        pricingRuleMetas: [],
+        rating: rating?.rating ?? 0,
       });
     }
 
@@ -239,6 +271,7 @@ function VendorProductCSVImport({
   const pricingRules = getValues("pricingRules") || [];
   const deliverySlots = getValues("deliverySlots") || [];
   const quantityPricings = getValues("quantityPricings") || [];
+  const ratings = getValues("ratings") || [];
 
   // Modal footer buttons
   const modalFooter = (
@@ -299,6 +332,14 @@ function VendorProductCSVImport({
             handleFileUpload={handleQuantityPricingImport}
             name="quantityPricings"
             label="Import Quantity Pricings"
+          />
+          <CSVImportSection
+            title="Ratings"
+            data={ratings}
+            errorMessage={errors.ratings?.message}
+            handleFileUpload={handleRatingImport}
+            name="ratings"
+            label="Import Ratings"
           />
         </Modal>
       </form>
