@@ -63,7 +63,7 @@ const TextFieldWithSuggestion: React.FC<TextFieldProps> = ({
   }, []);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative mb-2" ref={containerRef}>
       <TextField
         label={label}
         variant="stacked"

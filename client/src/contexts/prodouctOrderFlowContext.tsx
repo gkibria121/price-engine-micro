@@ -1,5 +1,6 @@
 "use client";
 import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
+import ProductAttributeSelection from "@/componets/form/ProductAttributeSelection";
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
 import {
@@ -42,11 +43,17 @@ const formBodies = [
   },
   {
     step: 3,
+    label: "Product Details",
+    /* Product Selection Form */
+    render: (key: number) => <ProductAttributeSelection key={key} />,
+  },
+  {
+    step: 4,
     label: "Upload Design File (Optional)",
     render: (key: number) => <div key={key}> No elements</div>,
   },
   {
-    step: 4,
+    step: 5,
     label: "Final",
     render: (key: number) => <div key={key}> No elements</div>,
   },
@@ -92,7 +99,7 @@ export const ProductOrderFlowProvider = ({
   products: Product[];
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const priceCalculationStep = 2;
+  const priceCalculationStep = 4;
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isProductLoading, setProductLoading] = useState<boolean>(false);
   const [isPriceCalculating, setIsPriceCalculating] = useState<boolean>(false);

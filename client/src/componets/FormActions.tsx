@@ -21,7 +21,13 @@ function FormActions() {
   } = useProductOrderFlow();
   const { trigger, getValues } = useFormContext<ProductOrderFlowFormType>();
   const handleNextButtonClick = async () => {
-    if (currentStep === firstStep) {
+    if (currentStep === 1) {
+      const validate = await trigger(["product"]);
+      if (!validate) return;
+    } else if (currentStep == 2) {
+      const validate = await trigger(["deliveryMethod"]);
+      if (!validate) return;
+    } else if (currentStep === 3) {
       const validate = await trigger(["pricingRules", "product", "quantity"]);
       if (!validate) return;
       const productId = getValues("product");
@@ -33,9 +39,6 @@ function FormActions() {
         productName: product.name,
         quantity: quantity,
       });
-    } else if (currentStep === 2) {
-      const validate = await trigger(["deliveryMethod"]);
-      if (!validate) return;
     }
     setLoading(true);
     setTimeout(() => {
