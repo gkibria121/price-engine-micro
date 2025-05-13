@@ -61,6 +61,7 @@ export default function VendorProductForm({
             pricingRules: vendorProduct.pricingRules,
             quantityPricings: vendorProduct.quantityPricings,
             pricingRuleMetas: vendorProduct.pricingRuleMetas ?? [],
+            rating: 0,
           },
         ],
       };
@@ -69,11 +70,11 @@ export default function VendorProductForm({
         {
           productId: "",
           vendorId: "",
-          pricingRules: [
-            { attribute: "", value: "", price: 0, isDefault: false },
-          ],
+          pricingRules: [{ attribute: "", value: "", price: 0 }],
           deliverySlots: deliveryMethods,
           quantityPricings: [{ quantity: 1, price: 0 }],
+          rating: 0,
+          pricingRuleMetas: [],
         },
       ],
     };
@@ -131,6 +132,9 @@ export default function VendorProductForm({
     await wait(1.5);
     router.push("/vendor-products");
   };
+  const onError = (error) => {
+    console.log(error);
+  };
 
   return (
     <FormProvider {...methods}>
@@ -142,7 +146,7 @@ export default function VendorProductForm({
         />
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-8">
         {vendorProducts.map((vendorProductField, index) => (
           <div key={vendorProductField.id ?? index} className="relative">
             <VendorProductBasicInfo
@@ -221,6 +225,8 @@ function VendorProductFormActions({
               pricingRules: [{ attribute: "", value: "", price: 0 }],
               deliverySlots: deliveryMethods,
               quantityPricings: [{ quantity: 1, price: 0 }],
+              rating: 0,
+              pricingRuleMetas: [],
             })
           }
         >
@@ -285,6 +291,15 @@ function VendorProductBasicInfo({
                 value: vendor.id,
               }))}
               {...register(`vendorProducts.${index}.vendorId`)}
+            />
+            <TextField
+              label="Rating"
+              error={errors.vendorProducts?.[index]?.rating?.message}
+              type="number"
+              defaultValue={0}
+              {...register(`vendorProducts.${index}.rating`, {
+                valueAsNumber: true,
+              })}
             />
           </>
         )}

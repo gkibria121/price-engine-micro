@@ -1,7 +1,7 @@
 import {
-  PricingRuleSelectionType,
   ValidationErrors,
   VendorProduct,
+  VendorProductFormType,
 } from "@/types";
 import { UseFormReturn, Path } from "react-hook-form";
 import { Id, ToastContent, ToastOptions } from "react-toastify";
@@ -89,35 +89,33 @@ export function snakeToTitle(snake) {
 export function getPricingRuleMetas(
   pricingRules: VendorProduct["pricingRules"]
 ) {
-  if (!pricingRules) return [] as PricingRuleSelectionType[];
+  if (!pricingRules)
+    return [] as VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"];
 
-  const pricingRuleMetas = pricingRules.reduce<PricingRuleSelectionType[]>(
-    (rules, curr) => {
-      const existingRule = rules.find((rl) => rl.attribute === curr.attribute);
+  const pricingRuleMetas = pricingRules.reduce<
+    VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"]
+  >((rules, curr) => {
+    const existingRule = rules.find((rl) => rl.attribute === curr.attribute);
 
-      if (!existingRule) {
-        return [
-          ...rules,
-          {
-            attribute: curr.attribute,
-            values: [curr.value],
-            default: 0,
-            description: "",
-            hasOther: false,
-            inputType: "radio",
-            required: false,
-          } as PricingRuleSelectionType,
-        ];
-      }
+    if (!existingRule) {
+      return [
+        ...rules,
+        {
+          attribute: curr.attribute,
+          values: [curr.value],
+          default: 0,
+          description: "",
+          hasOther: false,
+          inputType:
+            "radio" as VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"][number]["inputType"],
+          required: false,
+        } as VendorProductFormType["vendorProducts"][number]["pricingRuleMetas"][number],
+      ];
+    }
 
-      if (curr.isDefault) {
-        existingRule.default = existingRule.values.length;
-      }
-      existingRule.values.push(curr.value);
-      return rules;
-    },
-    []
-  );
+    existingRule.values.push(curr.value);
+    return rules;
+  }, []);
 
   return pricingRuleMetas;
 }

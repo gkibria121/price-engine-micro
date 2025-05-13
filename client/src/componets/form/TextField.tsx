@@ -10,7 +10,7 @@ type TextFieldProps = {
   type?: React.HTMLInputTypeAttribute;
   placeholder?: string;
   isTextArea?: boolean;
-  defaultValue?: string;
+  defaultValue?: string | number;
   readonly?: boolean;
 } & React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement>;
 

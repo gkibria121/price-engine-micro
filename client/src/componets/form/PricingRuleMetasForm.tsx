@@ -8,6 +8,7 @@ import CheckBox from "./CheckBox";
 import { getPricingRuleMetas } from "@/util/funcitons";
 import TextField from "./TextField";
 import Button from "../Button";
+import FieldError from "./FieldError";
 function PricingRuleMetasForm({
   readonly,
   formIndex,
@@ -15,7 +16,7 @@ function PricingRuleMetasForm({
   readonly: boolean;
   formIndex: number;
 }) {
-  const { register, control, getValues, setValue } =
+  const { register, control, getValues, setValue, trigger } =
     useFormContext<VendorProductFormType>();
   const { fields: pricingFields } = useFieldArray({
     control: control,
@@ -32,8 +33,10 @@ function PricingRuleMetasForm({
       `vendorProducts.${formIndex}.pricingRuleMetas`,
       getPricingRuleMetas(pricingRules)
     );
+    trigger(`vendorProducts.${formIndex}.pricingRuleMetas`);
   };
   const inputTypes = ["radio", "text", "checkbox", "textarea"];
+
   return (
     <ObjectListField
       readonly={readonly}
@@ -147,6 +150,11 @@ function PricingRuleMetasForm({
           </ObjectListField.Col>
         </ObjectListField.Row>
       ))}
+      {errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.message && (
+        <FieldError>
+          {errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.message}
+        </FieldError>
+      )}
     </ObjectListField>
   );
 }
