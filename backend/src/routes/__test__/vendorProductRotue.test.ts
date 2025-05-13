@@ -74,6 +74,7 @@ describe("Vendor Product Controller", () => {
               deliveryTimeEndTime: "05:12",
             },
           ],
+          rating: 10,
           quantityPricings: [{ quantity: 10, price: 100 }],
           pricingRuleMetas: [
             {
@@ -161,6 +162,7 @@ describe("Vendor Product Controller", () => {
         .put(`/api/v1/vendor-products/${vendorProduct._id}`)
         .send({
           pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+          rating: 10,
           deliverySlots: [
             {
               price: 143,
@@ -228,6 +230,7 @@ describe("Vendor Product Controller", () => {
             },
           ],
           quantityPricings: [{ quantity: 10, price: 100 }],
+          rating: 10,
         });
 
       expect(res.status).toBe(404);
@@ -443,6 +446,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           {
             vendorId: vendor._id,
             productId: product._id,
+            rating: 10,
             pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
             deliverySlots: [
               {
@@ -506,6 +510,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         "vendorProducts.0.quantityPricings": [
           "At least one quantity pricing is required",
         ],
+        "vendorProducts.0.rating": ["Rating is required"],
       },
     });
     expect(response.status).toBe(422);
@@ -555,6 +560,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         "vendorProducts.0.quantityPricings.0.quantity": [
           "Quantity is required",
         ],
+        "vendorProducts.0.rating": ["Rating is required"],
         "vendorProducts.0.quantityPricings.0.price": ["Price is required"],
 
         "vendorProducts.0.pricingRuleMetas.0.attribute": [

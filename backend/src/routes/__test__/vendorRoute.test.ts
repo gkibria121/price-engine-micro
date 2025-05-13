@@ -58,15 +58,6 @@ describe("Test create vendor api", () => {
     expect(res.status).toBe(422);
   });
 
-  it("Should return 422 for missing vendor rating", async () => {
-    const res = await request(app).post("/api/v1/vendors/store").send({
-      name: "Vendor",
-      email: "test@example.com",
-      address: "Street",
-    });
-    expect(res.status).toBe(422); // Since rating is optional based on your code
-  });
-
   it("Should return 422 for duplicate vendor email", async () => {
     await VendorModel.create({
       name: "A",

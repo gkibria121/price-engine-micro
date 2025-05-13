@@ -32,7 +32,6 @@ export default function VendorForm({
           name: "",
           email: "",
           address: "",
-          rating: 0,
         },
       ],
     };
@@ -104,20 +103,14 @@ export default function VendorForm({
   function importVendors(vendorData: unknown[]) {
     const vendors = vendorData as Vendor[];
     if (
-      vendors.some(
-        (vendor) =>
-          !vendor.address || !vendor.email || !vendor.name || !vendor.rating
-      )
+      vendors.some((vendor) => !vendor.address || !vendor.email || !vendor.name)
     ) {
-      toast(
-        "Invalid CSV format. Please provide CSV with name,rating,email,address",
-        {
-          type: "warning",
-          autoClose: 3000,
-        }
-      );
+      toast("Invalid CSV format. Please provide CSV with name,email,address", {
+        type: "warning",
+        autoClose: 3000,
+      });
       throw new Error(
-        "Invalid CSV format. Please provide CSV with name,rating,email,address"
+        "Invalid CSV format. Please provide CSV with name,email,address"
       );
     }
 
@@ -165,13 +158,6 @@ export default function VendorForm({
             {...register(`vendors.${index}.email`)}
           />
           <TextField
-            label="Rating"
-            type="number"
-            step="0.1"
-            error={errors.vendors?.[index]?.rating?.message}
-            {...register(`vendors.${index}.rating`, { valueAsNumber: true })}
-          />
-          <TextField
             label="Address"
             type="text"
             error={errors.vendors?.[index]?.address?.message}
@@ -193,7 +179,6 @@ export default function VendorForm({
                 name: "",
                 email: "",
                 address: "",
-                rating: 0,
               })
             }
           >
