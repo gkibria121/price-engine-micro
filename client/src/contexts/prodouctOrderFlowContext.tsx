@@ -125,7 +125,12 @@ export const ProductOrderFlowProvider = ({
   });
   const { setValue, control } = medhods;
   const productId = useWatch({ name: "product", control });
-  const pricingRuleMetas = useMemo(() => [], []);
+  const pricingRuleMetas = useMemo(
+    () =>
+      vendorProducts.find((vp) => vp.product.id === productId)
+        ?.pricingRuleMetas ?? [],
+    [productId, vendorProducts]
+  );
 
   useEffect(() => {
     setProductLoading(true);
