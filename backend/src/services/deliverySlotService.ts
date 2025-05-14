@@ -1,38 +1,47 @@
-import DeliveryRule from "../lib/product/DeliveryRule";
 import { DeliverySlot } from "../type";
 
-// Convert "HH:MM" to minutes
-function toMinutes(timeStr: string): number {
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  return hours * 60 + minutes;
-}
+// Sort delivery slots by how soon the deliveryEndTime is from now
+function sortByDeliveryEndTimeProximity(slots: DeliverySlot[]): DeliverySlot[] {
+  const now = new Date();
+  const nowTotalMinutes = now.getTime();
 
-// Sort delivery slots by total delivery duration
-function sortByDeliveryDuration(slots: DeliverySlot[]): DeliverySlot[] {
   return slots.sort((a, b) => {
-    const aStart =
-      a.deliveryTimeStartDate * 24 * 60 + toMinutes(a.deliveryTimeStartTime);
-    const aEnd =
-      a.deliveryTimeEndDate * 24 * 60 + toMinutes(a.deliveryTimeEndTime);
-    const bStart =
-      b.deliveryTimeStartDate * 24 * 60 + toMinutes(b.deliveryTimeStartTime);
-    const bEnd =
-      b.deliveryTimeEndDate * 24 * 60 + toMinutes(b.deliveryTimeEndTime);
+    const aEnd = new Date(now);
+    aEnd.setDate(now.getDate() + a.deliveryTimeEndDate);
+    const [aEndH, aEndM] = a.deliveryTimeEndTime.split(":").map(Number);
+    aEnd.setHours(aEndH, aEndM, 0, 0);
 
-    const aDuration = aEnd - aStart;
-    const bDuration = bEnd - bStart;
+    const bEnd = new Date(now);
+    bEnd.setDate(now.getDate() + b.deliveryTimeEndDate);
+    const [bEndH, bEndM] = b.deliveryTimeEndTime.split(":").map(Number);
+    bEnd.setHours(bEndH, bEndM, 0, 0);
 
-    return aDuration - bDuration;
+    const aDiff = aEnd.getTime() - nowTotalMinutes;
+    const bDiff = bEnd.getTime() - nowTotalMinutes;
+
+    return aDiff - bDiff;
   });
 }
 
 export function filterDeliverySlots(
   deliverySlots: DeliverySlot[]
 ): DeliverySlot[] {
-  const uniqueSlots = deliverySlots.reduce((acc, curr) => {
+  const now = new Date();
+
+  // Step 1: Filter out slots with passed cutoff time
+  const validSlots = deliverySlots.filter((slot) => {
+    const [hours, minutes] = slot.cutoffTime.split(":").map(Number);
+    const cutoffTime = new Date(now);
+    cutoffTime.setHours(hours, minutes, 0, 0);
+    return cutoffTime > now;
+  });
+
+  // Step 2: Remove duplicates based on label
+  const uniqueSlots = validSlots.reduce((acc, curr) => {
     const exists = acc.find((el) => el.label === curr.label);
     return exists ? acc : [...acc, curr];
   }, [] as DeliverySlot[]);
 
-  return sortByDeliveryDuration(uniqueSlots);
+  // Step 3: Sort by delivery duration
+  return sortByDeliveryEndTimeProximity(uniqueSlots);
 }

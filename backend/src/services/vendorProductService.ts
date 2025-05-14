@@ -111,15 +111,7 @@ export async function getVendorProductListByProductAndDelivery(
               deliveryTimeStartDate: deliveryMethod.deliveryTimeStartDate,
               deliveryTimeEndDate: deliveryMethod.deliveryTimeEndDate,
               deliveryTimeEndTime: deliveryMethod.deliveryTimeEndTime,
-              $or: [
-                { cutoffTimeHour: { $gt: currentHour } },
-                {
-                  $and: [
-                    { cutoffTimeHour: currentHour },
-                    { cutoffTimeMinute: { $gt: currentMinute } },
-                  ],
-                },
-              ],
+              cutoffTime: deliveryMethod.cutoffTime,
             },
           },
         },
