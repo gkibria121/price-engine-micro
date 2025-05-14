@@ -1,5 +1,5 @@
 import ProductOrderFLow from "@/componets/ProductOrderFLow";
-import { ProductOrderFlowProvider } from "@/contexts/prodouctOrderFlowContext";
+import { ProductOrderFlowProvider } from "@/contexts/ProductOrderFlowProvider";
 import { getProducts } from "@/services/productService";
 import { getVendorProducts } from "@/services/vendorProductService";
 import React from "react";

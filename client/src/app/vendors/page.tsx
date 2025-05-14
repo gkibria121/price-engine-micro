@@ -44,7 +44,6 @@ async function page() {
                 </Table.Col>
                 <Table.Col>{vendor.email}</Table.Col>
                 <Table.Col>{vendor.address}</Table.Col>
-                <Table.Col>{vendor.rating}</Table.Col>
                 <Table.Col className="text-sm font-medium flex justify-center">
                   <Link
                     href={`/vendors/edit/${vendor.id}`}
