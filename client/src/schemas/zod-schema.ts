@@ -27,7 +27,7 @@ export const ProductSelectionSchema = z.object({
 export const DeliverySelectionSchema = z.object({
   deliveryMethod: z
     .object({
-      label: z.string(),
+      label: z.string().min(1, "Please select a delivery method."),
       otherValue: z.string().optional(),
     })
     .superRefine((data, ctx) => {

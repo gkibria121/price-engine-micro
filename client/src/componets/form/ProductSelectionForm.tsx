@@ -4,18 +4,11 @@ import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import { useFormContext, useFormState } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
 function ProductSelectionForm({}) {
-  const { products, setProductLoading } = useProductOrderFlow();
+  const { products } = useProductOrderFlow();
   const { register } = useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
   });
-
-  const { onChange } = register("product");
-
-  const onProductChange = (e) => {
-    setProductLoading(true);
-    onChange(e);
-  };
   return (
     <>
       <div className="border-b border-b-[#D9DBE9] pb-2 mb-6">
@@ -35,7 +28,6 @@ function ProductSelectionForm({}) {
             value: product.id,
           }))}
           {...register("product")}
-          {...{ onChange: onProductChange }}
           error={errors.product?.message?.toString()}
         />
       </div>

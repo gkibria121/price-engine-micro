@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Loading from "../Loading";
 import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import { ProductOrderFlowFormType } from "@/types";
@@ -6,11 +6,19 @@ import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import TextFieldWithSuggestion from "../TextFieldWithSuggestion";
 import RadioBox from "./RadioBox";
 import TextField from "./TextField";
+import { getMatchedVendorProducts } from "@/services/vendorProductService";
 
 function ProductAttributeSelection() {
-  const { vendorProducts, pricingRuleMetas, isProductLoading, products } =
-    useProductOrderFlow();
-  const { register, setValue, control } =
+  const {
+    vendorProducts,
+    pricingRuleMetas,
+    isProductLoading,
+    products,
+    deliverySlots,
+    setLoading,
+    setPricingRuleMetas,
+  } = useProductOrderFlow();
+  const { register, setValue, getValues, control } =
     useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
@@ -24,6 +32,49 @@ function ProductAttributeSelection() {
     control,
     name: "pricingRules",
   });
+
+  useEffect(() => {
+    let isMounted = true;
+    let loadingTimeout: NodeJS.Timeout;
+
+    const fetchPricingRuleMetas = async () => {
+      // Delay showing loader to avoid flicker
+      loadingTimeout = setTimeout(() => {
+        if (isMounted) setLoading(true);
+      }, 200); // adjust threshold to your UX preference
+
+      try {
+        const productId = getValues("product");
+        const deliverySlotLabel = getValues("deliveryMethod.label");
+        const deliverySlot = deliverySlots.find(
+          (ds) => ds.label === deliverySlotLabel
+        );
+
+        const vendorProducts = await getMatchedVendorProducts(
+          productId,
+          deliverySlot
+        );
+
+        if (isMounted) {
+          setPricingRuleMetas(vendorProducts[0]?.pricingRuleMetas ?? []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pricing rule metas:", err);
+        if (isMounted) setPricingRuleMetas([]);
+      } finally {
+        clearTimeout(loadingTimeout);
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchPricingRuleMetas();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(loadingTimeout);
+    };
+  }, [setPricingRuleMetas, getValues, deliverySlots, setLoading]);
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">

@@ -74,3 +74,16 @@ export type PriceCalculationRequest = {
     label: string;
   };
 };
+type Primitive = string | number | boolean | bigint | symbol | null | undefined;
+
+export type NestedKeyOf<T> = {
+  [K in keyof T & string]: T[K] extends Primitive
+    ? `${K}`
+    : T[K] extends Array<infer U>
+    ? U extends Primitive
+      ? `${K}` | `${K}.${number}`
+      : `${K}` | `${K}.${number}` | `${K}.${number}.${NestedKeyOf<U>}`
+    : T[K] extends object
+    ? `${K}` | `${K}.${NestedKeyOf<T[K]>}`
+    : `${K}`;
+}[keyof T & string];

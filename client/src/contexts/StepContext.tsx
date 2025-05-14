@@ -3,32 +3,49 @@ import ProductAttributeSelection from "@/componets/form/ProductAttributeSelectio
 import ProductSelectionForm from "@/componets/form/ProductSelectionForm";
 import DeliverySelectionForm from "@/componets/form/DeliverySelectionForm";
 import React, { createContext, useContext, useState } from "react";
+import { NestedKeyOf, ProductOrderFlowFormType } from "@/types";
 
-const formBodies = [
+type FormBodyType = {
+  step: number;
+  label: string;
+  trigger: NestedKeyOf<ProductOrderFlowFormType>[];
+  render: (key: number) => React.JSX.Element;
+};
+
+const formBodies: FormBodyType[] = [
   {
     step: 1,
     label: "Product",
     render: (key: number) => <ProductSelectionForm key={key} />,
+    trigger: ["product"],
   },
   {
     step: 2,
     label: "Delivery Details",
     render: (key: number) => <DeliverySelectionForm key={key} />,
+    trigger: [
+      "deliveryMethod",
+      "deliveryMethod.label",
+      "deliveryMethod.otherValue",
+    ],
   },
   {
     step: 3,
     label: "Product Details",
     render: (key: number) => <ProductAttributeSelection key={key} />,
+    trigger: ["pricingRules", "product", "quantity"],
   },
   {
     step: 4,
     label: "Upload Design File (Optional)",
     render: (key: number) => <div key={key}> No elements</div>,
+    trigger: [],
   },
   {
     step: 5,
     label: "Final",
     render: (key: number) => <div key={key}> No elements</div>,
+    trigger: [],
   },
 ];
 type StepContextValue = {
@@ -37,12 +54,7 @@ type StepContextValue = {
   firstStep: number;
   priceCalculationStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  formBodies: {
-    step: number;
-    label: string;
-
-    render: (key: number) => React.JSX.Element;
-  }[];
+  formBodies: FormBodyType[];
 };
 const StepContext = createContext<StepContextValue>(undefined);
 

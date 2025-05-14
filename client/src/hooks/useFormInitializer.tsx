@@ -2,7 +2,6 @@
 "use client";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { formatDate } from "@/util/funcitons";
 import { ProductOrderFlowFormType, VendorProduct } from "@/types";
 
 export const useFormInitializer = (defaultVendorProduct: VendorProduct) => {
@@ -15,7 +14,7 @@ export const useFormInitializer = (defaultVendorProduct: VendorProduct) => {
     const productOrderFlowDefaultValues = {
       deliveryMethod: {
         label: "",
-        otherValue: formatDate(new Date()),
+        otherValue: "",
       },
       product: defaultVendorProduct?.product.id || "",
       quantity: 0,

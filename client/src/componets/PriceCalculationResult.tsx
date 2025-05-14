@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Loading from "./Loading";
 import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
+import { useFormContext } from "react-hook-form";
+import { ProductOrderFlowFormType } from "@/types";
 
 const PriceCalculationResult = () => {
   const {
@@ -13,7 +15,21 @@ const PriceCalculationResult = () => {
       totalPrice = 0,
     },
     isPriceCalculating,
+    setPriceCalculationResult,
+    vendorProducts,
   } = useProductOrderFlow();
+  const { getValues } = useFormContext<ProductOrderFlowFormType>();
+  useEffect(() => {
+    const productId = getValues("product");
+    const product = vendorProducts.find(
+      (vp) => vp.product.id === productId
+    )?.product;
+    const quantity = getValues("quantity");
+    setPriceCalculationResult({
+      productName: product.name,
+      quantity: quantity,
+    });
+  }, [getValues, setPriceCalculationResult, vendorProducts]);
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 h-[30vh]">
       {isPriceCalculating ? (

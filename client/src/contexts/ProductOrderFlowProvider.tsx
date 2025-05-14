@@ -4,7 +4,6 @@ import React, { PropsWithChildren } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
-import { formatDate } from "@/util/funcitons";
 import { Product, ProductOrderFlowFormType, VendorProduct } from "@/types";
 import { StepProvider } from "./StepContext";
 import { ProductProvider } from "./ProductContext";
@@ -28,7 +27,7 @@ export const ProductOrderFlowProvider = ({
   const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     deliveryMethod: {
       label: "",
-      otherValue: formatDate(new Date()),
+      otherValue: "",
     },
     product: defaultVendorProduct?.product.id || "",
     quantity: 0,
