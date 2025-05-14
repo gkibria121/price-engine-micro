@@ -3,13 +3,15 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { formatDate } from "@/util/funcitons";
+import { ProductOrderFlowFormType, VendorProduct } from "@/types";
 
-export const useFormInitializer = (defaultVendorProduct) => {
-  const { reset } = useFormContext();
+export const useFormInitializer = (defaultVendorProduct: VendorProduct) => {
+  const { reset } = useFormContext<ProductOrderFlowFormType>();
 
   useEffect(() => {
-    const pricingRuleMetasDefault = defaultVendorProduct?.pricingRuleMetas || [];
-    
+    const pricingRuleMetasDefault =
+      defaultVendorProduct?.pricingRuleMetas || [];
+
     const productOrderFlowDefaultValues = {
       deliveryMethod: {
         label: "",
@@ -24,7 +26,7 @@ export const useFormInitializer = (defaultVendorProduct) => {
         })),
       ],
     };
-    
+
     reset(productOrderFlowDefaultValues);
   }, [defaultVendorProduct, reset]);
 };

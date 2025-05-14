@@ -1,17 +1,42 @@
 // File: contexts/ProductContext.js
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { Product, ProductOrderFlowFormType, VendorProduct } from "@/types";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  PropsWithChildren,
+} from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+type ProductContextValues = {
+  vendorProducts: VendorProduct[];
+  products: Product[];
+  pricingRuleMetas: VendorProduct["pricingRuleMetas"];
+  setPricingRuleMetas: React.Dispatch<
+    React.SetStateAction<VendorProduct["pricingRuleMetas"]>
+  >;
+  isProductLoading: boolean;
+  setProductLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const ProductContext = createContext<ProductContextValues>(undefined);
 
-const ProductContext = createContext(undefined);
-
-export const ProductProvider = ({ children, products, vendorProducts, defaultVendorProduct }) => {
+export const ProductProvider = ({
+  children,
+  products,
+  vendorProducts,
+  defaultVendorProduct,
+}: PropsWithChildren & {
+  products: Product[];
+  vendorProducts: VendorProduct[];
+  defaultVendorProduct: VendorProduct;
+}) => {
   const [isProductLoading, setProductLoading] = useState(false);
-  const [pricingRuleMetas, setPricingRuleMetas] = useState(
-    defaultVendorProduct?.pricingRuleMetas || []
-  );
-  
-  const { control, setValue } = useFormContext();
+  const [pricingRuleMetas, setPricingRuleMetas] = useState<
+    VendorProduct["pricingRuleMetas"]
+  >(defaultVendorProduct?.pricingRuleMetas || []);
+
+  const { control, setValue } = useFormContext<ProductOrderFlowFormType>();
   const productId = useWatch({ name: "product", control });
 
   // show loading screen

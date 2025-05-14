@@ -2,10 +2,14 @@
 "use client";
 import React, { createContext, useContext, useState } from "react";
 
-const LoadingContext = createContext(undefined);
+type LoadingContextValues = {
+  isLoading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const LoadingContext = createContext<LoadingContextValues>(undefined);
 
 export const LoadingProvider = ({ children }) => {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   return (
     <LoadingContext.Provider

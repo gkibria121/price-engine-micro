@@ -1,27 +1,31 @@
 // File: contexts/ProductOrderFlowProvider.js
 "use client";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductOrderFlowFormSchema } from "@/schemas/zod-schema";
 import { formatDate } from "@/util/funcitons";
-
+import { Product, ProductOrderFlowFormType, VendorProduct } from "@/types";
 import { StepProvider } from "./StepContext";
 import { ProductProvider } from "./ProductContext";
 import { DeliveryProvider } from "./DeliveryContext";
 import { PricingProvider } from "./PricingContext";
-import { LoadingProvider } from "./LoadingContext"; 
+import { LoadingProvider } from "./LoadingContext";
 
 export const ProductOrderFlowProvider = ({
   children,
   vendorProducts,
   defaultVendorProduct,
   products,
+}: PropsWithChildren & {
+  products: Product[];
+  vendorProducts: VendorProduct[];
+  defaultVendorProduct: VendorProduct;
 }) => {
   // initialize product order flow with default values
   const pricingRuleMetasDefault = defaultVendorProduct?.pricingRuleMetas || [];
-  
-  const productOrderFlowDefaultValues = {
+
+  const productOrderFlowDefaultValues: ProductOrderFlowFormType = {
     deliveryMethod: {
       label: "",
       otherValue: formatDate(new Date()),
