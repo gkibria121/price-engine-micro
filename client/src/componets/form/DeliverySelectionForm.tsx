@@ -1,11 +1,12 @@
 import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import { ProductOrderFlowFormType } from "@/types";
-import React, { useEffect } from "react";
+import React from "react";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import RadioBox from "./RadioBox";
 import DatePicker from "./DatePicker";
 import { getDeliverySlots } from "@/services/deliverySlots";
 import FieldError from "./FieldError";
+import { useAsyncEffect } from "@/hooks/useAsyncEffect";
 
 const DeliverySelection = () => {
   const { deliverySlots, setLoading, setDeliverySlots } = useProductOrderFlow();
@@ -16,36 +17,17 @@ const DeliverySelection = () => {
   const deliveryMethod = useWatch({ name: "deliveryMethod" });
   const showCustom = deliveryMethod.label === "other";
   // load delivery slots
-  useEffect(() => {
-    let isMounted = true;
-    let loadingTimeout: NodeJS.Timeout;
-
-    const fetchDeliverySlots = async () => {
-      // Delay showing the loader to avoid flicker for fast responses
-      loadingTimeout = setTimeout(() => {
-        if (isMounted) setLoading(true);
-      }, 200); // show spinner only if loading takes longer than 200ms
-
-      try {
-        const productId = getValues("product");
-        const deliverySlots = await getDeliverySlots(productId);
-        if (isMounted) setDeliverySlots(deliverySlots);
-      } catch (error) {
-        console.error("Failed to fetch delivery slots:", error);
-        // Optional: Show error state or fallback UI
-      } finally {
-        clearTimeout(loadingTimeout);
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchDeliverySlots();
-
-    return () => {
-      isMounted = false;
-      clearTimeout(loadingTimeout);
-    };
-  }, [getValues, setDeliverySlots, setLoading]);
+  useAsyncEffect({
+    asyncFn: async () => {
+      const productId = getValues("product");
+      return await getDeliverySlots(productId);
+    },
+    onSuccess: (data) => setDeliverySlots(data),
+    onError: (err) => console.error("Failed to fetch delivery slots:", err),
+    setLoading,
+    delay: 200,
+    deps: [getValues, setDeliverySlots, setLoading],
+  });
 
   return (
     <div className="max-w-4xl mx-auto">

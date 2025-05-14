@@ -7,7 +7,7 @@ function ProductSelectionForm({}) {
   const { products } = useProductOrderFlow();
   const { register } = useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
-    name: ["product", "quantity", "pricingRules"],
+    name: ["product"],
   });
   return (
     <>

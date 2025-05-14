@@ -53,6 +53,14 @@ export async function getVendorProductListByProductAndDelivery(
       },
       {
         $lookup: {
+          from: "quantitypricings",
+          localField: "quantityPricings",
+          foreignField: "_id",
+          as: "quantityPricingsData",
+        },
+      },
+      {
+        $lookup: {
           from: "vendors",
           localField: "vendor",
           foreignField: "_id",
@@ -60,7 +68,18 @@ export async function getVendorProductListByProductAndDelivery(
         },
       },
       {
+        $lookup: {
+          from: "products",
+          localField: "product",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      {
         $unwind: "$vendorData",
+      },
+      {
+        $unwind: "$productData",
       },
       {
         $addFields: {
@@ -109,10 +128,11 @@ export async function getVendorProductListByProductAndDelivery(
         $project: {
           _id: 0,
           vendor: "$vendorData",
-          product: 1,
           pricingRules: "$pricingRulesData",
           deliverySlots: "$deliverySlotsWithTime",
           pricingRuleMetas: "$pricingRuleMetasData",
+          quantityPricings: "$quantityPricingsData",
+          product: "$productData",
           stockQuantity: 1,
           rating: 1,
           price: 1,

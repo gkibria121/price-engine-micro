@@ -21,8 +21,6 @@ function useFormAction() {
     )?.trigger;
 
     const validate = await trigger(fieldsToTrigger);
-    console.log(getValues("deliveryMethod.otherValue"));
-
     if (!validate) return;
 
     setCurrentStep((prev) => prev + 1);

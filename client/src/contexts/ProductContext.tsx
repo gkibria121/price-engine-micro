@@ -1,14 +1,12 @@
 // File: contexts/ProductContext.js
 "use client";
-import { Product, ProductOrderFlowFormType, VendorProduct } from "@/types";
+import { Product, VendorProduct } from "@/types";
 import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   PropsWithChildren,
 } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
 type ProductContextValues = {
   vendorProducts: VendorProduct[];
   products: Product[];
@@ -16,8 +14,8 @@ type ProductContextValues = {
   setPricingRuleMetas: React.Dispatch<
     React.SetStateAction<VendorProduct["pricingRuleMetas"]>
   >;
-  isProductLoading: boolean;
-  setProductLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setVendorProduct: React.Dispatch<React.SetStateAction<VendorProduct>>;
+  vendorProduct: VendorProduct;
 };
 const ProductContext = createContext<ProductContextValues>(undefined);
 
@@ -31,33 +29,13 @@ export const ProductProvider = ({
   vendorProducts: VendorProduct[];
   defaultVendorProduct: VendorProduct;
 }) => {
-  const [isProductLoading, setProductLoading] = useState(false);
   const [pricingRuleMetas, setPricingRuleMetas] = useState<
     VendorProduct["pricingRuleMetas"]
   >(defaultVendorProduct?.pricingRuleMetas || []);
 
-  const { control, setValue } = useFormContext<ProductOrderFlowFormType>();
-  const productId = useWatch({ name: "product", control });
-
-  // show loading screen
-  useEffect(() => {
-    setProductLoading(true);
-    const loadingTimeout = setTimeout(() => {
-      setProductLoading(false);
-    }, 500);
-    return () => clearTimeout(loadingTimeout);
-  }, [productId]);
-
-  // set default pricing rules
-  useEffect(() => {
-    setValue("pricingRules", [
-      ...pricingRuleMetas.map((pro) => ({
-        attribute: pro.attribute,
-        value: pro.values[pro.default],
-      })),
-    ]);
-  }, [productId, pricingRuleMetas, setValue]);
-
+  const [vendorProduct, setVendorProduct] = useState<
+    VendorProduct | undefined
+  >();
   return (
     <ProductContext.Provider
       value={{
@@ -65,8 +43,8 @@ export const ProductProvider = ({
         products,
         pricingRuleMetas,
         setPricingRuleMetas,
-        isProductLoading,
-        setProductLoading,
+        vendorProduct,
+        setVendorProduct,
       }}
     >
       {children}
