@@ -6,21 +6,38 @@ import {
   index,
   updateVendorProduct,
   bulkStore,
-  getMatchVendorsProducts,
+  getMatchedVendorProducts,
 } from "../controllers/vendorProductController";
 import { body } from "express-validator";
 import { validateRequest } from "../middlewares/ValidateRequestMiddleware";
 import { validateObjectId } from "../middlewares/validateObjectId";
 import { ZodRequestValidationMiddleware } from "../middlewares/ZodRequestValidationMiddleware";
 import {
+  deliverySlotSchem,
   VendorProductFormSchema,
   vendorProductSchema,
 } from "@daynightprint/shared";
+import { z } from "zod";
 
 const router = express.Router();
 
 router.get("/vendor-products", index);
-router.post("/vendor-products", getMatchVendorsProducts);
+router.post(
+  "/vendor-products/get-matched",
+
+  ZodRequestValidationMiddleware(
+    z.object({
+      productId: z.string(),
+      deliveryMethod: z.union([
+        deliverySlotSchem,
+        z.string().refine((val) => !isNaN(Date.parse(val)), {
+          message: "Invalid date-time string",
+        }),
+      ]),
+    })
+  ),
+  getMatchedVendorProducts
+);
 
 router.post(
   "/vendor-products/store",

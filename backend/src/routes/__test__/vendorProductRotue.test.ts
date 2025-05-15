@@ -4,6 +4,7 @@ import VendorModel from "../../models/VendorModel";
 import ProductModel from "../../models/ProductModel";
 import VendorProductModel from "../../models/VendorProductModel";
 import { createVendorProduct } from "../../helpers/test_helper_functions";
+import mongoose from "mongoose";
 
 // Helper Functions
 async function createVendor() {
@@ -27,15 +28,7 @@ describe("Vendor Product Controller", () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("vendorProducts");
     });
-    it("should return list of vendor products   given product id and delivery slot", async () => {
-      const vendorProduct = await createVendorProduct();
-      const res = await request(app).post("/api/v1/vendor-products").send({
-        productId: vendorProduct.product,
-        deliverySlot: vendorProduct.deliverySlots[0],
-      });
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("vendorProducts");
-    });
+
     it("should fetch a single vendor product by ID", async () => {
       const vendor = await createVendor();
       const product = await createProduct();
@@ -600,5 +593,44 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
       },
     });
     expect(response.status).toBe(422);
+  });
+});
+
+describe("Get matched vendor products", () => {
+  it("should return 422 for missing params", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/get-matched")
+      .send({});
+    expect(res.status).toBe(422);
+  });
+  it("should return 422 for invalid productId or deliveryMethod", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/get-matched")
+      .send({
+        productId: new mongoose.mongo.ObjectId(),
+        deliveryMethod: {},
+      });
+    expect(res.status).toBe(422);
+  });
+  it("should return not return 422 for valid productId or deliveryMethod", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendor-products/get-matched")
+      .send({
+        productId: new mongoose.mongo.ObjectId(),
+        deliveryMethod: new Date().toISOString(),
+      });
+    expect(res.status).not.toBe(422);
+  });
+  it("should return list of vendor products   given product id and delivery slot", async () => {
+    const vendorProduct = await createVendorProduct();
+    const res = await request(app)
+      .post("/api/v1/vendor-products/get-matched")
+      .send({
+        productId: vendorProduct.product,
+        deliveryMethod: vendorProduct.deliverySlots[0],
+      });
+    expect(res.status).toBe(200);
+    console.log(res.body);
+    expect(res.body).toHaveProperty("vendorProducts");
   });
 });

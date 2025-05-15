@@ -13,7 +13,8 @@ import {
   validateBulkStoreRequest,
 } from "../services/bulkInsertOrUpdateService";
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
-import { getVendorProductListByProductAndDelivery } from "../services/vendorProductService";
+import { getVendorsByProductAndDelivery } from "../services/vendorProductService";
+import { populateAllRefsMany } from "../utils/functions";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -249,15 +250,24 @@ export async function bulkStore(req: Request, res: Response) {
     vendorProducts: results,
   });
 }
-export async function getMatchVendorsProducts(req: Request, res: Response) {
-  const { productId, deliverySlot } = req.body; // deliverySlot = string label
+export async function getMatchedVendorProducts(req: Request, res: Response) {
+  const { productId, deliveryMethod } = req.body; // deliverySlot = string label
   // Step 1: Find all vendor products for the product
-  const vendorProducts = await getVendorProductListByProductAndDelivery(
+  const vendorIds = await getVendorsByProductAndDelivery(
     productId,
-    deliverySlot,
-    new Date()
+    deliveryMethod
   );
+  const matchedVendorProducts = await VendorProductModel.find({
+    product: productId,
+    vendor: { $in: vendorIds },
+  });
+
+  const populatedAssociations = await populateAllRefsMany(
+    matchedVendorProducts,
+    VendorProductModel.schema
+  );
+
   res.status(200).send({
-    vendorProducts: vendorProducts,
+    vendorProducts: populatedAssociations,
   });
 }
