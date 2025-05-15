@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 import fs from "fs/promises"; // Use fs.promises for async/await
 import VendorProductModel from "../models/VendorProductModel";
 import { NotFoundException } from "../Exceptions/NotFoundException";
-import { filterDeliverySlots } from "../services/deliverySlotService";
+import {
+  filterDeliverySlots,
+  sortByDeliveryEndTimeProximity,
+} from "../services/deliverySlotService";
+import { combineArrayProcessors } from "@daynightprint/shared";
+import { DeliverySlot } from "../type";
 
 export async function index(req: Request, res: Response) {
   try {
@@ -32,7 +37,12 @@ export async function getProductDeliverySlots(req: Request, res: Response) {
   const deliverySlots = availableVendorProducts.flatMap(
     (vp) => vp.deliverySlots
   );
-  const filteredDeliveySlots = filterDeliverySlots(deliverySlots);
+  const currentTime = new Date();
+  const processedDeliverySlots = combineArrayProcessors<DeliverySlot>(
+    filterDeliverySlots.bind(null, currentTime),
+    sortByDeliveryEndTimeProximity
+  );
+  const filteredDeliveySlots = processedDeliverySlots(deliverySlots);
   // Send the data as a response
   res.status(200).send(filteredDeliveySlots);
 }

@@ -229,6 +229,17 @@ describe("Vendor Product Controller", () => {
         .put(`/api/v1/vendor-products/${fakeId}`)
         .send({
           pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+          pricingRuleMetas: [
+            {
+              attribute: "Paper",
+              default: 0,
+              values: ["Glossy"],
+              inputType: "radio",
+              required: false,
+              description: "",
+              hasOther: false,
+            },
+          ],
           deliverySlots: [
             {
               price: 143,
@@ -516,6 +527,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         "vendorProducts.0.pricingRules": [
           "At least one pricing rule is required",
         ],
+        "vendorProducts.0.pricingRuleMetas": ["Required"],
         "vendorProducts.0.deliverySlots": [
           "At least one delivery slot is required",
         ],

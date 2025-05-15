@@ -1,7 +1,9 @@
 import { DeliverySlot } from "../type";
 
 // Sort delivery slots by how soon the deliveryEndTime is from now
-function sortByDeliveryEndTimeProximity(slots: DeliverySlot[]): DeliverySlot[] {
+export function sortByDeliveryEndTimeProximity(
+  slots: DeliverySlot[]
+): DeliverySlot[] {
   const now = new Date();
   const nowTotalMinutes = now.getTime();
 
@@ -24,10 +26,9 @@ function sortByDeliveryEndTimeProximity(slots: DeliverySlot[]): DeliverySlot[] {
 }
 
 export function filterDeliverySlots(
+  now: Date,
   deliverySlots: DeliverySlot[]
 ): DeliverySlot[] {
-  const now = new Date();
-
   // Step 1: Filter out slots with passed cutoff time
   const validSlots = deliverySlots.filter((slot) => {
     const [hours, minutes] = slot.cutoffTime.split(":").map(Number);
@@ -43,5 +44,5 @@ export function filterDeliverySlots(
   }, [] as DeliverySlot[]);
 
   // Step 3: Sort by delivery duration
-  return sortByDeliveryEndTimeProximity(uniqueSlots);
+  return uniqueSlots;
 }
