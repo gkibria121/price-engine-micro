@@ -32,10 +32,10 @@ export async function getVendorProducts() {
 }
 export async function getMatchedVendorProducts(
   productId: string,
-  deliverySlot: DeliverySlot
+  deliveryMethod: DeliverySlot
 ) {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`,
+    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/get-matched`,
     {
       cache: "no-store",
       method: "POST",
@@ -44,7 +44,7 @@ export async function getMatchedVendorProducts(
       },
       body: JSON.stringify({
         productId,
-        deliverySlot,
+        deliveryMethod,
       }),
     }
   );

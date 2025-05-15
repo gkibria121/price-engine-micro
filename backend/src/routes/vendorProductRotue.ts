@@ -28,12 +28,7 @@ router.post(
   ZodRequestValidationMiddleware(
     z.object({
       productId: z.string(),
-      deliveryMethod: z.union([
-        deliverySlotSchem,
-        z.string().refine((val) => !isNaN(Date.parse(val)), {
-          message: "Invalid date-time string",
-        }),
-      ]),
+      deliveryMethod: deliverySlotSchem,
     })
   ),
   getMatchedVendorProducts

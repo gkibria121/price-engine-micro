@@ -630,7 +630,6 @@ describe("Get matched vendor products", () => {
         deliveryMethod: vendorProduct.deliverySlots[0],
       });
     expect(res.status).toBe(200);
-    console.log(res.body);
     expect(res.body).toHaveProperty("vendorProducts");
   });
 });

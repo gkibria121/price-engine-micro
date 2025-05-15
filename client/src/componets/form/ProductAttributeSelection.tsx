@@ -33,7 +33,6 @@ function ProductAttributeSelection() {
       value: rule.values[rule.default],
     }));
     setValue("pricingRules", pricingRuleMetas);
-    console.log(vendorProduct);
   }, [vendorProduct, setValue]);
   const pricingRulesValues = useWatch({
     control,

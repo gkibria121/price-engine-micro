@@ -43,7 +43,6 @@ function PricingRuleMetasForm({
       defaultItem={{}}
       label="Pricing Rule Metas"
     >
-      {" "}
       <div className="flex justify-end">
         <Button type="btnPrimary" buttonType="button" onClick={refresh}>
           Refresh

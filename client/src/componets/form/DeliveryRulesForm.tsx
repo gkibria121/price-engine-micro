@@ -57,6 +57,11 @@ function DeliveryRulesForm({
                 )}
               />
             </ObjectListField.Col>
+            {!readonly && deliveryFields.length > 1 && (
+              <ObjectListField.Remove
+                handleClick={() => removeDelivery(index)}
+              />
+            )}
           </ObjectListField.Row>
           <ObjectListField.Row>
             <ObjectListField.Col>
@@ -92,8 +97,6 @@ function DeliveryRulesForm({
                 )}
               />
             </ObjectListField.Col>
-          </ObjectListField.Row>
-          <ObjectListField.Row>
             <ObjectListField.Col>
               <TextField
                 label="End Date (0-30)"
@@ -127,8 +130,6 @@ function DeliveryRulesForm({
                 )}
               />
             </ObjectListField.Col>
-          </ObjectListField.Row>
-          <ObjectListField.Row>
             <ObjectListField.Col>
               <TextField
                 label="Cutoff Time"
@@ -161,9 +162,6 @@ function DeliveryRulesForm({
               />
             </ObjectListField.Col>
           </ObjectListField.Row>
-          {!readonly && deliveryFields.length > 1 && (
-            <ObjectListField.Remove handleClick={() => removeDelivery(index)} />
-          )}
         </ObjectListField.Table>
       ))}
     </ObjectListField>
