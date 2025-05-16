@@ -32,6 +32,63 @@ export interface VendorProduct {
 // Vendor types
 export type Vendor = z.infer<typeof vendorSchema>;
 export type ValidationErrors = Record<string, string[]>;
+export const vendorProductSchema = z.object({
+  product: productSchema,
+  vendor: vendorSchema,
+  id: z.string().nonempty("ID is required"),
+
+  pricingRules: z
+    .array(pricingRuleSchema)
+    .min(1, { message: "At least one pricing rule is required" }),
+
+  deliverySlots: z
+    .array(deliverySlotSchem)
+    .min(1, { message: "At least one delivery slot is required" })
+    .superRefine((options, ctx) => {
+      const labelMap = new Map<string, number[]>();
+
+      options.forEach((option, index) => {
+        const existing = labelMap.get(option.label) || [];
+        existing.push(index);
+        labelMap.set(option.label, existing);
+      });
+
+      for (const [, indices] of labelMap.entries()) {
+        if (indices.length > 1) {
+          indices.forEach((index) => {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Each label must be unique",
+              path: [`${index}`, "label"], // or ["label"] if you're using a nested schema
+            });
+          });
+        }
+      }
+    }),
+  quantityPricings: z
+    .array(quantityPricingSchema)
+    .min(1, { message: "At least one quantity pricing is required" }),
+  pricingRuleMetas: z
+    .array(pricingRuleMetaSchema)
+    .min(1, { message: "At least one pricing rule meta is required" })
+    .refine(
+      (options) => {
+        const attributes = options.map((o) => o.attribute);
+        return new Set(attributes).size === attributes.length;
+      },
+      {
+        message: "Each options must be unique",
+        path: [], // applies to the array as a whole
+      }
+    ),
+  rating: z
+    .number({
+      required_error: "Rating is required",
+      invalid_type_error: "Rating must be a number",
+    })
+    .min(0, "Rating must be at least 0")
+    .max(100, "Rating cannot exceed 100"),
+});
 export type VendorProductFormType = z.infer<typeof VendorProductFormSchema>;
 
 export type DeliverySlot = z.infer<typeof deliverySlotSchem>;

@@ -3,6 +3,7 @@ import ObjectListField from "./ObjectListField";
 import TextField from "./TextField";
 import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
 import { VendorProductFormType } from "@/types";
+import FieldError from "./FieldError";
 
 function DeliveryRulesForm({
   readonly,
@@ -26,6 +27,7 @@ function DeliveryRulesForm({
   const { errors } = useFormState({
     name: `vendorProducts.${formIndex}.deliverySlots`,
   });
+
   return (
     <ObjectListField
       readonly={readonly}
@@ -41,6 +43,11 @@ function DeliveryRulesForm({
       label="Delivery Options"
       append={appendDelivery}
     >
+      {errors.vendorProducts?.[formIndex]?.deliverySlots?.root?.message && (
+        <FieldError>
+          {errors.vendorProducts[formIndex].deliverySlots.root?.message}
+        </FieldError>
+      )}
       {deliveryFields.map((field, index) => (
         <ObjectListField.Table key={field.id}>
           <ObjectListField.Row>
