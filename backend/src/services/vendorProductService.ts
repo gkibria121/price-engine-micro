@@ -5,8 +5,7 @@ import { DeliverySlot } from "../type";
 export async function getVendorsByProductAndDelivery(
   productId: string,
   deliveryMethod: DeliverySlot,
-  limit: number = 10,
-  sortOrder: "asc" | "desc" = "desc"
+  limit: number = 10
 ) {
   try {
     const pipeline = [
@@ -67,14 +66,12 @@ export async function getVendorsByProductAndDelivery(
       },
     ];
 
-    // Build dynamic sort object
-
     // Apply sorting and limit
     const vendorProducts = await VendorProductModel.aggregate([
       ...pipeline,
       {
         $sort: {
-          rating: sortOrder === "asc" ? 1 : -1,
+          rating: -1,
         },
       },
       {

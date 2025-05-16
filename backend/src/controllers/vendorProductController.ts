@@ -260,8 +260,7 @@ export async function getMatchedVendorProducts(req: Request, res: Response) {
   const matchedVendorProducts = await VendorProductModel.find({
     product: productId,
     vendor: { $in: vendorIds },
-  });
-
+  }).sort({ rating: -1 }); // descending order
   const populatedAssociations = await populateAllRefsMany(
     matchedVendorProducts,
     VendorProductModel.schema

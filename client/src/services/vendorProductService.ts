@@ -51,5 +51,6 @@ export async function getMatchedVendorProducts(
   if (!response.ok) throw new Error("Something went wrong!");
   const data = await response.json();
   const vendorProducts = data.vendorProducts as VendorProduct[];
+  console.log(vendorProducts);
   return vendorProducts;
 }
