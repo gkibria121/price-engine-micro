@@ -61,7 +61,7 @@ export async function createVendorProduct() {
     pricingRules: [pricingRule._id], // Reference to created pricing rule
     deliverySlots: [deliverySlot._id], // Reference to created delivery slot
     quantityPricings: quantityPricings, // Reference to created quantity pricing
-    rating: 10,
+    rating: Math.floor(Math.random() * 100),
   });
   await VendorProductModel.create({
     vendor: vendor._id, // Reference to existing vendor
@@ -69,7 +69,7 @@ export async function createVendorProduct() {
     pricingRules: [pricingRule._id], // Reference to created pricing rule
     deliverySlots: [deliverySlot._id], // Reference to created delivery slot
     quantityPricings: quantityPricings, // Reference to created quantity pricing
-    rating: 9,
+    rating: Math.floor(Math.random() * 100),
   });
   const populatedVendorProduct = await VendorProductModel.findById(
     vendorProduct._id

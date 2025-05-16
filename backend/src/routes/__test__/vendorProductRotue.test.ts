@@ -612,14 +612,16 @@ describe("Get matched vendor products", () => {
       });
     expect(res.status).toBe(422);
   });
-  it("should return not return 422 for valid productId or deliveryMethod", async () => {
+  it("should return list of vendor products   given product id and delivery slot", async () => {
+    const vendorProduct = await createVendorProduct();
     const res = await request(app)
       .post("/api/v1/vendor-products/get-matched")
       .send({
-        productId: new mongoose.mongo.ObjectId(),
-        deliveryMethod: new Date().toISOString(),
+        productId: vendorProduct.product,
+        deliveryMethod: vendorProduct.deliverySlots[0],
       });
-    expect(res.status).not.toBe(422);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("vendorProducts");
   });
   it("should return list of vendor products   given product id and delivery slot", async () => {
     const vendorProduct = await createVendorProduct();
@@ -631,5 +633,8 @@ describe("Get matched vendor products", () => {
       });
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("vendorProducts");
+    expect(res.body.vendorProducts[0].rating).toBeGreaterThanOrEqual(
+      res.body.vendorProducts[1].rating
+    );
   });
 });
