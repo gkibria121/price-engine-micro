@@ -43,6 +43,7 @@ function PricingRulesForm({
       }}
       label="Pricing Rules"
       append={appendPricing}
+      expanded={true}
     >
       {pricingFields.map((field, index) => (
         <ObjectListField.Row key={field.id}>
