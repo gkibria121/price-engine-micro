@@ -18,7 +18,7 @@ function ProductSelectionForm({}) {
           method, specify the quantity, choose the desired attributes
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 min-h-[45vh]">
         {/* Product Type */}
 
         <SelectionField

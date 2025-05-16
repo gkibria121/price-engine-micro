@@ -57,6 +57,7 @@ function ProductAttributeSelection() {
       setVendorProduct(data);
     },
     delay: 500,
+
     deps: [setPricingRuleMetas, getValues, deliverySlots, setLoading],
     onError: () => console.error("Something went wrong!"),
     setLoading,
