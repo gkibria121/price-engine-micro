@@ -16,6 +16,13 @@ spec:
             port: 
               number: 8000
       - pathType: Prefix
+        path: "/api/v1/price-engine"
+        backend:
+          service:
+            name: price-engine-service
+            port: 
+              number: 5000
+      - pathType: Prefix
         path: "/"
         backend:
           service:

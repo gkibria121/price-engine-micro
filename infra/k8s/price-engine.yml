@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: price-engine-depl
+spec:
+  selector:
+    matchLabels:
+      app: price-engine
+  template:
+    metadata:
+      labels:
+        app: price-engine
+    spec:
+      containers:
+      - name: price-engine
+        image: daynightprint/price-engine
+        imagePullPolicy: Never 
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+
+        ports:
+        - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: price-engine-service
+spec: 
+  selector:
+    app: price-engine
+  ports:
+  - port: 5000
+    targetPort: 5000
+
+ 
