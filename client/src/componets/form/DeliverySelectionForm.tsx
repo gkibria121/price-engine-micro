@@ -1,6 +1,6 @@
 import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import { ProductOrderFlowFormType } from "@/types";
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import RadioBox from "./RadioBox";
 import DatePicker from "./DatePicker";
@@ -12,7 +12,8 @@ import Loading from "../Loading";
 const DeliverySelection = () => {
   const { deliverySlots, setLoading, setDeliverySlots, isLoading } =
     useProductOrderFlow();
-  const { register, getValues } = useFormContext<ProductOrderFlowFormType>();
+  const { register, getValues, setValue } =
+    useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState<ProductOrderFlowFormType>({
     name: `deliveryMethod`,
   });
@@ -29,6 +30,10 @@ const DeliverySelection = () => {
     setLoading,
     deps: [getValues, setDeliverySlots, setLoading],
   });
+  useEffect(() => {
+    if (deliverySlots[0])
+      setValue("deliveryMethod.label", deliverySlots[0].label);
+  }, [deliverySlots, setValue]);
   if (isLoading)
     return (
       <div className="w-full   flex justify-center items-center h-[60vh]">
