@@ -28,7 +28,6 @@ async function page() {
               "Name",
               "email",
               "address",
-              "rating",
               { value: "Actions", isCenter: true },
             ]}
           >

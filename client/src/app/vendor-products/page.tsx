@@ -28,6 +28,7 @@ async function page() {
             headers={[
               "Product",
               "Vendor",
+              "Rating",
               { value: "Actions", isCenter: true },
             ]}
           >
@@ -41,6 +42,11 @@ async function page() {
                 <Table.Col>
                   <div className="font-medium text-gray-900">
                     {vendorProduct.vendor.name}
+                  </div>
+                </Table.Col>
+                <Table.Col>
+                  <div className="font-medium text-gray-900">
+                    {vendorProduct.rating}
                   </div>
                 </Table.Col>
                 <Table.Col className="text-sm font-medium flex justify-center">

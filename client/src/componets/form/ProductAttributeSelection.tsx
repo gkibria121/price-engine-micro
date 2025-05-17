@@ -8,6 +8,7 @@ import TextField from "./TextField";
 import { getMatchedVendorProducts } from "@/services/vendorProductService";
 import { useAsyncEffect } from "@/hooks/useAsyncEffect";
 import Loading from "../Loading";
+import useFormAction from "@/hooks/useFormAction";
 
 function ProductAttributeSelection() {
   const {
@@ -15,14 +16,17 @@ function ProductAttributeSelection() {
     setLoading,
     setPricingRuleMetas,
     setVendorProduct,
+    priceCalculationResult,
     vendorProduct,
     isLoading,
   } = useProductOrderFlow();
-  const { register, setValue, getValues, control } =
+  const { handleCalculatePriceClick } = useFormAction();
+  const { register, setValue, getValues } =
     useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product", "quantity", "pricingRules"],
   });
+
   const quantityPricings = vendorProduct?.quantityPricings ?? [];
   const pricingRuleMetas = vendorProduct?.pricingRuleMetas ?? [];
 
@@ -36,10 +40,12 @@ function ProductAttributeSelection() {
     }));
     setValue("pricingRules", pricingRuleMetas);
   }, [vendorProduct, setValue]);
+
   const pricingRulesValues = useWatch({
-    control,
     name: "pricingRules",
   });
+  const quantity = useWatch({ name: "quantity" });
+
   useAsyncEffect({
     asyncFn: async () => {
       const productId = getValues("product");
@@ -63,6 +69,11 @@ function ProductAttributeSelection() {
     onError: () => console.error("Something went wrong!"),
     setLoading,
   });
+  // update price
+  useEffect(() => {
+    if (vendorProduct) handleCalculatePriceClick();
+  }, [pricingRulesValues, vendorProduct, handleCalculatePriceClick, quantity]);
+
   if (isLoading)
     return (
       <div className="w-full   flex justify-center items-center h-[60vh]">
@@ -71,7 +82,19 @@ function ProductAttributeSelection() {
     );
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+      {
+        <div className="mb-4 ">
+          <h1 className="text-3xl mb-2">
+            Price: {priceCalculationResult?.totalPrice?.toFixed(2) ?? 0} £
+          </h1>
+          <h1 className="text-3xl">
+            Delivery Charge:{" "}
+            {priceCalculationResult?.breakdown?.deliveryCharge ?? 0} £
+          </h1>
+        </div>
+      }
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
         {/* Product Type */}
 
         <TextField

@@ -50,12 +50,12 @@ const PriceCalculationResult = () => {
 
           <div className="flex justify-between">
             <span className="font-medium">Delivery Charge</span>
-            <span>{breakdown?.deliveryCharge} $</span>
+            <span>{breakdown?.deliveryCharge} £</span>
           </div>
 
           <div className="flex justify-between font-semibold">
             <span>Total Price</span>
-            <span>{totalPrice.toFixed(3)} $</span>
+            <span>{totalPrice.toFixed(3)} £</span>
           </div>
         </div>
       )}

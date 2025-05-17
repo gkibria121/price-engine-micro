@@ -5,13 +5,8 @@ import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import useFormAction from "@/hooks/useFormAction";
 
 function FormActions() {
-  const { finalStep, firstStep, currentStep, priceCalculationStep } =
-    useProductOrderFlow();
-  const {
-    handleBackButtonClick,
-    handleCalculatePriceClick,
-    handleNextButtonClick,
-  } = useFormAction();
+  const { finalStep, firstStep, currentStep } = useProductOrderFlow();
+  const { handleBackButtonClick, handleNextButtonClick } = useFormAction();
   return (
     <div
       className={`flex mt-2 justify-${
@@ -27,16 +22,6 @@ function FormActions() {
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
-        </Button>
-      )}
-      {currentStep === priceCalculationStep && (
-        <Button
-          type="btnSecondary"
-          className="ml-auto"
-          buttonType="button"
-          onClick={handleCalculatePriceClick}
-        >
-          Calculate Price
         </Button>
       )}
       {currentStep !== finalStep && (

@@ -4,6 +4,7 @@ import { useProductOrderFlow } from "./useProductOrderFlow";
 import { calculatePrice } from "@/services/priceCalculationService";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
+import { useCallback } from "react";
 
 function useFormAction() {
   const {
@@ -37,7 +38,7 @@ function useFormAction() {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleCalculatePriceClick = async () => {
+  const handleCalculatePriceClick = useCallback(async () => {
     setIsPriceCalculating(true);
     const productId = vendorProduct.product.id;
     const deliveryMethod = getValues("deliveryMethod") as { label: string };
@@ -74,7 +75,12 @@ function useFormAction() {
         setIsPriceCalculating(false);
       }, 500);
     }
-  };
+  }, [
+    setIsPriceCalculating,
+    vendorProduct,
+    getValues,
+    setPriceCalculationResult,
+  ]);
 
   return {
     handleBackButtonClick,

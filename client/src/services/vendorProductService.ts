@@ -58,7 +58,7 @@ export async function getMatchedVendorProducts(
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to fetch matched vendor products!");
     }
-
+    console.log(response.data.vendorProducts[0]);
     return response.data.vendorProducts;
   } catch (error) {
     console.error("Error in getMatchedVendorProducts:", error);

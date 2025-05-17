@@ -45,6 +45,7 @@ export function useAsyncEffect<T>({
     return () => {
       isMounted = false;
       clearTimeout(timeout);
+      setLoading(false);
     };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 }

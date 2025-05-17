@@ -62,7 +62,7 @@ export const StepProvider = ({ children }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const finalStep = formBodies[formBodies.length - 1].step;
   const firstStep = formBodies[0].step;
-  const priceCalculationStep = 4;
+  const priceCalculationStep = 3;
 
   return (
     <StepContext.Provider
