@@ -6,8 +6,7 @@ class Attribute(BaseModel):
     value: str = Field(..., description="Value of the attribute")
 
     @field_validator("name", "value")
-    def must_be_non_empty_string(cls, v, field):
-        print(cls,v,field)
+    def must_be_non_empty_string(cls, v, field): 
         if not v or not isinstance(v, str):
             raise ValueError(f"This field must be a non-empty string")
         return v

@@ -9,5 +9,5 @@ def format_pydantic_errors(pydantic_errors):
             formatted["errors"][field] = []
 
         formatted["errors"][field].append(message)
-    print("hi there")
+ 
     return formatted
