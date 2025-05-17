@@ -5,8 +5,8 @@ type UseAsyncEffectProps<T> = {
   onSuccess: (data: T) => void;
   onError?: (error: unknown) => void;
   setLoading?: (val: boolean) => void;
-  delay?: number; // delay before showing loader (e.g., 200ms)
   deps?: unknown[]; // dependencies to rerun the effect
+  minimumLoading?: number;
 };
 
 export function useAsyncEffect<T>({
@@ -14,18 +14,17 @@ export function useAsyncEffect<T>({
   onSuccess,
   onError,
   setLoading,
-  delay = 200,
   deps = [],
+  minimumLoading = 1000,
 }: UseAsyncEffectProps<T>) {
   useEffect(() => {
     let isMounted = true;
     let timeout: NodeJS.Timeout;
-
+    const start = new Date().getTime();
     const run = async () => {
       if (setLoading) {
-        timeout = setTimeout(() => {
-          if (isMounted) setLoading(true);
-        }, delay);
+        console.log("set loading");
+        setLoading(true);
       }
 
       try {
@@ -34,8 +33,11 @@ export function useAsyncEffect<T>({
       } catch (error) {
         if (isMounted && onError) onError(error);
       } finally {
-        clearTimeout(timeout);
-        if (isMounted && setLoading) setLoading(false);
+        const duration = new Date().getTime() - start;
+
+        timeout = setTimeout(() => {
+          setLoading(false);
+        }, Math.max(minimumLoading - duration, 0));
       }
     };
 
@@ -43,6 +45,7 @@ export function useAsyncEffect<T>({
 
     return () => {
       isMounted = false;
+      console.log("cancel loading");
       clearTimeout(timeout);
     };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps

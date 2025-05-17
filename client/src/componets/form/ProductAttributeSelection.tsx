@@ -7,6 +7,7 @@ import RadioBox from "./RadioBox";
 import TextField from "./TextField";
 import { getMatchedVendorProducts } from "@/services/vendorProductService";
 import { useAsyncEffect } from "@/hooks/useAsyncEffect";
+import Loading from "../Loading";
 
 function ProductAttributeSelection() {
   const {
@@ -15,6 +16,7 @@ function ProductAttributeSelection() {
     setPricingRuleMetas,
     setVendorProduct,
     vendorProduct,
+    isLoading,
   } = useProductOrderFlow();
   const { register, setValue, getValues, control } =
     useFormContext<ProductOrderFlowFormType>();
@@ -56,13 +58,18 @@ function ProductAttributeSelection() {
     onSuccess: (data) => {
       setVendorProduct(data);
     },
-    delay: 500,
 
     deps: [setPricingRuleMetas, getValues, deliverySlots, setLoading],
     onError: () => console.error("Something went wrong!"),
     setLoading,
   });
-
+  console.log(isLoading);
+  if (isLoading)
+    return (
+      <div className="w-full   flex justify-center items-center h-[60vh]">
+        <Loading radius={40} />
+      </div>
+    );
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">

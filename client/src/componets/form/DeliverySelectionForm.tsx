@@ -7,9 +7,11 @@ import DatePicker from "./DatePicker";
 import { getDeliverySlots } from "@/services/deliverySlots";
 import FieldError from "./FieldError";
 import { useAsyncEffect } from "@/hooks/useAsyncEffect";
+import Loading from "../Loading";
 
 const DeliverySelection = () => {
-  const { deliverySlots, setLoading, setDeliverySlots } = useProductOrderFlow();
+  const { deliverySlots, setLoading, setDeliverySlots, isLoading } =
+    useProductOrderFlow();
   const { register, getValues } = useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState<ProductOrderFlowFormType>({
     name: `deliveryMethod`,
@@ -25,10 +27,14 @@ const DeliverySelection = () => {
     onSuccess: (data) => setDeliverySlots(data),
     onError: (err) => console.error("Failed to fetch delivery slots:", err),
     setLoading,
-    delay: 200,
     deps: [getValues, setDeliverySlots, setLoading],
   });
-
+  if (isLoading)
+    return (
+      <div className="w-full   flex justify-center items-center h-[60vh]">
+        <Loading radius={40} />
+      </div>
+    );
   return (
     <div className="max-w-4xl mx-auto">
       <h2 className="text-lg font-medium mb-4">
