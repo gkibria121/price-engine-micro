@@ -1,11 +1,9 @@
 import { Vendor } from "@/types";
-import { customFetch } from "@/util/fetch";
+import { customAxios } from "@/util/fetch";
 
 export async function getVendors(): Promise<Vendor[]> {
   try {
-    const response = await customFetch<{ vendors: Vendor[] }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendors`
-    );
+    const response = await customAxios<{ vendors: Vendor[] }>(`/vendors`);
 
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to fetch vendors!");
@@ -18,9 +16,7 @@ export async function getVendors(): Promise<Vendor[]> {
 }
 export async function getVendor(id: string): Promise<Vendor> {
   try {
-    const response = await customFetch<{ vendor: Vendor }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendors/${id}`
-    );
+    const response = await customAxios<{ vendor: Vendor }>(`/vendors/${id}`);
 
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to fetch vendors!");

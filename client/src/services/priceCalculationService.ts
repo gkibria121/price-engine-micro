@@ -1,18 +1,13 @@
 import { PriceCalculationRequest } from "@/types";
-import { customFetch } from "@/util/fetch";
+import { customAxios } from "@/util/fetch";
 
 export async function calculatePrice(requestBody: PriceCalculationRequest) {
   try {
-    const response = await customFetch(
-      process.env.NEXT_PUBLIC_API_URL + "/calculate-price-with-vendor",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: requestBody,
-      }
-    );
+    const response = await customAxios("/calculate-price-with-vendor", {
+      method: "POST",
+
+      data: requestBody,
+    });
 
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to calculate price!");

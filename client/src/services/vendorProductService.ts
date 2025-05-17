@@ -1,10 +1,10 @@
 import { DeliverySlot, VendorProduct } from "@/types";
-import { customFetch } from "@/util/fetch";
+import { customAxios } from "@/util/fetch";
 
 export async function getVendorProduct(id: string): Promise<VendorProduct> {
   try {
-    const response = await customFetch<{ vendorProduct: VendorProduct }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${id}`
+    const response = await customAxios<{ vendorProduct: VendorProduct }>(
+      `/vendor-products/${id}`
     );
 
     if (response.status < 200 || response.status >= 300) {
@@ -20,8 +20,8 @@ export async function getVendorProduct(id: string): Promise<VendorProduct> {
 
 export async function getVendorProducts(): Promise<VendorProduct[]> {
   try {
-    const response = await customFetch<{ vendorProducts: VendorProduct[] }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`
+    const response = await customAxios<{ vendorProducts: VendorProduct[] }>(
+      `/vendor-products`
     );
 
     if (response.status < 200 || response.status >= 300) {
@@ -40,8 +40,8 @@ export async function getMatchedVendorProducts(
   deliveryMethod: DeliverySlot
 ): Promise<VendorProduct[]> {
   try {
-    const response = await customFetch<{ vendorProducts: VendorProduct[] }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/get-matched`,
+    const response = await customAxios<{ vendorProducts: VendorProduct[] }>(
+      `/vendor-products/get-matched`,
       {
         method: "POST",
         headers: {

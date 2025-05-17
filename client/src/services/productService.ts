@@ -1,11 +1,9 @@
 import { Product } from "@/types";
-import { customFetch } from "@/util/fetch";
+import { customAxios } from "@/util/fetch";
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await customFetch<{ products: Product[] }>(
-      `${process.env.NEXT_PUBLIC_API_URL}/products`
-    );
+    const response = await customAxios<{ products: Product[] }>(`/products`);
 
     if (response.status < 200 || response.status >= 300) {
       console.error("Failed to fetch products:", response.status);
@@ -21,9 +19,7 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getProduct(id: string): Promise<Product> {
   try {
-    const response = await customFetch<Product>(
-      `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
-    );
+    const response = await customAxios<Product>(`/products/${id}`);
 
     if (response.status < 200 || response.status >= 300) {
       console.error("Failed to fetch product:", response.status);

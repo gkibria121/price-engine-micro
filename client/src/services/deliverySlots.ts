@@ -1,15 +1,11 @@
 import { DeliverySlot } from "@/types";
-import { customFetch } from "@/util/fetch";
+import { customAxios } from "@/util/fetch";
 
 export async function getDeliverySlots(productId?: string) {
   try {
-    const path = `${process.env.NEXT_PUBLIC_API_URL}/delivery-slots${
-      productId ? `/${productId}` : ""
-    }`;
+    const path = `/delivery-slots${productId ? `/${productId}` : ""}`;
 
-    const response = await customFetch(path, {
-      // Axios doesn’t support `cache` option like fetch,
-      // so if you want no caching, consider adding headers or query params
+    const response = await customAxios(path, {
       headers: {
         "Cache-Control": "no-store",
       },

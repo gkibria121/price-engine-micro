@@ -1,9 +1,13 @@
-// utils/customFetch.ts
+// utils/customAxios.ts
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-export async function customFetch<T = unknown>(
+export async function customAxios<T = unknown>(
   path: string,
-  options: AxiosRequestConfig = {}
+  options: AxiosRequestConfig = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
 ): Promise<AxiosResponse<T>> {
   // Check if window is undefined (server-side)
   const isServer = typeof window === "undefined";
@@ -14,7 +18,7 @@ export async function customFetch<T = unknown>(
     : "";
 
   // Compose full URL
-  const url = baseURL + path;
+  const url = baseURL + `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
   const { method = "GET", data = undefined, headers = {}, ...rest } = options;
   const serverHeaders = isServer
