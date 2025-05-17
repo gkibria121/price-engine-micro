@@ -1,11 +1,13 @@
 from flask import request, jsonify
-
-def validate_user_id():
+from pydantic import ValidationError
+from .schemas.calculation_schema import CalculationRequest
+from .exceptions.ValidationException import ValidationException
+from .utils.functions import format_pydantic_errors
+def validate_calculation_request():
     try:
-        print(request.args)
-        user_id = int(request.args.get('id'))
-        if user_id <= 0:
-            raise ValueError
-        return user_id, None,200
-    except (TypeError, ValueError):
-        return None, jsonify({"error": "Invalid or missing 'id' query parameter"}), 400
+        json_data = request.get_json()
+        validated_data = CalculationRequest(**json_data)
+        return validated_data.dict(), None, 200
+    except ValidationError as e:
+        error_response = format_pydantic_errors(e.errors())
+        raise ValidationException(error_response['message'], error_response['errors'])

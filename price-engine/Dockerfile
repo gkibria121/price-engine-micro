@@ -7,15 +7,16 @@ ENV PYTHONUNBUFFERED=1
 
 # Set work directory
 WORKDIR /app
-
+COPY  requirements.txt .
+# Install requirements.txt
+RUN pip install -r requirements.txt
 # Copy app files
 COPY . .
 
-# Install Flask
-RUN pip install --no-cache-dir flask
+
 
 # Expose the port Flask will run on
 EXPOSE 5000
 
 # Run the application
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
