@@ -41,7 +41,6 @@ export async function customAxios<T = unknown>(
 
     return response;
   } catch (error) {
-    // Optional: Add your error handling here
     throw error;
   }
 }

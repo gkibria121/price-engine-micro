@@ -28,7 +28,6 @@ export async function getProduct(id: string): Promise<Product> {
 
     return response.data;
   } catch (error) {
-    console.error("Error in getProduct:", error);
     throw error;
   }
 }
