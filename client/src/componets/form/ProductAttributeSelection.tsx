@@ -63,7 +63,6 @@ function ProductAttributeSelection() {
     onError: () => console.error("Something went wrong!"),
     setLoading,
   });
-  console.log(isLoading);
   if (isLoading)
     return (
       <div className="w-full   flex justify-center items-center h-[60vh]">

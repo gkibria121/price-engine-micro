@@ -7,7 +7,6 @@ export default async function page({ params }: PageProps) {
   const { id } = await params;
 
   const vendor = await getVendor(id);
-  console.log(vendor);
 
   return (
     <main>

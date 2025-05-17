@@ -23,8 +23,10 @@ function useFormAction() {
 
     const validate = await trigger(fieldsToTrigger);
     if (!validate) return;
-
-    setCurrentStep((prev) => prev + 1);
+    setLoading(true);
+    setTimeout(() => {
+      setCurrentStep((prev) => prev + 1);
+    }, 500);
   };
 
   const handleBackButtonClick = () => {

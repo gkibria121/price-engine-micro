@@ -23,7 +23,6 @@ export function useAsyncEffect<T>({
     const start = new Date().getTime();
     const run = async () => {
       if (setLoading) {
-        console.log("set loading");
         setLoading(true);
       }
 
@@ -45,7 +44,6 @@ export function useAsyncEffect<T>({
 
     return () => {
       isMounted = false;
-      console.log("cancel loading");
       clearTimeout(timeout);
     };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps

@@ -59,7 +59,6 @@ export async function getMatchedVendorProducts(
       throw new Error("Failed to fetch matched vendor products!");
     }
 
-    console.log(response.data.vendorProducts);
     return response.data.vendorProducts;
   } catch (error) {
     console.error("Error in getMatchedVendorProducts:", error);
