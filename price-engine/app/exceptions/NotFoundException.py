@@ -1,6 +1,6 @@
 from .CustomException import CustomException
-class PriceEngineException(CustomException):
+class NotFoundException(CustomException):
     def __init__(self, message  ):
         super().__init__(message)
         self.message = message 
-        self.status = 500
+        self.status = 404
