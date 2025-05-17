@@ -8,7 +8,7 @@ import { AxiosError } from "axios";
 function useFormAction() {
   const {
     currentStep,
-    vendorProducts,
+    vendorProduct,
     setLoading,
     setPriceCalculationResult,
     setCurrentStep,
@@ -37,11 +37,10 @@ function useFormAction() {
 
   const handleCalculatePriceClick = async () => {
     setIsPriceCalculating(true);
-    const productId = getValues("product");
+    const productId = vendorProduct.product.id;
     const deliveryMethod = getValues("deliveryMethod") as { label: string };
     const quantity = getValues("quantity");
-    const vendorId = vendorProducts.find((vp) => vp.product.id === productId)
-      .vendor.id;
+    const vendorId = vendorProduct.vendor.id;
     const attributes = getValues("pricingRules").map((pr) => ({
       name: pr.attribute,
       value: pr.value,
