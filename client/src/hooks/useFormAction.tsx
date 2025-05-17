@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { useProductOrderFlow } from "./useProductOrderFlow";
 import { calculatePrice } from "@/services/priceCalculationService";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 function useFormAction() {
   const {
@@ -57,12 +58,13 @@ function useFormAction() {
 
       setPriceCalculationResult(result as PriceCalculationResultType);
     } catch (error) {
-      if (error instanceof Error) {
+      console.log(error);
+      if (error instanceof AxiosError) {
         setPriceCalculationResult((prev) => ({
           productName: prev.productName,
           quantity: prev.quantity,
         }));
-        toast(error.message, {
+        toast(error.response.data?.message, {
           type: "error",
         });
       }

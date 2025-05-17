@@ -1,5 +1,6 @@
 import { Vendor } from "@/types";
 import { customAxios } from "@/util/fetch";
+import { AxiosError } from "axios";
 
 export async function getVendors(): Promise<Vendor[]> {
   try {
@@ -24,6 +25,8 @@ export async function getVendor(id: string): Promise<Vendor> {
     return response.data.vendor;
   } catch (error) {
     console.error("Error in getVendors:", error);
+    if (error instanceof AxiosError)
+      throw new Error(error.response.data?.message);
     throw error;
   }
 }

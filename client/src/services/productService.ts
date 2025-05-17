@@ -1,5 +1,6 @@
 import { Product } from "@/types";
 import { customAxios } from "@/util/fetch";
+import { AxiosError } from "axios";
 
 export async function getProducts(): Promise<Product[]> {
   try {
@@ -21,13 +22,10 @@ export async function getProduct(id: string): Promise<Product> {
   try {
     const response = await customAxios<Product>(`/products/${id}`);
 
-    if (response.status < 200 || response.status >= 300) {
-      console.error("Failed to fetch product:", response.status);
-      throw new Error("Failed to fetch product!");
-    }
-
     return response.data;
   } catch (error) {
+    if (error instanceof AxiosError)
+      throw new Error(error.response.data?.message);
     throw error;
   }
 }
