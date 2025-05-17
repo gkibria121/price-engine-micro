@@ -15,6 +15,8 @@ import {
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 import { getVendorsByProductAndDelivery } from "../services/vendorProductService";
 import { populateAllRefsMany } from "../utils/functions";
+import VendorProductCreatedPublisher from "../events/publishers/vendor-product-created-publisher";
+import { natsWrapper } from "../lib/natas-client";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -241,7 +243,11 @@ export async function bulkStore(req: Request, res: Response) {
       pricingRuleMetas,
       rating
     );
+    const vendorProductCreatedPublisher = new VendorProductCreatedPublisher(
+      natsWrapper.client
+    );
 
+    vendorProductCreatedPublisher.publish(newVendorProduct);
     results.push(newVendorProduct);
   }
 

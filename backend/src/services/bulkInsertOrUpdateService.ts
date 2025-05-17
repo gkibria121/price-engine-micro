@@ -7,6 +7,7 @@ import QuantityPricingModel from "../models/QuantityPricingModel";
 import PricingRuleModel from "../models/PricingRuleModel";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
+import Product from "../lib/product/Product";
 export async function createVendorProduct(
   product: any,
   vendor: any,

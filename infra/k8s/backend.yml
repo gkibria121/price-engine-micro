@@ -18,6 +18,10 @@ spec:
         env:
           - name: MONGO_URI
             value: "mongodb://db-service:27017/price-engine"
+          - name: CLUSTER_ID 
+            value: "nats-streaming"
+          - name: NATS_URL 
+            value: "http://nats-streaming-service:4222"
         resources:
           requests:
             memory: "256Mi"

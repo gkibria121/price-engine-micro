@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-streaming
+spec:
+  selector:
+    matchLabels:
+      app: nats-streaming
+  template:
+    metadata:
+      labels:
+        app: nats-streaming
+    spec:
+      containers:
+        - name: nats-streaming
+          image: nats-streaming:latest
+          ports:
+            - containerPort: 4222
+            - containerPort: 8222
+            - containerPort: 6222
+          command:
+            - "/nats-streaming-server"
+            - "--cluster_id"
+            - "nats-streaming"
+            - "--store"
+            - "memory"
+            - "--cluster"
+            - "nats://0.0.0.0:6222"
+            - "--http_port"
+            - "8222"
+            - "--hb_interval"
+            - "10s"
+            - "--hb_timeout"
+            - "5s"
+            - "--hb_fail_count"
+            - "3"
+            - "--max_msgs"
+            - "100000"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-streaming-service
+spec:
+  selector:
+    app: nats-streaming
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+    - name: monitoring
+      port: 8222
+      targetPort: 8222
+    - name: cluster
+      port: 6222
+      targetPort: 6222
