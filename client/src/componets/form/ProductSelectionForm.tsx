@@ -3,8 +3,9 @@ import SelectionField from "./SelectionField";
 import { useProductOrderFlow } from "@/hooks/useProductOrderFlow";
 import { useFormContext, useFormState } from "react-hook-form";
 import { ProductOrderFlowFormType } from "@/types";
+import Loading from "../Loading";
 function ProductSelectionForm({}) {
-  const { products } = useProductOrderFlow();
+  const { products, isLoading } = useProductOrderFlow();
   const { register } = useFormContext<ProductOrderFlowFormType>();
   const { errors } = useFormState({
     name: ["product"],
@@ -18,7 +19,7 @@ function ProductSelectionForm({}) {
           method, specify the quantity, choose the desired attributes
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 min-h-[45vh]">
+      <div className="">
         {/* Product Type */}
 
         <SelectionField
@@ -30,7 +31,12 @@ function ProductSelectionForm({}) {
           {...register("product")}
           error={errors.product?.message?.toString()}
         />
-      </div>
+      </div>{" "}
+      {isLoading && (
+        <div className="w-full   flex justify-center items-center min-h-[20vh] ">
+          <Loading radius={40} />
+        </div>
+      )}
     </>
   );
 }
