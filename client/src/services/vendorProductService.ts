@@ -1,56 +1,68 @@
 import { DeliverySlot, VendorProduct } from "@/types";
+import { customFetch } from "@/util/fetch";
 
-export async function getVendorProduct(id: string) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${id}`,
-    {
-      cache: "no-store",
+export async function getVendorProduct(id: string): Promise<VendorProduct> {
+  try {
+    const response = await customFetch<{ vendorProduct: VendorProduct }>(
+      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/${id}`
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error("Failed to fetch vendor product!");
     }
-  );
 
-  if (!response.ok) {
-    throw new Error("Something went wrong!");
+    return response.data.vendorProduct;
+  } catch (error) {
+    console.error("Error in getVendorProduct:", error);
+    throw error;
   }
-
-  const vendorProductData = await response.json();
-
-  const vendorProduct = vendorProductData.vendorProduct as VendorProduct;
-  return vendorProduct;
 }
 
-export async function getVendorProducts() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`
-  );
-  if (!response.ok) {
-    new Error("Faild to fetch!");
-  }
+export async function getVendorProducts(): Promise<VendorProduct[]> {
+  try {
+    const response = await customFetch<{ vendorProducts: VendorProduct[] }>(
+      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products`
+    );
 
-  const data = await response.json();
-  const vendorProducts = data.vendorProducts as VendorProduct[];
-  return vendorProducts;
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error("Failed to fetch vendor products!");
+    }
+
+    return response.data.vendorProducts;
+  } catch (error) {
+    console.error("Error in getVendorProducts:", error);
+    throw error;
+  }
 }
+
 export async function getMatchedVendorProducts(
   productId: string,
   deliveryMethod: DeliverySlot
-) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/get-matched`,
-    {
-      cache: "no-store",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId,
-        deliveryMethod,
-      }),
+): Promise<VendorProduct[]> {
+  try {
+    const response = await customFetch<{ vendorProducts: VendorProduct[] }>(
+      `${process.env.NEXT_PUBLIC_API_URL}/vendor-products/get-matched`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        },
+        data: {
+          productId,
+          deliveryMethod,
+        },
+      }
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error("Failed to fetch matched vendor products!");
     }
-  );
-  if (!response.ok) throw new Error("Something went wrong!");
-  const data = await response.json();
-  const vendorProducts = data.vendorProducts as VendorProduct[];
-  console.log(vendorProducts);
-  return vendorProducts;
+
+    console.log(response.data.vendorProducts);
+    return response.data.vendorProducts;
+  } catch (error) {
+    console.error("Error in getMatchedVendorProducts:", error);
+    throw error;
+  }
 }

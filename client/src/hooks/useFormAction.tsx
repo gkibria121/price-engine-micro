@@ -47,22 +47,15 @@ function useFormAction() {
     }));
 
     try {
-      const resultRsp = await calculatePrice({
+      const result = await calculatePrice({
         productId,
         vendorId,
         attributes,
         deliveryMethod,
         quantity,
       });
-      if (!resultRsp.ok) {
-        throw new Error(
-          (await resultRsp.json()).message ?? "something went wrong!"
-        );
-      }
 
-      setPriceCalculationResult(
-        (await resultRsp.json()) as PriceCalculationResultType
-      );
+      setPriceCalculationResult(result as PriceCalculationResultType);
     } catch (error) {
       if (error instanceof Error) {
         setPriceCalculationResult((prev) => ({

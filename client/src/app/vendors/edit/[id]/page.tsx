@@ -1,14 +1,13 @@
 import React from "react";
 import VendorForm from "@/componets/form/VendorForm";
-import { PageProps, Vendor } from "@/types";
+import { PageProps } from "@/types";
+import { getVendor } from "@/services/vendorService";
 
 export default async function page({ params }: PageProps) {
   const { id } = await params;
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/vendors/${id}`
-  );
-  if (!response.ok) throw new Error("Something went wrong!");
-  const vendor = (await response.json()).vendor as Vendor;
+
+  const vendor = await getVendor(id);
+  console.log(vendor);
 
   return (
     <main>

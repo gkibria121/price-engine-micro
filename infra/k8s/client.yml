@@ -18,13 +18,8 @@ spec:
         env:
           - name: NEXT_PUBLIC_API_URL
             value:  /api/v1
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
+          - name: NEXT_PUBLIC_HOST_NAME
+            value:  daynightprint.dev 
 
         ports:
         - containerPort: 3000

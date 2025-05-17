@@ -9,9 +9,11 @@ export default async function page({ params }: PageProps) {
   const { id } = await params;
   try {
     const products = await getProducts();
+
     const vendors = await getVendors();
-    const vendorProduct = await getVendorProduct(id);
     const deliveryMethods = await getDeliverySlots();
+
+    const vendorProduct = await getVendorProduct(id);
 
     return (
       <div>

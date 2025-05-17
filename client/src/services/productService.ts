@@ -1,21 +1,38 @@
 import { Product } from "@/types";
+import { customFetch } from "@/util/fetch";
 
-export async function getProducts() {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
-  if (!response.ok) {
-    new Error("Faild to fetch!");
+export async function getProducts(): Promise<Product[]> {
+  try {
+    const response = await customFetch<{ products: Product[] }>(
+      `${process.env.NEXT_PUBLIC_API_URL}/products`
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      console.error("Failed to fetch products:", response.status);
+      throw new Error("Failed to fetch products!");
+    }
+
+    return response.data.products;
+  } catch (error) {
+    console.error("Error in getProducts:", error);
+    throw error;
   }
-  if (!response.ok) throw new Error("Something went wrong!");
-  const data = await response.json();
-  const products = data.products as Product[];
-  return products;
 }
 
-export async function getProduct(id: string) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
-  );
-  if (!response.ok) throw new Error("Something went wrong!");
-  const product = (await response.json()) as Product;
-  return product;
+export async function getProduct(id: string): Promise<Product> {
+  try {
+    const response = await customFetch<Product>(
+      `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      console.error("Failed to fetch product:", response.status);
+      throw new Error("Failed to fetch product!");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in getProduct:", error);
+    throw error;
+  }
 }
