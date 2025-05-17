@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watch",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "start": "ts-node src/server.ts"
   },
   "dependencies": {
     "@daynightprint/shared": "^1.0.28",

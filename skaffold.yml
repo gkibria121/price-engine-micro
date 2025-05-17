@@ -1,0 +1,28 @@
+apiVersion: skaffold/v4beta12
+kind: Config
+metadata:
+  name: daynightprint-micro
+build: 
+  local:
+    push: false
+    useDockerCLI: true
+  artifacts:
+    - image: daynightprint/backend 
+      context: ./backend 
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: . 
+    - image: gkibria121/client 
+      context: ./client
+      docker:
+        dockerfile:  Dockerfile  
+      sync:
+        manual:
+          - src: 'app/**/*' 
+            dest: .
+          - src: 'src/**/*'
+            dest: .   
+manifests:
+  rawYaml:
+    - infra/k8s/*
