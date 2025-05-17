@@ -33,6 +33,7 @@ function PricingRulesForm({
       pricingFields.length - 1
     }.attribute`,
   });
+  console.log(errors);
   return (
     <ObjectListField
       readonly={readonly}
@@ -43,7 +44,12 @@ function PricingRulesForm({
       }}
       label="Pricing Rules"
       append={appendPricing}
-      expanded={true}
+      expanded={false}
+      error={
+        errors.vendorProducts?.[formIndex]?.pricingRules?.message ||
+        (errors.vendorProducts?.[formIndex]?.pricingRules &&
+          "Some rules are invalid")
+      }
     >
       {pricingFields.map((field, index) => (
         <ObjectListField.Row key={field.id}>

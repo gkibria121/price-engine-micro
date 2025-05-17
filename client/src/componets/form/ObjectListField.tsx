@@ -4,6 +4,7 @@ import { ArrayPath, FieldArray, UseFieldArrayReturn } from "react-hook-form";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ExpandableSection from "../ExpandableSection";
 import { AnimatePresence } from "framer-motion";
+import FieldError from "./FieldError";
 
 function ObjectListField<T extends Record<string, unknown>>({
   children,
@@ -12,12 +13,14 @@ function ObjectListField<T extends Record<string, unknown>>({
   readonly,
   expanded = false,
   append = undefined,
+  error = undefined,
 }: PropsWithChildren & {
   label: string;
   defaultItem: FieldArray<T, ArrayPath<T>>;
   append?: UseFieldArrayReturn<T>["append"];
   readonly: boolean;
   expanded?: boolean;
+  error?: string;
 }) {
   const [isExpanded, setIsExpanded] = useState<boolean>(expanded);
 
@@ -52,6 +55,7 @@ function ObjectListField<T extends Record<string, unknown>>({
           </Button>
         )}
       </div>
+      {error && <FieldError>{error}</FieldError>}
       <AnimatePresence initial={false}>
         {isExpanded && <ExpandableSection>{children}</ExpandableSection>}
       </AnimatePresence>

@@ -42,6 +42,11 @@ function DeliveryRulesForm({
       }}
       label="Delivery Options"
       append={appendDelivery}
+      error={
+        errors.vendorProducts?.[formIndex]?.deliverySlots?.message ||
+        (errors.vendorProducts?.[formIndex]?.deliverySlots &&
+          "Some rules are invalid")
+      }
     >
       {errors.vendorProducts?.[formIndex]?.deliverySlots?.root?.message && (
         <FieldError>

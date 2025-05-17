@@ -32,6 +32,11 @@ function QuantityPricingsForm({
       defaultItem={{ quantity: 1, price: 0 }}
       label="Quantity Pricing"
       append={appendQuantity}
+      error={
+        errors.vendorProducts?.[formIndex]?.quantityPricings?.message ||
+        (errors.vendorProducts?.[formIndex]?.quantityPricings &&
+          "Some rules are invalid")
+      }
     >
       {quantityFields.map((field, index) => (
         <ObjectListField.Row key={field.id}>

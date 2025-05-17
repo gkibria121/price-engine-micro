@@ -8,7 +8,6 @@ import CheckBox from "./CheckBox";
 import { getPricingRuleMetas } from "@/util/funcitons";
 import TextField from "./TextField";
 import Button from "../Button";
-import FieldError from "./FieldError";
 function PricingRuleMetasForm({
   readonly,
   formIndex,
@@ -42,6 +41,7 @@ function PricingRuleMetasForm({
       readonly={readonly}
       defaultItem={{}}
       label="Pricing Rule Metas"
+      error={errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.message}
     >
       <div className="flex justify-end">
         <Button type="btnPrimary" buttonType="button" onClick={refresh}>
@@ -149,11 +149,6 @@ function PricingRuleMetasForm({
           </ObjectListField.Col>
         </ObjectListField.Row>
       ))}
-      {errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.message && (
-        <FieldError>
-          {errors.vendorProducts?.[formIndex]?.pricingRuleMetas?.message}
-        </FieldError>
-      )}
     </ObjectListField>
   );
 }

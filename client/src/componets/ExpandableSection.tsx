@@ -7,7 +7,7 @@ const ExpandableSection = ({ children }: { children: React.ReactNode }) => {
       animate={{ height: "auto", opacity: 1 }}
       exit={{ height: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="overflow-hidden flex flex-col gap-4 pb-4"
+      className="overflow-hidden flex flex-col gap-4 pb-4 pt-2"
     >
       {children}
     </motion.div>
