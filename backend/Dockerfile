@@ -7,7 +7,7 @@ ENV WDS_SOCKET_PORT=0
 ENV TZ=Europe/London
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json .
 
 
 RUN  npm install    --verbose 
