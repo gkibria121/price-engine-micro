@@ -5,6 +5,10 @@ import { NotFoundException } from "../Exceptions/NotFoundException";
 import "express-async-errors";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import { ValidationErrors } from "../Exceptions/ValidationError";
+import VendorCreatedPublisher from "../events/publishers/vendor-created-publisher";
+import { natsWrapper } from "../lib/nats-client";
+import VendorUpdatedPublisher from "../events/publishers/vendor-updated-publisher";
+import VendorDeletedPublisher from "../events/publishers/vendor-deleted-publisher";
 // GET /vendors
 export async function index(req: Request, res: Response) {
   const vendors = await VendorModel.find();
@@ -32,6 +36,8 @@ export async function createVendor(req: Request, res: Response) {
   }
 
   const newVendor = await VendorModel.create({ name, email, address });
+  const publisher = new VendorCreatedPublisher(natsWrapper.client);
+  publisher.publish(newVendor);
   res.status(201).send({ vendor: newVendor });
 }
 
@@ -59,6 +65,12 @@ export async function updateVendor(req: Request, res: Response) {
     { name, email, address },
     { new: true, runValidators: true }
   );
+
+  const updatedVendor = await VendorModel.findOne({ _id: id });
+
+  const publisher = new VendorUpdatedPublisher(natsWrapper.client);
+  publisher.publish(updatedVendor);
+
   res.status(200).send({ message: "Vendor updated!" });
 }
 
@@ -73,7 +85,8 @@ export async function deleteVendor(req: Request, res: Response) {
 
   await VendorProductModel.deleteMany({ vendorId: id });
   await VendorModel.findByIdAndDelete(id);
-
+  const publisher = new VendorDeletedPublisher(natsWrapper.client);
+  publisher.publish({ id: id });
   res.status(200).send({ message: "Vendor deleted successfully" });
 }
 
@@ -105,5 +118,9 @@ export async function bulkInsertOrUpdate(req: Request, res: Response) {
   }
 
   const savedVendors = await VendorModel.insertMany(vendors);
+  const publisher = new VendorCreatedPublisher(natsWrapper.client);
+  savedVendors.map((vendor) => {
+    publisher.publish(vendor);
+  });
   res.status(201).send({ message: "Vendors created", vendors: savedVendors });
 }

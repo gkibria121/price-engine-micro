@@ -1,7 +1,15 @@
+// Place these FIRST, before importing the code that uses them
+jest.mock("../../events/publishers/product-created-publisher");
+jest.mock("../../events/publishers/product-updated-publisher");
+jest.mock("../../events/publishers/product-deleted-publisher");
+jest.mock("../../lib/nats-client");
 import request from "supertest";
 import app from "../../app";
 import mongoose from "mongoose";
 import { createProduct } from "../../helpers/test_helper_functions";
+import ProductCreatedPublisher from "../../events/publishers/product-created-publisher";
+import ProductDeletedPublisher from "../../events/publishers/product-deleted-publisher";
+import ProductUpdatedPublisher from "../../events/publishers/product-updated-publisher";
 describe("Test products api", () => {
   it("Should return empty products", async () => {
     const response = await request(app).get("/api/v1/products");
@@ -143,5 +151,47 @@ describe("Test product delete api", () => {
       "/api/v1/products/" + product._id
     );
     expect(response.statusCode).toBe(204);
+  });
+});
+
+describe("Test event publishing", () => {
+  it("Should publish event when product is created", async () => {
+    const response = await request(app).post("/api/v1/products").send({
+      name: "product 1",
+    });
+    expect(response.statusCode).toBe(201);
+    expect(ProductCreatedPublisher.prototype.publish).toHaveBeenCalled();
+  });
+  it("Should publish event when products are bulk created", async () => {
+    const response = await request(app)
+      .post("/api/v1/products/bulk-upload")
+      .send({ products: [{ name: "product 1" }, { name: "product 2" }] });
+    expect(response.statusCode).toBe(201);
+    expect(ProductCreatedPublisher.prototype.publish).toHaveBeenCalledTimes(2);
+  });
+  it("Should publish event when product is deleted", async () => {
+    const product = await createProduct();
+    const response = await request(app).delete(
+      "/api/v1/products/" + product._id
+    );
+    expect(response.statusCode).toBe(204);
+    expect(ProductDeletedPublisher.prototype.publish).toHaveBeenCalled();
+  });
+  it("Should publish event when product is updated", async () => {
+    const product = await createProduct();
+    const response = await request(app)
+      .put("/api/v1/products/" + product._id)
+      .send({
+        name: "Product 2",
+      });
+    expect(response.statusCode).toBe(203);
+    expect(response.body.product.id).toBe(product._id.toHexString());
+    expect(response.body.product.name).toBe("Product 2");
+    expect(ProductUpdatedPublisher.prototype.publish).toHaveBeenCalled();
+    expect(ProductUpdatedPublisher.prototype.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Product 2",
+      })
+    );
   });
 });

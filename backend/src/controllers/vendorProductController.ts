@@ -16,7 +16,9 @@ import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 import { getVendorsByProductAndDelivery } from "../services/vendorProductService";
 import { populateAllRefsMany } from "../utils/functions";
 import VendorProductCreatedPublisher from "../events/publishers/vendor-product-created-publisher";
-import { natsWrapper } from "../lib/natas-client";
+import { natsWrapper } from "../lib/nats-client";
+import VendorProductDeletedPublisher from "../events/publishers/vendor-product-deleted-publisher";
+import VendorProductUpdatedPublisher from "../events/publishers/vendor-product-updated-publisher";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -103,6 +105,8 @@ export async function storeVendorProduct(req: Request, res: Response) {
     "quantityPricings",
     "pricingRuleMetas",
   ]);
+  const publisher = new VendorProductCreatedPublisher(natsWrapper.client);
+  publisher.publish(populatedAssociation.toJSON());
   res
     .status(201)
     .send({ product, association: populatedAssociation?.toJSON() });
@@ -137,7 +141,8 @@ export async function deleteVendorProduct(req: Request, res: Response) {
     });
   // Delete vendor and related products
   await VendorProductModel.deleteMany({ _id: id });
-
+  const publisher = new VendorProductDeletedPublisher(natsWrapper.client);
+  publisher.publish({ id });
   res.status(204).send({ message: "Vendor product deleted!" });
 }
 export async function updateVendorProduct(req: Request, res: Response) {
@@ -200,6 +205,8 @@ export async function updateVendorProduct(req: Request, res: Response) {
     "quantityPricings",
     "pricingRuleMetas",
   ]);
+  const publisher = new VendorProductUpdatedPublisher(natsWrapper.client);
+  publisher.publish(updatedVendorProduct);
   res.status(200).send({
     message: "Product updated successfully",
     vendorProduct: updatedVendorProduct,

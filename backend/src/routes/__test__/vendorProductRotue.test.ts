@@ -1,3 +1,7 @@
+jest.mock("../../events/publishers/vendor-product-created-publisher");
+jest.mock("../../events/publishers/vendor-product-updated-publisher");
+jest.mock("../../events/publishers/vendor-product-deleted-publisher");
+jest.mock("../../lib/nats-client");
 import request from "supertest";
 import app from "../../app";
 import VendorModel from "../../models/VendorModel";
@@ -5,6 +9,9 @@ import ProductModel from "../../models/ProductModel";
 import VendorProductModel from "../../models/VendorProductModel";
 import { createVendorProduct } from "../../helpers/test_helper_functions";
 import mongoose from "mongoose";
+import VendorProductCreatedPublisher from "../../events/publishers/vendor-product-created-publisher";
+import VendorProductUpdatedPublisher from "../../events/publishers/vendor-product-updated-publisher";
+import VendorProductDeletedPublisher from "../../events/publishers/vendor-product-deleted-publisher";
 
 // Helper Functions
 async function createVendor() {
@@ -77,7 +84,10 @@ describe("Vendor Product Controller", () => {
             },
           ],
           rating: 10,
-          quantityPricings: [{ quantity: 10, price: 100 }],
+          quantityPricings: [
+            { quantity: 10, price: 100 },
+            { quantity: 10, price: 100 },
+          ],
           pricingRuleMetas: [
             {
               attribute: "Paper",
@@ -178,7 +188,10 @@ describe("Vendor Product Controller", () => {
               deliveryTimeEndTime: "05:12",
             },
           ],
-          quantityPricings: [{ quantity: 10, price: 100 }],
+          quantityPricings: [
+            { quantity: 10, price: 100 },
+            { quantity: 20, price: 200 },
+          ],
           pricingRuleMetas: [
             {
               attribute: "Paper",
@@ -244,7 +257,10 @@ describe("Vendor Product Controller", () => {
               deliveryTimeEndTime: "05:12",
             },
           ],
-          quantityPricings: [{ quantity: 10, price: 100 }],
+          quantityPricings: [
+            { quantity: 10, price: 100 },
+            { quantity: 20, price: 200 },
+          ],
           rating: 10,
         });
 
@@ -475,7 +491,10 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
                 deliveryTimeEndTime: "05:12",
               },
             ],
-            quantityPricings: [{ quantity: 10, price: 100 }],
+            quantityPricings: [
+              { quantity: 10, price: 100 },
+              { quantity: 20, price: 200 },
+            ],
             pricingRuleMetas: [
               {
                 attribute: "Paper",
@@ -490,6 +509,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           },
         ],
       });
+
     expect(response.body.vendorProducts[0].product).toBe(
       product._id.toHexString()
     );
@@ -525,7 +545,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
           "At least one delivery slot is required",
         ],
         "vendorProducts.0.quantityPricings": [
-          "At least one quantity pricing is required",
+          "At least two quantity pricing is required",
         ],
         "vendorProducts.0.rating": ["Rating is required"],
       },
@@ -576,6 +596,9 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         ],
         "vendorProducts.0.quantityPricings.0.quantity": [
           "Quantity is required",
+        ],
+        "vendorProducts.0.quantityPricings": [
+          "At least two quantity pricing is required",
         ],
         "vendorProducts.0.rating": ["Rating is required"],
         "vendorProducts.0.quantityPricings.0.price": ["Price is required"],
@@ -636,5 +659,153 @@ describe("Get matched vendor products", () => {
     expect(res.body.vendorProducts[0].rating).toBeGreaterThanOrEqual(
       res.body.vendorProducts[1].rating
     );
+  });
+});
+
+describe("Test vendor product publishing", () => {
+  it("should publish vendor created event", async () => {
+    const product = await createProduct();
+    const vendor = await createVendor();
+
+    const res = await request(app)
+      .post("/api/v1/vendor-products/store")
+      .send({
+        vendorId: vendor._id,
+        productId: product._id,
+        pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+        deliverySlots: [
+          {
+            price: 143,
+            cutoffTime: "23:56",
+            deliveryTimeStartTime: "14:06",
+            label: "express",
+            deliveryTimeStartDate: 4,
+            deliveryTimeEndDate: 21,
+            deliveryTimeEndTime: "05:12",
+          },
+        ],
+        rating: 10,
+        quantityPricings: [
+          { quantity: 10, price: 100 },
+          { quantity: 10, price: 100 },
+        ],
+        pricingRuleMetas: [
+          {
+            attribute: "Paper",
+            default: 0,
+            values: ["Glossy"],
+            inputType: "radio",
+            required: false,
+            description: "",
+            hasOther: false,
+          },
+        ],
+      });
+    expect(VendorProductCreatedPublisher.prototype.publish).toHaveBeenCalled();
+    expect(res.status).toBe(201);
+  });
+  it("Should  publish vendor created event for bulk create", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const response = await request(app)
+      .post("/api/v1/vendor-products/bulk-store")
+      .send({
+        vendorProducts: [
+          {
+            vendorId: vendor._id,
+            productId: product._id,
+            rating: 10,
+            pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+            deliverySlots: [
+              {
+                price: 143,
+                cutoffTime: "23:56",
+                deliveryTimeStartTime: "14:06",
+                label: "express",
+                deliveryTimeStartDate: 4,
+                deliveryTimeEndDate: 21,
+                deliveryTimeEndTime: "05:12",
+              },
+            ],
+            quantityPricings: [
+              { quantity: 10, price: 100 },
+              { quantity: 20, price: 200 },
+            ],
+            pricingRuleMetas: [
+              {
+                attribute: "Paper",
+                default: 0,
+                values: ["Glossy"],
+                inputType: "radio",
+                required: false,
+                description: "",
+                hasOther: false,
+              },
+            ],
+          },
+        ],
+      });
+    expect(
+      VendorProductCreatedPublisher.prototype.publish
+    ).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(201);
+  });
+  it("Should  publish vendor updated event", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const vendorProduct = await VendorProductModel.create({
+      vendor: vendor._id,
+      product: product._id,
+      rating: 10,
+    });
+
+    const res = await request(app)
+      .put(`/api/v1/vendor-products/${vendorProduct._id}`)
+      .send({
+        pricingRules: [{ attribute: "Paper", value: "Glossy", price: 687 }],
+        rating: 10,
+        deliverySlots: [
+          {
+            price: 143,
+            cutoffTime: "23:56",
+            deliveryTimeStartTime: "14:06",
+            label: "express",
+            deliveryTimeStartDate: 4,
+            deliveryTimeEndDate: 21,
+            deliveryTimeEndTime: "05:12",
+          },
+        ],
+        quantityPricings: [
+          { quantity: 10, price: 100 },
+          { quantity: 20, price: 200 },
+        ],
+        pricingRuleMetas: [
+          {
+            attribute: "Paper",
+            default: 0,
+            values: ["Glossy"],
+            inputType: "radio",
+            required: false,
+            description: "",
+            hasOther: false,
+          },
+        ],
+      });
+    expect(VendorProductUpdatedPublisher.prototype.publish).toHaveBeenCalled();
+  });
+  it("Should  publish vendor deleted event", async () => {
+    const vendor = await createVendor();
+    const product = await createProduct();
+    const vendorProduct = await VendorProductModel.create({
+      vendor: vendor._id,
+      product: product._id,
+      rating: 10,
+    });
+
+    const res = await request(app).delete(
+      `/api/v1/vendor-products/${vendorProduct._id}`
+    );
+    expect(res.status).toBe(204);
+    expect(VendorProductDeletedPublisher.prototype.publish).toHaveBeenCalled();
   });
 });
