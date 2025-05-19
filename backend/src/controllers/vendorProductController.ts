@@ -250,17 +250,22 @@ export async function bulkStore(req: Request, res: Response) {
       pricingRuleMetas,
       rating
     );
-    const vendorProductCreatedPublisher = new VendorProductCreatedPublisher(
-      jetStreamWrapper.client
-    );
 
-    vendorProductCreatedPublisher.publish(newVendorProduct);
     results.push(newVendorProduct);
   }
+  const populatedResults = await populateAllRefsMany(
+    results,
+    VendorProductModel.schema
+  );
+
+  const vendorProductCreatedPublisher = new VendorProductCreatedPublisher(
+    jetStreamWrapper.client
+  );
+  populatedResults.map((vp) => vendorProductCreatedPublisher.publish(vp));
 
   res.status(201).json({
     message: "Bulk insert/update completed successfully.",
-    vendorProducts: results,
+    vendorProducts: populatedResults,
   });
 }
 export async function getMatchedVendorProducts(req: Request, res: Response) {

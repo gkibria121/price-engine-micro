@@ -1,4 +1,4 @@
-import { ProudctUpdatedEvent, Publisher, Subject } from "@daynightprint/shared";
+import { ProudctUpdatedEvent, Publisher, Subject } from "@daynightprint/events";
 
 class ProductUpdatedPublisher extends Publisher<ProudctUpdatedEvent> {
   subject: Subject.productUpdated = Subject.productUpdated;

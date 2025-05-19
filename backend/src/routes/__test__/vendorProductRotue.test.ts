@@ -510,7 +510,7 @@ describe("Vendor Product Controller - Bulk Insert or Update", () => {
         ],
       });
 
-    expect(response.body.vendorProducts[0].product).toBe(
+    expect(response.body.vendorProducts[0].product.id).toBe(
       product._id.toHexString()
     );
     expect(response.body.vendorProducts[0].pricingRules[0]).toBeDefined();

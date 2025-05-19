@@ -21,5 +21,9 @@ export async function populateAllRefsMany<T extends Document>(
     }
   }
 
-  return Promise.all(docs.map((doc) => doc.populate(refs) as Promise<T>));
+  return Promise.all(
+    docs.map(
+      (doc) => doc.populate(refs).then((temp) => temp.toJSON()) as Promise<T>
+    )
+  );
 }

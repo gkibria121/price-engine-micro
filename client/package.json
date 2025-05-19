@@ -9,12 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@daynightprint/shared": "^1.0.16",
+    "@daynightprint/shared": "^1.0.49",
     "@hookform/resolvers": "^5.0.1",
     "axios": "^1.9.0",
     "framer-motion": "^12.11.4",
     "lucide-react": "^0.507.0",
     "mongoose": "^8.14.1",
+    "nats": "^2.29.3",
     "next": "15.3.1",
     "pluralize": "^8.0.0",
     "react": "^19.0.0",

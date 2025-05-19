@@ -12,6 +12,7 @@
     "start": "ts-node src/server.ts"
   },
   "dependencies": {
+    "@daynightprint/events": "^1.0.1",
     "@daynightprint/shared": "^1.0.28",
     "@faker-js/faker": "^9.7.0",
     "cors": "^2.8.5",

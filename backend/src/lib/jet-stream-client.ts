@@ -4,7 +4,7 @@ import {
   JetStreamClient,
   JetStreamManager,
 } from "nats";
-import { Subject } from "@daynightprint/shared";
+import { Subject } from "@daynightprint/events";
 class JetStreamWrapper {
   protected nc!: NatsConnection;
   protected _jsm!: JetStreamClient;

@@ -1,4 +1,4 @@
-import { VendorDeletedEvent, Publisher, Subject } from "@daynightprint/shared";
+import { VendorDeletedEvent, Publisher, Subject } from "@daynightprint/events";
 
 class VendorDeletedPublisher extends Publisher<VendorDeletedEvent> {
   subject: Subject.vendorDeleted = Subject.vendorDeleted;

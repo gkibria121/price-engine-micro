@@ -36,8 +36,4 @@ class Listener(ABC):
         )
 
         print(f"Subscribed to {self.subject} with durable '{self.durable}'")
-        try:
-            while True:
-                await asyncio.sleep(1)
-        finally:
-            await self.nc.drain()
+ 

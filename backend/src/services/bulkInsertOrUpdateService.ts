@@ -8,6 +8,7 @@ import PricingRuleModel from "../models/PricingRuleModel";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 import Product from "../lib/product/Product";
+import { populateAllRefsMany } from "../utils/functions";
 export async function createVendorProduct(
   product: any,
   vendor: any,
@@ -33,7 +34,7 @@ export async function createVendorProduct(
     pricingRuleMetas.map((rule) => PricingRuleMetaModel.create(rule))
   );
 
-  return VendorProductModel.create({
+  const newVendorProduct = await VendorProductModel.create({
     product: product._id,
     vendor: vendor._id,
     pricingRules: pricingRuleIds.map((doc) => doc._id),
@@ -42,6 +43,8 @@ export async function createVendorProduct(
     pricingRuleMetas: pricingRuleOptionIds.map((doc) => doc._id),
     rating,
   });
+
+  return newVendorProduct;
 }
 
 export async function validateBulkStoreRequest(vendorProducts: any[]) {

@@ -29,6 +29,10 @@ describe("Test create product api", () => {
   it("Should return 422 for missing product name", async () => {
     const response = await request(app).post("/api/v1/products");
     expect(response.statusCode).toBe(422);
+    const response1 = await request(app).post("/api/v1/products").send({
+      name: "",
+    });
+    expect(response1.statusCode).toBe(422);
   });
   it("Should return 422 for duplicate product name", async () => {
     const response1 = await request(app).post("/api/v1/products").send({

@@ -2,7 +2,7 @@ import {
   VendorProudctUpdatedEvent,
   Publisher,
   Subject,
-} from "@daynightprint/shared";
+} from "@daynightprint/events";
 
 class VendorProductUpdatedPublisher extends Publisher<VendorProudctUpdatedEvent> {
   subject: Subject.VendorProudctUpdated = Subject.VendorProudctUpdated;
