@@ -7,6 +7,7 @@ class NatsWrapper {
       throw new Error("Please connect nats streaming before accessing client!");
     return this._client;
   }
+
   public async connect(): Promise<void> {
     const id = randomBytes(10).toString("hex");
     this._client = nats.connect(process.env.CLUSTER_ID!, id, {
