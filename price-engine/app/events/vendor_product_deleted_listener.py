@@ -6,9 +6,9 @@ class VendorProductDeletedListener(Listener):
         super().__init__(
             js,
             subject=Subject.VENDOR_PRODUCT_DELETED,
-            durable="price-engine-service"
+            queue="price-engine-service"
         ) 
-    async def on_message(self, msg):
+    async def on_message(self, msg,data:dict):
         try:
             data = msg.data.decode()
             print(f"Received vendor product deleted event: {data}") 
