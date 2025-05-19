@@ -3,6 +3,7 @@ from pydantic import field_validator
 from .validations import validate_time
 import re
 class DeliverySlot(EmbeddedModel):
+    id:str
     label: str
     price: float
     deliveryTimeStartDate: int = Field(gt=-1)

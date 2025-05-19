@@ -83,7 +83,7 @@ export async function deleteVendor(req: Request, res: Response) {
     throw new NotFoundException("Vendor not found!");
   }
 
-  await VendorProductModel.deleteMany({ vendorId: id });
+  await VendorProductModel.deleteMany({ vendor: id });
   await VendorModel.findByIdAndDelete(id);
   const publisher = new VendorDeletedPublisher(jetStreamWrapper.client);
   publisher.publish({ id: id });

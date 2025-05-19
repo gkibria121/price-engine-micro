@@ -8,7 +8,6 @@ from app.events.vendor_updated_listener import      VendorUpdatedListener
 from app.events.vendor_product_created_listener import VendorProductCreatedListener
 from app.events.vendor_product_updated_listener import VendorProductUpdatedListener
 from app.events.vendor_product_deleted_listener import VendorProductDeletedListener
-
 async def start_nats_listeners():
     try:
         await js_wrapper.connect()
