@@ -21,7 +21,7 @@ spec:
           - name: CLUSTER_ID 
             value: "nats-streaming"
           - name: NATS_URL 
-            value: "http://nats-streaming-service:4222"
+            value: "nats-service:4222"
         resources:
           requests:
             memory: "256Mi"

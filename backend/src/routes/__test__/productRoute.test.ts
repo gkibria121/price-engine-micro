@@ -2,7 +2,6 @@
 jest.mock("../../events/publishers/product-created-publisher");
 jest.mock("../../events/publishers/product-updated-publisher");
 jest.mock("../../events/publishers/product-deleted-publisher");
-jest.mock("../../lib/nats-client");
 import request from "supertest";
 import app from "../../app";
 import mongoose from "mongoose";

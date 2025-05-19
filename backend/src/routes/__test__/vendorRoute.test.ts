@@ -1,7 +1,6 @@
 jest.mock("../../events/publishers/vendor-created-publisher");
 jest.mock("../../events/publishers/vendor-updated-publisher");
 jest.mock("../../events/publishers/vendor-deleted-publisher");
-jest.mock("../../lib/nats-client");
 import request from "supertest";
 import app from "../../app";
 import VendorModel from "../../models/VendorModel";

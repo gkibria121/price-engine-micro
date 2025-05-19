@@ -6,9 +6,9 @@ import "express-async-errors";
 import { CustomValidationException } from "../Exceptions/CustomValidationException";
 import { MongooseError } from "mongoose";
 import ProductCreatedPublisher from "../events/publishers/product-created-publisher";
-import { natsWrapper } from "../lib/nats-client";
 import ProductUpdatedPublisher from "../events/publishers/product-updated-publisher";
 import ProductDeletedPublisher from "../events/publishers/product-deleted-publisher";
+import { jetStreamWrapper } from "../lib/jet-stream-client";
 export async function index(req: Request, res: Response) {
   const products = await ProductModel.find();
   res.status(200).send({
@@ -26,7 +26,7 @@ export async function createProduct(req: Request, res: Response) {
     });
   }
   const newProduct = await ProductModel.create({ name });
-  const publisher = new ProductCreatedPublisher(natsWrapper.client);
+  const publisher = new ProductCreatedPublisher(jetStreamWrapper.client);
   publisher.publish(newProduct);
   res.status(201).send({ product: newProduct });
 }
@@ -58,7 +58,8 @@ export async function bulkInsert(req: Request, res: Response) {
     const createdProducts = await ProductModel.insertMany(newProducts, {
       ordered: false,
     });
-    const publisher = new ProductCreatedPublisher(natsWrapper.client);
+    const publisher = new ProductCreatedPublisher(jetStreamWrapper.client);
+
     createdProducts.map((newProduct) => {
       publisher.publish(newProduct);
     });
@@ -108,7 +109,7 @@ export async function updateProduct(req: Request, res: Response) {
     { $set: { name } },
     { new: true, runValidators: true }
   );
-  const publisher = new ProductUpdatedPublisher(natsWrapper.client);
+  const publisher = new ProductUpdatedPublisher(jetStreamWrapper.client);
   publisher.publish(updatedProduct);
   res.status(203).send({
     message: "Product updated successfully",
@@ -126,7 +127,7 @@ export async function deleteProduct(req: Request, res: Response) {
   await ProductModel.deleteOne({ _id: productId });
   await VendorProductModel.deleteMany({ product: productId });
 
-  const publisher = new ProductDeletedPublisher(natsWrapper.client);
+  const publisher = new ProductDeletedPublisher(jetStreamWrapper.client);
 
   publisher.publish(product);
 

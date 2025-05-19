@@ -21,6 +21,7 @@
     "express-validator": "^7.2.1",
     "mongodb-memory-server": "^10.1.4",
     "mongose": "^0.0.2-security",
+    "nats": "^2.29.3",
     "node-nats-streaming": "^0.3.2",
     "timezone": "^1.0.23",
     "ts-jest": "^29.3.1",

@@ -2,13 +2,14 @@ import app from "./app";
 import connectDatabase from "./config/connectdb";
 import dotenv from "dotenv";
 import path from "path";
-import { connectNatsStreaming } from "./config/connectNatStreaming";
+import { connectNatsJetStream } from "./config/connetNatsJetStream";
 const PORT = 8000;
 const setup = async () => {
   try {
     await connectDatabase();
-    await connectNatsStreaming();
     console.log("Database connected!");
+    await connectNatsJetStream();
+    console.log("Nats connected!");
   } catch (error: unknown) {
     console.log(error);
     process.exit();
