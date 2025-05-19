@@ -15,4 +15,4 @@ class VendorProduct(Model):
     rating: float
     pricingRules: List[PricingRule] = []
     deliverySlots: List[DeliverySlot] = []
-    quantityPricings: List[QuantityPricing] = []
+    quantityPricings: List[QuantityPricing] = [] 

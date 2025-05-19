@@ -17,7 +17,7 @@ spec:
         imagePullPolicy: Never
         env:
           - name: MONGO_URI
-            value: "mongodb://db-service:27017/price-engine"
+            value: "mongodb://db-service:27017/backend"
           - name: CLUSTER_ID 
             value: "nats-streaming"
           - name: NATS_URL 

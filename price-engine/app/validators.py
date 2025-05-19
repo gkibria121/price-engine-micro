@@ -10,5 +10,4 @@ def validate_calculation_request():
         return validated_data.dict(), None, 200
     except ValidationError as e:
         error_response = format_pydantic_errors(e.errors())
-        print(error_response)
         raise ValidationException(error_response['message'], error_response['errors'])

@@ -57,7 +57,6 @@ class TestPricingEngine(unittest.TestCase):
             ],
             "Express"
         )
-        print(request)
         result = self.engine.calculate_price(request)
 
         # 1100 + 10% = 1210

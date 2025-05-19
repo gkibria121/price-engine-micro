@@ -6,9 +6,9 @@ from app import create_app
 
 
 # Load from environment
-MONGO_URL = os.getenv("MONGO_URL")
+MONGO_URI = os.getenv("MONGO_URI")
 
-if not MONGO_URL:
+if not MONGO_URI:
     sys.exit("❌ Environment variable MONGO_URL is not set. Please define it before starting the app.")
 
 
