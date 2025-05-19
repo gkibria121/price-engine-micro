@@ -1,26 +1,22 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.requests import Request  # Note: Usually FastAPI passes the body as parameters, but you can access Request for raw body if needed
+from fastapi import APIRouter 
 from app.db import engine
 from app.lib.product import Product, PricingRule, DeliveryRule, QuantityPricing, Attribute
 from app.lib import PricingEngine, PriceCalculationRequest
 from app.models import VendorProduct 
 from app.exceptions.NotFoundException import NotFoundException
 from bson import ObjectId
-
+from .validators import validate_calculation_request
 api_router = APIRouter()
 
 @api_router.post('/calculate-price')
 async def calculate_price(data: dict):
+    data = validate_calculation_request(data)
     product_id = data.get('productId')
     vendor_id = data.get('vendorId')
     quantity = data.get('quantity')
     attributes = data.get('attributes', [])
-    delivery_method = data.get('deliveryMethod')
-
-    if not (product_id and vendor_id):
-        return JSONResponse(status_code=400, content={"error": "productId and vendorId are required"})
-
+    delivery_method = data.get('deliveryMethod') 
+    
     vendor_product = await engine.find_one(
         VendorProduct,
         {
@@ -29,14 +25,14 @@ async def calculate_price(data: dict):
         }
     ) 
     if not vendor_product:
-        raise HTTPException(status_code=404, detail="VendorProduct not found!")
+        raise NotFoundException("VendorProduct not found!")
 
     matched_delivery = next(
         (slot for slot in vendor_product.deliverySlots if slot.label == delivery_method.get('label')),
         None
     )
     if not matched_delivery:
-        raise HTTPException(status_code=404, detail="Delivery method not found!")
+        raise NotFoundException("Delivery method not found!")
 
     product = Product(
         vendor_product.product.name,
