@@ -4,7 +4,7 @@ from fastapi.requests import Request  # Note: Usually FastAPI passes the body as
 from app.db import engine
 from app.lib.product import Product, PricingRule, DeliveryRule, QuantityPricing, Attribute
 from app.lib import PricingEngine, PriceCalculationRequest
-from app.models import VendorProduct,Product
+from app.models import VendorProduct 
 from app.exceptions.NotFoundException import NotFoundException
 from bson import ObjectId
 
@@ -27,7 +27,7 @@ async def calculate_price(data: dict):
             "product.id": ObjectId(product_id),
             "vendor.id": ObjectId(vendor_id)
         }
-    )
+    ) 
     if not vendor_product:
         raise HTTPException(status_code=404, detail="VendorProduct not found!")
 
@@ -66,45 +66,7 @@ async def calculate_price(data: dict):
 
 
 @api_router.get('/test')
-async def test():
-    # from app.models import VendorProduct
-    # from app.models.vendor_model import Vendor
-    # from app.models.product_model import Product
-    # from app.models.pricing_rule import PricingRule
-    # from app.models.quantity_pricing_model import QuantityPricing
-    # from app.models.delivery_slot_model import DeliverySlot
-
-    # # Create embedded subdocuments
-    # vendor = Vendor(name="Acme Vendor", address="42 Vendor St",email="gkibria121@gmail.com")
-    # product = Product(name="Gadget X" )
-
-    # pricing_rules = [PricingRule(attribute="Color", value="Red", price=100)]
-    # quantity_pricings = [
-    #     QuantityPricing(quantity=10, price=1000),
-    #     QuantityPricing(quantity=20, price=2000)
-    # ]
-    # delivery_slots = [ DeliverySlot(
-    #                 label="express",
-    #                 price=50.0,
-    #                 deliveryTimeStartDate=0,
-    #                 deliveryTimeStartTime="09:30",
-    #                 deliveryTimeEndDate=0,
-    #                 deliveryTimeEndTime="18:00",
-    #                 cutoffTime="17:00"
-    #                 )]
-
-    # # Create VendorProduct (top-level ODMantic Model)
-    # vendor_product = VendorProduct(
-    #     vendor=vendor,
-    #     product=product,
-    #     rating=4.5,
-    #     pricingRules=pricing_rules,
-    #     quantityPricings=quantity_pricings,
-    #     deliverySlots=delivery_slots
-    # )
-
-    # # Save to DB
-    # await engine.save(vendor_product)
+async def test(): 
 
     # Retrieve and return
     return await engine.find(VendorProduct)
