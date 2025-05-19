@@ -32,6 +32,7 @@ class Listener(ABC):
             subject=self.subject,
             cb=self.on_message,
             config=consumer_config,
+            manual_ack=True, 
         )
 
         print(f"Subscribed to {self.subject} with durable '{self.durable}'")

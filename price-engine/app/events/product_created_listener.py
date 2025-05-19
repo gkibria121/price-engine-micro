@@ -12,9 +12,15 @@ class ProductCreatedListener(Listener):
         )
 
     async def on_message(self, msg):
-        print(f"Received product creation event: {msg.data.decode()}")
-        await msg.ack()  # Manual acknowledgment
-
+        try:
+            data = msg.data.decode()
+            print(f"Received product creation event: {data}") 
+            # If processing succeeds, acknowledge the message:
+            await msg.ack()
+        except Exception as e:
+            print(f"Error processing message: {e}")
+            # Terminate the message to trigger redelivery
+            await msg.term()
 if __name__ == "__main__":
     listener = ProductCreatedListener()
     asyncio.run(listener.listen())

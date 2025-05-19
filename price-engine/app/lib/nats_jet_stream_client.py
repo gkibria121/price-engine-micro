@@ -3,7 +3,7 @@ import asyncio
 from nats.aio.client import Client as NATS
 from nats.js.client import JetStreamContext
 from nats.js.manager import JetStreamManager
-from nats.js.api import StreamConfig
+from nats.js.api import StreamConfig,RetentionPolicy
 from app.events.subject import Subject
 STEAM_NAME = "PRODUCT_EVENTS"
 class JetStreamWrapper:
@@ -26,6 +26,7 @@ class JetStreamWrapper:
             config = StreamConfig(
                 name=stream_name,
                 subjects=subjects,
+                retention=RetentionPolicy.INTEREST,  # Critical for redelivery
                 max_msgs=100_000,
                 max_bytes=100 * 1024 * 1024  # 100 MB
             )
