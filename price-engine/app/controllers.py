@@ -1,58 +1,54 @@
-from flask import Blueprint, jsonify, request 
-from app.db import mongo
-from .validators import validate_calculation_request
-from app.lib.product import Product,PricingRule,DeliveryRule,QuantityPricing,Attribute
-from app.lib import PricingEngine,PriceCalculationRequest
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request  # Note: Usually FastAPI passes the body as parameters, but you can access Request for raw body if needed
+from app.db import engine
+from app.lib.product import Product, PricingRule, DeliveryRule, QuantityPricing, Attribute
+from app.lib import PricingEngine, PriceCalculationRequest
+from app.models import VendorProduct
 from app.exceptions.NotFoundException import NotFoundException
 from bson import ObjectId
-api_blueprint = Blueprint('api', __name__)
 
-@api_blueprint.route('/calculate-price', methods=['POST'])
-def calculate_price():
-    data, error_response, status = validate_calculation_request()
-    if error_response:
-        return error_response, status
+api_router = APIRouter()
 
+@api_router.post('/calculate-price')
+async def calculate_price(data: dict):
     product_id = data.get('productId')
     vendor_id = data.get('vendorId')
     quantity = data.get('quantity')
     attributes = data.get('attributes', [])
-    delivery_method = data.get('deliveryMethod') 
-  
-    vendor_product = mongo.db.vendor_products.find_one({
-        "product": ObjectId(product_id),
-        "vendor": ObjectId(vendor_id)
-    }) 
-    if not vendor_product:
-        raise NotFoundException("VendorProduct not found!")
+    delivery_method = data.get('deliveryMethod')
 
-    # Assuming deliverySlots is a list of dicts
+    if not (product_id and vendor_id):
+        return JSONResponse(status_code=400, content={"error": "productId and vendorId are required"})
+
+    vendor_product = await engine.find_one(
+        VendorProduct,
+        {
+            "product.id": ObjectId(product_id),
+            "vendor.id": ObjectId(vendor_id)
+        }
+    )
+    if not vendor_product:
+        raise HTTPException(status_code=404, detail="VendorProduct not found!")
+
     matched_delivery = next(
-        (slot for slot in vendor_product.get('deliverySlots', [])
-         if slot.get('label') == delivery_method.get('label')),
+        (slot for slot in vendor_product.deliverySlots if slot.label == delivery_method.get('label')),
         None
     )
     if not matched_delivery:
-        raise NotFoundException("Delivery method not found!") 
-    
-    product_data = mongo.db.products.find_one({"_id": ObjectId(product_id)})
-    if not product_data:
-        raise NotFoundException("Product not found!")
-
-    # Build product object and pricing rules similar to your JS classes
-    # Assuming you have similar Python classes: Product, PricingRule, DeliveryRule, QuantityPricing, PricingEngine, PriceCalculationRequest, Attribute
+        raise HTTPException(status_code=404, detail="Delivery method not found!")
 
     product = Product(
-        product_data['name'],
-        [PricingRule(rule['attribute'], rule['value'], rule['price']) for rule in vendor_product.get('pricingRules', [])],
-        [DeliveryRule(slot['label'], slot['price']) for slot in vendor_product.get('deliverySlots', [])],
-        [QuantityPricing(qp['quantity'], qp['price']) for qp in vendor_product.get('quantityPricings', [])],
+        vendor_product.product.name,
+        [PricingRule(rule.attribute, rule.value, rule.price) for rule in vendor_product.pricingRules],
+        [DeliveryRule(slot.label, slot.price) for slot in vendor_product.deliverySlots],
+        [QuantityPricing(qp.quantity, qp.price) for qp in vendor_product.quantityPricings],
     )
 
     pricing_engine = PricingEngine(product)
 
     price_request = PriceCalculationRequest(
-        product_data['name'],
+        vendor_product.product.name,
         quantity,
         [Attribute(attr['name'], attr['value']) for attr in attributes],
         delivery_method['label']
@@ -61,8 +57,15 @@ def calculate_price():
     price_data = pricing_engine.calculate_price(price_request)
 
     response = {
-        "productName": product_data['name'],
+        "productName": vendor_product.product.name,
         "quantity": quantity,
         **price_data
     }
-    return jsonify(response)
+
+    return response
+
+
+@api_router.get('/test')
+async def test():
+    vendor_product = await engine.find_one(VendorProduct)
+    return vendor_product

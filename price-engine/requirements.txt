@@ -1,3 +1,4 @@
-flask==3.0.2
 pydantic>=2.0
 Flask-PyMongo>=3.0
+odmantic>=1.0 
+uvicorn>=0.34.2
