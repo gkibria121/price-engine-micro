@@ -15,6 +15,10 @@ import {
 import PricingRuleMetaModel from "../models/PricingRuleMetaModel";
 import { getVendorsByProductAndDelivery } from "../services/vendorProductService";
 import { populateAllRefsMany } from "../utils/functions";
+import VendorProductCreatedPublisher from "../events/publishers/vendor-product-created-publisher";
+import VendorProductDeletedPublisher from "../events/publishers/vendor-product-deleted-publisher";
+import VendorProductUpdatedPublisher from "../events/publishers/vendor-product-updated-publisher";
+import { jetStreamWrapper } from "../lib/jet-stream-client";
 
 export async function index(req: Request, res: Response) {
   const vendorProducts = await VendorProductModel.find().populate([
@@ -101,6 +105,8 @@ export async function storeVendorProduct(req: Request, res: Response) {
     "quantityPricings",
     "pricingRuleMetas",
   ]);
+  const publisher = new VendorProductCreatedPublisher(jetStreamWrapper.client);
+  publisher.publish(populatedAssociation.toJSON());
   res
     .status(201)
     .send({ product, association: populatedAssociation?.toJSON() });
@@ -135,7 +141,8 @@ export async function deleteVendorProduct(req: Request, res: Response) {
     });
   // Delete vendor and related products
   await VendorProductModel.deleteMany({ _id: id });
-
+  const publisher = new VendorProductDeletedPublisher(jetStreamWrapper.client);
+  publisher.publish({ id });
   res.status(204).send({ message: "Vendor product deleted!" });
 }
 export async function updateVendorProduct(req: Request, res: Response) {
@@ -198,6 +205,8 @@ export async function updateVendorProduct(req: Request, res: Response) {
     "quantityPricings",
     "pricingRuleMetas",
   ]);
+  const publisher = new VendorProductUpdatedPublisher(jetStreamWrapper.client);
+  publisher.publish(updatedVendorProduct);
   res.status(200).send({
     message: "Product updated successfully",
     vendorProduct: updatedVendorProduct,
@@ -241,7 +250,11 @@ export async function bulkStore(req: Request, res: Response) {
       pricingRuleMetas,
       rating
     );
+    const vendorProductCreatedPublisher = new VendorProductCreatedPublisher(
+      jetStreamWrapper.client
+    );
 
+    vendorProductCreatedPublisher.publish(newVendorProduct);
     results.push(newVendorProduct);
   }
 

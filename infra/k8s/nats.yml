@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          image: nats:latest
+          ports:
+            - containerPort: 4222
+            - containerPort: 8222
+          command:
+            - "nats-server"
+            - "-c"
+            - "/etc/nats/nats.conf"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/nats
+            - name: jetstream-storage
+              mountPath: /data/jetstream
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: nats-config
+        - name: jetstream-storage
+          emptyDir: {}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-service
+spec: 
+  selector:
+    app: nats
+  ports:
+  - port: 4222
+    targetPort: 4222

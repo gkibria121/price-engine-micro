@@ -1,10 +1,16 @@
+jest.mock("../../events/publishers/vendor-created-publisher");
+jest.mock("../../events/publishers/vendor-updated-publisher");
+jest.mock("../../events/publishers/vendor-deleted-publisher");
+jest.mock("../../lib/jet-stream-client");
 import request from "supertest";
 import app from "../../app";
 import VendorModel from "../../models/VendorModel";
 import VendorProductModel from "../../models/VendorProductModel";
 import mongoose from "mongoose";
 import ProductModel from "../../models/ProductModel";
-import { createVendorProduct } from "../../helpers/test_helper_functions";
+import VendorCreatedPublisher from "../../events/publishers/vendor-created-publisher";
+import VendorUpdatedPublisher from "../../events/publishers/vendor-updated-publisher";
+import VendorDeletedPublisher from "../../events/publishers/vendor-deleted-publisher";
 
 beforeEach(async () => {
   await VendorModel.deleteMany({});
@@ -224,5 +230,76 @@ describe("Test bulk upload vendor api", () => {
       });
     expect(res.status).toBe(201);
     expect(res.body.vendors.length).toBe(2);
+  });
+});
+
+describe("Test vendor events", () => {
+  it("Should publish vendor created event", async () => {
+    const res = await request(app).post("/api/v1/vendors/store").send({
+      name: "Vendor",
+      email: "new@example.com",
+      address: "Street",
+      rating: 5,
+    });
+    expect(res.status).toBe(201);
+    expect(VendorCreatedPublisher.prototype.publish).toHaveBeenCalled();
+  });
+  it("Should publish vendor created event for bulk", async () => {
+    const res = await request(app)
+      .post("/api/v1/vendors/bulk-store")
+      .send({
+        vendors: [
+          { name: "A", email: "a@e.com", address: "X", rating: 1 },
+          { name: "B", email: "b@e.com", address: "Y", rating: 2 },
+        ],
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.vendors.length).toBe(2);
+    expect(VendorCreatedPublisher.prototype.publish).toHaveBeenCalledTimes(2);
+  });
+  it("Should publish vendor updated event", async () => {
+    const vendor = await VendorModel.create({
+      name: "A",
+      email: "old@a.com",
+      address: "B",
+      rating: 1,
+    });
+    const res = await request(app).put(`/api/v1/vendors/${vendor._id}`).send({
+      name: "Updated",
+      email: "updated@a.com",
+      address: "Street",
+      rating: 5,
+    });
+    expect(res.status).toBe(200);
+    const updated = await VendorModel.findById(vendor._id);
+    expect(updated?.name).toBe("Updated");
+    expect(VendorUpdatedPublisher.prototype.publish).toHaveBeenCalled();
+  });
+  it("Should publish vendor deleted event", async () => {
+    const vendor = await VendorModel.create({
+      name: "Del",
+      email: "del@example.com",
+      address: "X",
+    });
+    const product = await ProductModel.create({
+      name: "Del laptop",
+    });
+    await VendorProductModel.create({
+      vendor: vendor._id,
+      product: product,
+      rating: 3,
+    });
+
+    const res = await request(app).delete(`/api/v1/vendors/${vendor._id}`);
+    expect(res.status).toBe(200);
+
+    const deletedVendor = await VendorModel.findById(vendor._id);
+    expect(deletedVendor).toBeNull();
+
+    const relatedProducts = await VendorProductModel.find({
+      vendorId: vendor._id,
+    });
+    expect(relatedProducts.length).toBe(0);
+    expect(VendorDeletedPublisher.prototype.publish).toHaveBeenCalled();
   });
 });
