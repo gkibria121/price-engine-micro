@@ -29,7 +29,7 @@ class JetStreamWrapper:
                 max_msgs=100_000,
                 max_bytes=100 * 1024 * 1024  # 100 MB
             )
-            await self.jsm_admin.add_stream(config)
+            await self.js.add_stream(config)
             print(f"Created stream: {stream_name}")
 
     async def disconnect(self):

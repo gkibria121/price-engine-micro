@@ -6,4 +6,4 @@ class Subject:
 
     @classmethod
     def values(cls):
-        return [value for key, value in cls.__dict__.items() if not key.startswith("__") and not callable(value)]
+        return [cls.PRODUCT_CREATED, cls.PRODUCT_UPDATED]
