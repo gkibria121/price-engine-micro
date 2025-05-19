@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the application
-CMD ["uvicorn", "run:app" ,"--host","0.0.0.0", "--port"," 5000", "--reload"]
+CMD ["python", "run.py"]
