@@ -1,6 +1,7 @@
 import sys 
 import asyncio
 from app.lib.nats_jet_stream_client import js_wrapper
+from app.events.product_created_listener import      ProductCreatedListener  
 from app.events.product_updated_listener import      ProductUpdatedListener  
 from app.events.product_deleted_listener import      ProductDeletedListener  
 from app.events.vendor_deleted_listener import      VendorDeletedListener  
@@ -13,6 +14,7 @@ async def start_nats_listeners():
         await js_wrapper.connect()
 
         listeners = [
+            ProductCreatedListener(js_wrapper.client),
             ProductUpdatedListener(js_wrapper.client),
             ProductDeletedListener(js_wrapper.client),
             VendorDeletedListener(js_wrapper.client),
@@ -29,7 +31,4 @@ async def start_nats_listeners():
     except Exception as e:
         print(f"❌ NATS listeners failed: {e}", file=sys.stderr)
         sys.exit(1)
-
-# To start it (if this is the main entry point):
-if __name__ == "__main__":
-    asyncio.run(start_nats_listeners())
+ 

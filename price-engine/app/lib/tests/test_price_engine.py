@@ -3,8 +3,10 @@ import unittest
 from app.lib.price_engine import PricingEngine, PriceEngineException
 from app.lib.price_calculation_request import PriceCalculationRequest
 from app.lib.product  import DeliveryRule,PricingRule,QuantityPricing,Product,Attribute
+from unittest.mock import patch
+from odmantic import AIOEngine
 
-
+@patch("app.db.engine", AIOEngine())  # Patch wherever your real engine is imported  
 class TestPricingEngine(unittest.TestCase):
 
     def setUp(self):

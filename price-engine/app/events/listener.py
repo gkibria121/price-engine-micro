@@ -41,8 +41,8 @@ class Listener(ABC):
             deliver_policy=DeliverPolicy.ALL, 
             ack_policy=AckPolicy.EXPLICIT,
             deliver_group=self.queue,  # important to match queue below
-            ack_wait=3,  # seconds
-            max_deliver=5,
+            ack_wait=10,  # seconds
+            max_deliver=10,
         )
 
         await self.js.subscribe(

@@ -59,10 +59,4 @@ async def calculate_price(data: dict):
     }
 
     return response
-
-
-@api_router.get('/test')
-async def test(): 
-
-    # Retrieve and return
-    return await engine.find(VendorProduct)
+ 

@@ -23,5 +23,5 @@ class VendorProductCreatedListener(Listener):
         except Exception as e:
             print(f"Error processing message: {e}")
             # Terminate the message to trigger redelivery
-            await msg.term()
+            
  

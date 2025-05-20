@@ -1,7 +1,6 @@
-import pytest
-import asyncio
+import pytest 
 from unittest.mock import AsyncMock, MagicMock
-from app.events.product_created_listener import ProductDeletedListener
+from app.events.product_deleted_listener import ProductDeletedListener
 
 @pytest.mark.asyncio
 async def test_product_deleted_listener_deletes_vendor_product():
@@ -33,9 +32,12 @@ async def test_product_deleted_listener_deletes_vendor_product():
     await listener.on_message(mock_msg, mock_msg_data)
 
     # Assert
+    from app.models import VendorProduct
+
     mock_engine.find.assert_awaited_once_with(
-        mock_vendor_product.__class__, {"product.id": product_id}
+        VendorProduct, {"product.id": product_id}
     )
+
     mock_engine.delete.assert_awaited_once_with(mock_vendor_product)
     mock_msg.ack.assert_awaited_once()
     mock_msg.term.assert_not_called()
