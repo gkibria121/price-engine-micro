@@ -16,7 +16,7 @@ class ProductCreatedListener(Listener):
             data = msg.data.decode()
             print(f"Received product creation event: {data}") 
             # If processing succeeds, acknowledge the message:
-            await msg.ack()
+            # await msg.ack()
         except Exception as e:
             print(f"Error processing message: {e}")
             # Terminate the message to trigger redelivery
