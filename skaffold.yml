@@ -22,16 +22,7 @@ build:
           - src: 'app/**/*.py' 
             dest: .
           - src: 'src/**/*'
-            dest: .   
-    - image: daynightprint/price-engine 
-      context: ./price-engine
-      docker:
-        dockerfile:  Dockerfile  
-      sync:
-        manual:
-          - src: 'app/**/*' 
-            dest: . 
-
+            dest: .    
 manifests:
   rawYaml:
     - infra/k8s/*
